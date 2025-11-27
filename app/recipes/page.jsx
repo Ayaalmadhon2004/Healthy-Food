@@ -70,9 +70,11 @@ const RecipeCard = memo(({ meal }) => (
       <h2 className="font-bold text-lg sm:text-xl">{meal.title}</h2>
       <div className="flex justify-between text-gray-600 text-xs sm:text-sm mt-2">
         <span><i className="fa-regular fa-clock"></i>   {meal.time}</span>
-        <span><i class="fa-solid fa-fire"></i>   {meal.cal}</span>
+        <span><i className="fa-solid fa-fire"></i>   {meal.cal}</span>
       </div>
-      <button className="mt-4 bg-[var(--color-primary)] text-white rounded-lg px-4 py-2 hover:bg-green-600 transition-colors text-sm sm:text-base">
+      <button 
+      className="mt-4 bg-[var(--color-primary)] text-white rounded-lg px-4 py-2 hover:bg-green-600 transition-colors text-sm sm:text-base"
+      >
         View Recipe
       </button>
     </div>
