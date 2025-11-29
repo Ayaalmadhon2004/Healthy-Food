@@ -1,5 +1,6 @@
-"use client";
+"use client"; // <<-- Must be at the very top
 
+import { useRouter } from "next/navigation";
 import { useReducer, useEffect, memo } from "react";
 
 // ======= Initial State & Reducer =======
@@ -58,28 +59,44 @@ const FilterButtons = memo(({ currentFilter, dispatch }) => {
 FilterButtons.displayName = "FilterButtons";
 
 // ======= Recipe Card Component =======
-const RecipeCard = memo(({ meal }) => (
-  <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:scale-[1.02] transition-transform duration-200">
-    <img
-      src={meal.img}
-      alt={meal.title}
-      className="w-full h-48 sm:h-56 md:h-48 lg:h-56 object-cover"
-    />
-    <div className="p-4 flex flex-col gap-2 flex-1">
-      <span className="text-sm sm:text-base text-[var(--color-primary)] font-bold">{meal.type}</span>
-      <h2 className="font-bold text-lg sm:text-xl">{meal.title}</h2>
-      <div className="flex justify-between text-gray-600 text-xs sm:text-sm mt-2">
-        <span><i className="fa-regular fa-clock"></i>   {meal.time}</span>
-        <span><i className="fa-solid fa-fire"></i>   {meal.cal}</span>
+const RecipeCard = memo(({ meal }) => {
+  const router = useRouter();
+
+  return (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:scale-[1.02] transition-transform duration-200">
+      <img
+        src={meal.img}
+        alt={meal.title}
+        className="w-full h-48 sm:h-56 md:h-48 lg:h-56 object-cover"
+      />
+
+      <div className="p-4 flex flex-col gap-2 flex-1">
+        <span className="text-sm sm:text-base text-[var(--color-primary)] font-bold">
+          {meal.type}
+        </span>
+
+        <h2 className="font-bold text-lg sm:text-xl">{meal.title}</h2>
+
+        <div className="flex justify-between text-gray-600 text-xs sm:text-sm mt-2">
+          <span>
+            <i className="fa-regular fa-clock"></i> {meal.time}
+          </span>
+          <span>
+            <i className="fa-solid fa-fire"></i> {meal.cal}
+          </span>
+        </div>
+
+        <button
+          onClick={() => router.push(`/recipes/${meal.id}`)}
+          className="mt-4 bg-[var(--color-primary)] text-white rounded-lg px-4 py-2 hover:bg-green-600 transition-colors text-sm sm:text-base"
+        >
+          View Recipe
+        </button>
       </div>
-      <button 
-      className="mt-4 bg-[var(--color-primary)] text-white rounded-lg px-4 py-2 hover:bg-green-600 transition-colors text-sm sm:text-base"
-      >
-        View Recipe
-      </button>
     </div>
-  </div>
-));
+  );
+});
+
 RecipeCard.displayName = "RecipeCard";
 
 // ======= Main Page Component =======
