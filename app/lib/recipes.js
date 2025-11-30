@@ -136,7 +136,6 @@ export const recipes = [
   },
 ];
 
-// دالة يمكن استيرادها في الصفحات أو API
 export async function getRecipes() {
   return recipes;
 }

@@ -1,36 +1,31 @@
 import Image from "next/image";
 import { getRecipes } from "../../../app/lib/recipes";
 import BackButton from "../../../components/BackButton";
+import LogMealButton from "../../../components/LogMealButton";
 
 export default async function RecipePage({ params }) {
-  // Unwrap async params
   const resolvedParams = await params;
-
-  // Fetch all recipes
   const recipes = await getRecipes();
-
-  // Find the meal by ID (string-safe)
   const meal = recipes.find((m) => m.id.toString() === resolvedParams.id);
 
   if (!meal) {
     return (
-      <div className="p-10 text-center text-red-600 text-2xl">
+      <div className="p-10 text-center text-red-600 text-2xl bg-[var(--bg-main)]">
         Recipe Not Found ❌
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 mt-8">
-      {/* Back Button */}
+    <div className="bg-[var(--bg-main)]">
+      <div className="max-w-6xl mx-auto p-6 mt-8 ">
       <BackButton />
-      {/* Main Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <Image
           src={meal.img}
           alt={meal.title}
-          width={600}
-          height={400}
+          width={500}
+          height={300}
           className="rounded-xl shadow-lg object-cover w-full"
         />
         <div>
@@ -42,15 +37,14 @@ export default async function RecipePage({ params }) {
             A nutritious and delicious recipe packed with flavor and healthy ingredients.
           </p>
 
-          {/* Meal Info */}
-          <div className="flex items-center gap-6 mt-4 text-gray-700 text-sm">
+          <div className="flex items-center gap-6 mt-6 text-gray-700 text-sm">
             <span>⏱ {meal.time}</span>
             <span>🔥 {meal.cal}</span>
             <span>👤 Serves 2</span>
           </div>
 
-          {/* Nutrition */}
-          <div className="bg-gray-100 p-5 rounded-xl shadow-sm mt-6 grid grid-cols-2 gap-4">
+          <div className="bg-[var(--color-gray-100)] p-5 rounded-xl shadow-sm mt-8 grid grid-cols-2 gap-4">
+            <h1 className="text 5xl font-bold">Nutrrition Info ( per serving )</h1><br/>
             {Object.entries(meal.nutrition).map(([key, value]) => (
               <div key={key}>
                 <p className="text-gray-500 capitalize">{key}</p>
@@ -58,13 +52,13 @@ export default async function RecipePage({ params }) {
               </div>
             ))}
           </div>
+
+          <LogMealButton calory={meal.cal} mealName={meal.title}/>
         </div>
       </div>
 
-      {/* Ingredients + Instructions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-14">
-        {/* Ingredients */}
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-14 ">
+        <div className="bg-[var(--color-white)] shadow-xl p-3 rounded-xl">
           <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
           <ul className="space-y-2">
             {meal.ingredients.map((item, i) => (
@@ -76,8 +70,7 @@ export default async function RecipePage({ params }) {
           </ul>
         </div>
 
-        {/* Instructions */}
-        <div>
+        <div className="bg-[var(--color-white)] shadow-xl p-3 rounded-xl">
           <h2 className="text-xl font-semibold mb-4">Instructions</h2>
           <ol className="space-y-4 list-decimal list-inside">
             {meal.instructions.map((step, i) => (
@@ -89,5 +82,7 @@ export default async function RecipePage({ params }) {
         </div>
       </div>
     </div>
+    </div>
+    
   );
 }
