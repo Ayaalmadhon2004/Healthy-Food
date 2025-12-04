@@ -10,14 +10,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-orange-600 flex items-center justify-center text-white font-bold ">
-            NF
-          </div>
-          <span className="text-xl font-heading text-[var(--text-main)] font-bold">
-            NutriFlow
-          </span>
-        </div>
+      <Link href="/" className="flex items-center gap-2">
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-orange-600 flex items-center justify-center text-white font-bold">
+        NF
+      </div>
+      <span className="text-xl font-heading text-[var(--text-main)] font-bold">
+        NutriFlow
+      </span>
+      </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
