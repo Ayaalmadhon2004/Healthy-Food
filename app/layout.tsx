@@ -1,4 +1,4 @@
-// app/layout.jsx (أو layout.tsx)
+// app/layout.tsx
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,6 +15,10 @@ export const metadata: Metadata = {
       rel: "icon",
       url: "/favicon.ico",
     },
+    {
+      rel: "apple-touch-icon",
+      url: "/icons/icon-192x192.png",
+    },
   ],
 };
 
@@ -25,10 +29,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Font Awesome */}
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#4CAF50" />
+      </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         <Navbar />
         <main className="pt-20">{children}</main>
-        <Footer/>
+        <Footer />
       </body>
     </html>
   );
