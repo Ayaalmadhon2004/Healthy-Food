@@ -1,9 +1,22 @@
 import Link from "next/link";
 
+export async function generateStaticParams() {
+  const res = await fetch("http://localhost:3000/api/health-tips", {
+    cache: "force-cache", 
+  });
+  const data = await res.json();
+
+  return data.map((tip) => ({
+    id: tip.id.toString(),
+  }));
+}
+
 export default async function TipDetails({ params }) {
   const { id } = await params;
 
-  const res = await fetch("http://localhost:3000/api/health-tips");
+  const res = await fetch("http://localhost:3000/api/health-tips", {
+    cache: "force-cache", 
+  });
   const data = await res.json();
 
   const tip = data.find((t) => t.id.toString() === id);

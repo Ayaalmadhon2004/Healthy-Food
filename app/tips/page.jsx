@@ -1,15 +1,11 @@
-"use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-export default function Page() {
-  const [tips, setTips] = useState([]);
+export default async function TipsPage() {
+  const res = await fetch("http://localhost:3000/api/health-tips", {
+    cache: "force-cache", 
+  });
 
-  useEffect(() => {
-    fetch("/api/health-tips")
-      .then((res) => res.json())
-      .then((data) => setTips(data));
-  }, []);
+  const tips = await res.json();
 
   return (
     <div className="bg-[var(--color-primary-light)] min-h-screen p-4 md:p-10">
@@ -37,7 +33,7 @@ export default function Page() {
                 className="text-[var(--color-black)] no-underline bg-[var(--color-primary-light)] rounded-xl p-2 inline-block"
                 href={`/tips/${item.id}`}
               >
-                Read more !
+                Read more!
               </Link>
 
             </div>
