@@ -37,6 +37,13 @@ export default function Navbar() {
             Doctors
           </Link>
 
+          <Link
+            href="/gaza-kitchen"
+            className="text-[var(--text-main)] hover:text-[var(--color-primary)]"
+          >
+            Gaza Kitchen
+          </Link>
+
           <div className="h-6 w-px bg-[var(--color-gray-100)]"></div>
 
           <Link href="/signin" className="text-[var(--text-main)] hover:text-[var(--color-primary)]">
