@@ -1,4 +1,3 @@
-// app/KitchensFilter.js
 "use client";
 
 import { useState } from "react";
@@ -15,13 +14,20 @@ export default function KitchensFilter({ kitchens }) {
 
   return (
     <>
-      {/* Region Filter Buttons */}
-      <div className="flex flex-wrap gap-2 mb-12">
+      <div className="flex justify-center items-center gap-6 mb-4 bg-[var(--color-secondary-light)] bg-opacity-50 p-5 border-[var(--color-secondary-light)] rounded-xl mr-12">
+        <i className="fa-solid fa-circle-info text-[var(--color-primary)]"></i>
+        <div>
+          <h3 className="text-[var(--color-primary)] font-bold">How to Get Meals</h3>
+          <p className="text-[var(--color-gray-300)]">All kitchens below provide free meals to families in need. Arrive during distribution times listed. No prior registration required at most locations.</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4 mt-12 justify-start w-full pl-40">
         {REGIONS.map((region) => (
           <button
             key={region}
             onClick={() => setSelected(region)}
-            className={`px-4 py-2 rounded-full border transition-colors ${
+            className={`px-4 py-2 rounded-full  transition-colors ${
               selected === region
                 ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
                 : "bg-white text-gray-700 border-gray-300 hover:bg-[var(--color-primary)] hover:text-white"

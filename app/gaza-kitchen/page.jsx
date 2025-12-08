@@ -1,5 +1,6 @@
 // app/page.js
 import KitchensFilter from "./kitchen";
+import NutritionSection from "./NutritionSection";
 
 export const revalidate = 60; 
 
@@ -19,10 +20,13 @@ export default async function Page() {
   const kitchens = await fetchKitchens();
 
   return (
-    <div className="bg-gradient-to-bl from-[var(--color-secondary-light)] to-[var(--color-white)] flex flex-col items-center min-h-screen p-6">
-      {/* Header */}
-      <div className="text-center mt-20">
-        <button className="text-[var(--color-secondary)] bg-[var(--color-secondary-light)] p-2 rounded-xl">
+    <div className="bg-gradient-to-b
+      from-[var(--color-secondary-light)] from-0%
+      to-[var(--color-white)] to-25%
+      flex flex-col items-center min-h-screen p-6" 
+    >
+      <div className="text-center mt-20 ">
+        <button className="bg-[var(--color-secondary-light)] p-2 rounded-full">
           Find Free Meals Near You
         </button>
         <h1 className="font-bold text-5xl mt-8">Gaza Community Kitchens</h1>
@@ -34,6 +38,7 @@ export default async function Page() {
 
       {/* Client-side Filter Component */}
       <KitchensFilter kitchens={kitchens} />
+      <NutritionSection/>
     </div>
   );
 }
