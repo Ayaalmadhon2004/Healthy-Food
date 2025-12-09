@@ -1,8 +1,12 @@
-// app/layout.tsx
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+
+// منع FontAwesome من إضافة CSS تلقائيًا
+config.autoAddCss = false;
 
 export const metadata: Metadata = {
   title: {
@@ -30,14 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Font Awesome */}
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
-        {/* PWA Manifest */}
+        {/* أزلنا CDN الخاص بـ FontAwesome تمامًا */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#4CAF50" />
       </head>

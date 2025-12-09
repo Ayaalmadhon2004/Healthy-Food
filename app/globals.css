@@ -36,3 +36,11 @@ i {
   font-style: normal !important;
 }
 
+body {
+  font-family: var(--font-main);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headings);
+}
+

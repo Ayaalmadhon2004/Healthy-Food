@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getRecipes } from "../../../app/lib/recipes";
+import { getRecipes } from "@/lib/recipes";
 import BackButton from "../../../components/BackButton";
 import LogMealButton from "../../../components/LogMealButton";
 
