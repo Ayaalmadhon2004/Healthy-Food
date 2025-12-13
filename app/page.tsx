@@ -1,9 +1,30 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useUserData } from "@/hooks/useUserData";
+import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
+const { userData, loading } = useUserData();
+console.log("User data in layout:ttttttttttttttttttttttttttttttttt", userData);
 
+
+
+
+// useEffect(() => {
+//   if (!userData?.email) {
+//     window.location.href = "/login";
+//   }
+// }, [userData])
+
+
+  useEffect(() => {
+    if (!loading && !userData?.email) {
+      window.location.href = "/login";
+    }
+  }, [loading, userData]);
+
+  if (loading) return null; // or spinner
   return (
     <div className="bg-[var(--color-primary-light)] w-full min-h-screen text-center flex flex-col justify-center items-center gap-6 p-4 md:p-10">
       <h1 className="font-bold text-3xl md:text-5xl">
