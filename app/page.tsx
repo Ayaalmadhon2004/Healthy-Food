@@ -37,13 +37,13 @@ console.log("User data in layout:ttttttttttttttttttttttttttttttttt", userData);
 
       <div className="flex flex-col md:flex-row gap-4 md:gap-10 mt-4">
         <button
-          className="bg-[var(--color-primary)] text-white rounded-lg px-6 py-3 md:px-8 md:py-4"
+          className="cursor-pointer bg-[var(--color-primary)] hover:bg-[var(--color-white)] hover:text-[var(--color-primary)] hover:border hover:border-[var(--color-primary)] text-white rounded-lg px-6 py-3 md:px-8 md:py-4"
           onClick={() => router.push("/recipes")}
         >
           Browse Recipes
         </button>
         <button
-          className="bg-[var(--color-white)] text-[var(--color-primary)] border border-[var(--color-primary)] rounded-lg px-6 py-3 md:px-8 md:py-4"
+          className="cursor-pointer hover:bg-[var(--color-primary)] hover:text-white bg-[var(--color-white)] text-[var(--color-primary)] border border-[var(--color-primary)] rounded-lg px-6 py-3 md:px-8 md:py-4"
           onClick={() => router.push("/tracker")}
         >
           Start Tracking

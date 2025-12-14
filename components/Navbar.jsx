@@ -1,10 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useUserData } from "@/hooks/useUserData";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [userData, setUserData] = useState(null);
+      // const [userData, setUserData] = useState(null);
+
+  const { userData, loading } = useUserData();
+  console.log("User data in navbar:ttttttttttttttttttttttttttttttttt", userData);
+  
 
   const logout = async () => {
     await fetch("/api/auth/logout", {
@@ -18,21 +23,6 @@ export default function Navbar() {
   };
 
 
-  // Fetch user data on component mount
-  useEffect(async () => {
-
-
-    const res = await fetch("/api/auth/me", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await res.json();
-    setUserData(data.user);
-
-  }, [])
-  console.log("User Data in Navbar:", userData);
 
 
 
