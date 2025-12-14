@@ -2,11 +2,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
-import { config } from "@fortawesome/fontawesome-svg-core";
-import "@fortawesome/fontawesome-svg-core/styles.css";
 
-// منع FontAwesome من إضافة CSS تلقائيًا
-config.autoAddCss = false;
 
 export const metadata: Metadata = {
   title: {

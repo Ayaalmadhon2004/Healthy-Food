@@ -10,10 +10,10 @@ html, body {
   --color-primary-light: rgb(239, 245, 241);
   --color-primary-dark: rgb(38, 40, 37);
   --color-accent: rgb(241, 105, 53);   
-  --color-secondary-light:rgb(244, 215, 209);  
-  --color-secondary:rgb(164, 105, 94);
+  --color-secondary-light: rgb(244, 215, 209);  
+  --color-secondary: rgb(164, 105, 94);
 
-  /*nuetrals */ 
+  /*neutrals */ 
   --color-white: rgb(255, 255, 255);
   --color-black: rgb(0, 0, 0);
 
@@ -32,6 +32,7 @@ html, body {
   --font-main: "Inter", system-ui, sans-serif;
   --font-headings: "Poppins", sans-serif;
 }
+
 i {
   font-style: normal !important;
 }
@@ -43,4 +44,3 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-headings);
 }
-

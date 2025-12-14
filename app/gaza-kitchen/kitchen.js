@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MapPin, Clock, Users, PhoneCall, Info } from "lucide-react";
 
 const REGIONS = ["ALL", "North", "Gaza", "Middle", "Khan Younis", "Rafah"];
 
@@ -14,14 +15,18 @@ export default function KitchensFilter({ kitchens }) {
 
   return (
     <>
+      {/* Info Section */}
       <div className="flex justify-center items-center gap-6 mb-4 bg-[var(--color-secondary-light)] bg-opacity-50 p-5 border-[var(--color-secondary-light)] rounded-xl mr-12">
-        <i className="fa-solid fa-circle-info text-[var(--color-primary)]"></i>
+        <Info size={24} className="text-[var(--color-primary)]" />
         <div>
           <h3 className="text-[var(--color-primary)] font-bold">How to Get Meals</h3>
-          <p className="text-[var(--color-gray-300)]">All kitchens below provide free meals to families in need. Arrive during distribution times listed. No prior registration required at most locations.</p>
+          <p className="text-[var(--color-gray-300)]">
+            All kitchens below provide free meals to families in need. Arrive during distribution times listed. No prior registration required at most locations.
+          </p>
         </div>
       </div>
 
+      {/* Region Filter Buttons */}
       <div className="flex flex-wrap gap-2 mb-4 mt-12 justify-start w-full pl-40">
         {REGIONS.map((region) => (
           <button
@@ -52,7 +57,7 @@ export default function KitchensFilter({ kitchens }) {
               <div>
                 <h2 className="font-bold text-2xl mb-1">{kitchen.name}</h2>
                 <div className="flex items-center text-gray-500 text-sm mb-2">
-                  <span className="mr-1">📍</span>
+                  <MapPin size={16} className="mr-1 text-gray-500" />
                   <span>{kitchen.location}</span>
                 </div>
                 <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">
@@ -63,13 +68,13 @@ export default function KitchensFilter({ kitchens }) {
               {/* Details */}
               <div className="mt-4 space-y-3 text-gray-700 text-sm">
                 <div className="flex items-center">
-                  <span className="mr-2">⏰</span>
+                  <Clock size={16} className="mr-2 text-gray-500" />
                   <span>
                     <strong>Distribution Time:</strong> {kitchen.distribution_time}
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="mr-2">👥</span>
+                  <Users size={16} className="mr-2 text-gray-500" />
                   <span>
                     <strong>Capacity:</strong> {kitchen.capacity}
                   </span>
@@ -83,7 +88,7 @@ export default function KitchensFilter({ kitchens }) {
                   <p>{kitchen.access_info}</p>
                 </div>
                 <div className="flex items-center text-green-600">
-                  <span className="mr-2">📞</span>
+                  <PhoneCall size={16} className="mr-2" />
                   <span>{kitchen.contact}</span>
                 </div>
               </div>

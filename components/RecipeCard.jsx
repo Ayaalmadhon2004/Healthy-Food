@@ -1,7 +1,7 @@
 import Image from "next/image";
 import ViewButton from "./ViewButton";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faFire } from "@fortawesome/free-solid-svg-icons";
+import { Clock, Activity } from "lucide-react";
+
 
 export default function RecipeCard({ meal }) {
   return (
@@ -25,10 +25,10 @@ export default function RecipeCard({ meal }) {
 
         <div className="flex justify-between text-gray-600 text-xs sm:text-sm mt-2">
           <span className="flex items-center gap-1">
-            <FontAwesomeIcon icon={faClock} /> {meal.time}
+            <Clock size={14} /> {meal.time}
           </span>
           <span className="flex items-center gap-1">
-            <FontAwesomeIcon icon={faFire} /> {meal.cal}
+            <Activity size={14} /> {meal.cal}
           </span>
         </div>
 
