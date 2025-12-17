@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-const { user, loading } = useUserData();
+const { user, loading }: any = useUserData();
 console.log("User data in layout:ttttttttttttttttttttttttttttttttt", user);
 
 

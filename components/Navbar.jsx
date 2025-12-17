@@ -18,9 +18,9 @@ export default function Navbar() {
         "Content-Type": "application/json",
       },
     });
-    setUserData(null);
-    
-    useUserData.getState().clearUser()
+    // setUserData(null);
+
+    useUserData.getState().clearUser();
 
     window.location.href = "/login";
   };
