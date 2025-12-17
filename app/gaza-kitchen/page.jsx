@@ -5,6 +5,10 @@ import NutritionSection from "./NutritionSection";
 export const revalidate = 60; 
 
 async function fetchKitchens() {
+
+   useInitUser();
+
+   
  const url = process.env.NEXT_PUBLIC_BASE_URL
     ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/kitchens`
     : "http://localhost:3000/api/kitchens";

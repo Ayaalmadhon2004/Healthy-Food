@@ -21,7 +21,6 @@ export const useUserData = create((set, get) => ({
   fetchUser: async () => {
     const { user, loading }: any = get()
 
-    // ✅ لا تعيد الطلب إذا المستخدم موجود أو الطلب انتهى
     if (user || !loading) return
 
     try {

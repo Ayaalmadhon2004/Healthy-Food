@@ -1,28 +1,18 @@
 "use client"
 
+import { useInitUser } from "@/hooks/useUserData"
 import { Star, MapPin, Phone, Mail, Calendar } from "lucide-react"
 import { useState, useEffect } from "react"
 
-interface Doctor {
-  id: number
-  name: string
-  specialty: string
-  qualifications: string[]
-  rating: number
-  reviews: number
-  location: string
-  phone: string
-  email: string
-  about: string
-  image: string
-  availability: string
-}
+
 
 export default function DoctorsPage() {
-  const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [doctors, setDoctors] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
-  const [showBookingModal, setShowBookingModal] = useState(false)
+  const [selectedDoctor, setSelectedDoctor] = useState(null)
+  const [showBookingModal, setShowBookingModal] = useState(false);
+
+  useInitUser();
 
   useEffect(() => {
     fetch("/api/doctors")
@@ -54,8 +44,8 @@ export default function DoctorsPage() {
       {/* <Header /> */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-4">{"findHealthcareProfessional"}</h1>
-          <p className="text-lg text-gray-600">{"connectWithExperts"}</p>
+          <h1 className="text-4xl font-bold mb-4">{"Healthcare Professionals"}</h1>
+          <p className="text-lg text-gray-600">{"Experts of Healthcare Professionals"}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -129,7 +119,7 @@ export default function DoctorsPage() {
                     setShowBookingModal(true)
                   }}
                 >
-                  {"bookConsultation"}
+                  {"Book Consultation"}
                 </button>
               </div>
             </div>
