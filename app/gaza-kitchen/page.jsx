@@ -1,19 +1,17 @@
-// app/page.js
+// app/page.js (Server Component)
 import KitchensFilter from "./kitchen";
 import NutritionSection from "./NutritionSection";
+import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 
-export const revalidate = 60; 
+export const revalidate = 60;
 
 async function fetchKitchens() {
-
-
-   
- const url = process.env.NEXT_PUBLIC_BASE_URL
+  const url = process.env.NEXT_PUBLIC_BASE_URL
     ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/kitchens`
     : "http://localhost:3000/api/kitchens";
 
   const res = await fetch(url, {
-    next: { revalidate: 60 }, // ISR
+    next: { revalidate: 60 },
   });
   if (!res.ok) throw new Error("Failed to fetch kitchens");
   return res.json();
@@ -26,7 +24,7 @@ export default async function Page() {
     <div className="bg-gradient-to-b
       from-[var(--color-secondary-light)] from-0%
       to-[var(--color-white)] to-25%
-      flex flex-col items-center min-h-screen p-6" 
+      flex flex-col items-center min-h-screen p-6"
     >
       <div className="text-center mt-20 ">
         <button className="bg-[var(--color-secondary-light)] p-2 rounded-full">
@@ -39,9 +37,14 @@ export default async function Page() {
         </p>
       </div>
 
-      {/* Client-side Filter Component */}
-      <KitchensFilter kitchens={kitchens} />
-      <NutritionSection/>
+      {/* ErrorBoundary فقط حول المكونات client-side */}
+      <ErrorBoundaryWrapper message="Failed to load Kitchens Filter">
+        <KitchensFilter kitchens={kitchens} />
+      </ErrorBoundaryWrapper>
+
+      <ErrorBoundaryWrapper message="Failed to load Nutrition Section">
+        <NutritionSection />
+      </ErrorBoundaryWrapper>
     </div>
   );
 }

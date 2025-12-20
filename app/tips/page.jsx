@@ -1,7 +1,8 @@
 // app/tips/page.js
 import Link from "next/link";
+import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 
-export const revalidate = 60; // ISR: تحديث البيانات كل 60 ثانية
+export const revalidate = 60;
 
 async function getTips() {
   const res = await fetch("http://localhost:3000/api/health-tips", { cache: "force-cache" });
@@ -31,12 +32,15 @@ export default async function TipsPage() {
               <p className="font-medium mt-2">{item.advice}</p>
               <p className="text-gray-500 mb-3">{item.details}</p>
 
-              <Link
-                className="text-[var(--color-black)] no-underline bg-[var(--color-primary-light)] rounded-xl p-2 inline-block"
-                href={`/tips/${item.id}`}
-              >
-                Read more!
-              </Link>
+              {/* ErrorBoundary حول client component إذا كان تفاعلي */}
+              <ErrorBoundaryWrapper message="Failed to render Read More link">
+                <Link
+                  className="text-[var(--color-black)] no-underline bg-[var(--color-primary-light)] rounded-xl p-2 inline-block"
+                  href={`/tips/${item.id}`}
+                >
+                  Read more!
+                </Link>
+              </ErrorBoundaryWrapper>
             </div>
           </div>
         ))}

@@ -38,9 +38,9 @@ export default function RootLayout({
         <meta name="theme-color" content="#4CAF50" />
       </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
-        <Navbar />
-        <main className="pt-20">{children}</main>
-        <Footer />
+          <Navbar />
+          <main className="pt-20">{children}</main>
+          <Footer />
       </body>
     </html>
   );

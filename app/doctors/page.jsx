@@ -2,9 +2,7 @@
 
 import { useInitUser } from "@/hooks/useUserData"
 import { Star, MapPin, Phone, Mail, Calendar } from "lucide-react"
-import { useState, useEffect } from "react"
-
-
+import { useState, useEffect } from "react";
 
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState([])
