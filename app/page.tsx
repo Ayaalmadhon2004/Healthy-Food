@@ -1,12 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useUserData } from "@/hooks/useUserData";
+import { useInitUser, useUserData } from "@/hooks/useUserData";
 import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-const { userData, loading } = useUserData();
-console.log("User data in layout:ttttttttttttttttttttttttttttttttt", userData);
+const { user, loading }: any = useUserData();
+console.log("User data in layout:ttttttttttttttttttttttttttttttttt", user);
 
 
 
@@ -17,12 +17,14 @@ console.log("User data in layout:ttttttttttttttttttttttttttttttttt", userData);
 //   }
 // }, [userData])
 
+ useInitUser();
 
-  useEffect(() => {
-    if (!loading && !userData?.email) {
-      window.location.href = "/login";
-    }
-  }, [loading, userData]);
+
+  // useEffect(() => {
+  //   if (!loading && !user?.email) {
+  //     window.location.href = "/login";
+  //   }
+  // }, [loading, user]);
 
   if (loading) return null; // or spinner
   return (
@@ -37,13 +39,13 @@ console.log("User data in layout:ttttttttttttttttttttttttttttttttt", userData);
 
       <div className="flex flex-col md:flex-row gap-4 md:gap-10 mt-4">
         <button
-          className="bg-[var(--color-primary)] text-white rounded-lg px-6 py-3 md:px-8 md:py-4"
+          className="cursor-pointer bg-[var(--color-primary)] hover:bg-[var(--color-white)] hover:text-[var(--color-primary)] hover:border hover:border-[var(--color-primary)] text-white rounded-lg px-6 py-3 md:px-8 md:py-4"
           onClick={() => router.push("/recipes")}
         >
           Browse Recipes
         </button>
         <button
-          className="bg-[var(--color-white)] text-[var(--color-primary)] border border-[var(--color-primary)] rounded-lg px-6 py-3 md:px-8 md:py-4"
+          className="cursor-pointer hover:bg-[var(--color-primary)] hover:text-white bg-[var(--color-white)] text-[var(--color-primary)] border border-[var(--color-primary)] rounded-lg px-6 py-3 md:px-8 md:py-4"
           onClick={() => router.push("/tracker")}
         >
           Start Tracking

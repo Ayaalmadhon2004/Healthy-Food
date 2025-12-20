@@ -1,10 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useUserData } from "@/hooks/useUserData";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [userData, setUserData] = useState(null);
+      // const [userData, setUserData] = useState(null);
+
+  const { user, loading, setUserData } = useUserData();
+  console.log("User data in navbar:ttttttttttttttttttttttttttttttttt", user);
+  
 
   const logout = async () => {
     await fetch("/api/auth/logout", {
@@ -13,7 +18,10 @@ export default function Navbar() {
         "Content-Type": "application/json",
       },
     });
-    setUserData(null);
+    // setUserData(null);
+
+    useUserData.getState().clearUser();
+
     window.location.href = "/login";
   };
 
@@ -83,7 +91,7 @@ export default function Navbar() {
 
           <div className="h-6 w-px bg-[var(--color-gray-100)]"></div>
 
-          {!userData ? (
+          {!user ? (
             <>
               <Link href="login" className="text-[var(--text-main)] hover:text-[var(--color-primary)]">
                 Sign In
@@ -99,7 +107,7 @@ export default function Navbar() {
           ) : 
              (
               <div className="flex items-center gap-4">
-              <span className="text-[var(--text-main)]">Hello, {userData.name}</span>
+              <span className="text-[var(--text-main)]">Hello, {user.name}</span>
               <button
                 onClick={logout}
                 className="text-[var(--text-main)] hover:text-[var(--color-primary)] cursor-pointer"
@@ -143,7 +151,7 @@ export default function Navbar() {
 
           <div className="h-px bg-[var(--color-gray-100)]"></div>
 
-          {!userData ? (
+          {!user ? (
             <>
               <Link href="login" className="text-[var(--text-main)] hover:text-[var(--color-primary)]">
                 Sign In
@@ -156,7 +164,7 @@ export default function Navbar() {
                 Sign Up
               </Link>
             </>) : (
-              <span className="text-[var(--text-main)]">Hello, {userData.name}</span>
+              <span className="text-[var(--text-main)]">Hello, {user.name}</span>
                 
             )
           }

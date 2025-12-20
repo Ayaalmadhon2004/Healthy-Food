@@ -5,13 +5,13 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { AlertCircle } from "lucide-react"
+import { useUserData } from "@/hooks/useUserData"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  // const { t, language } = useLanguage()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +25,10 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       })
+      await useUserData.getState().fetchUser()
 
+
+      
       const data = await res.json()
 
       if (!res.ok) {
@@ -34,9 +37,13 @@ export default function LoginPage() {
         return
       }
 
+
+
+
       // Redirect to home page after successful login
       router.push("/")
       router.refresh()
+      // window.location.reload();
     } catch (err) {
       setError("An error occurred. Please try again.")
       setIsLoading(false)

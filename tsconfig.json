@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "hooks/useUserData.tsx", "app/doctors/page.jsx", "app/api/doctors/route.js"  ],
   "exclude": ["node_modules"]
 }
