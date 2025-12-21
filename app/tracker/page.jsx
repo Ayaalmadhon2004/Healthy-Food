@@ -201,27 +201,74 @@ export default function TrackerPage() {
     }
   }, [searchParams]);
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("meals")) || [];
-    dispatch({ type: "SET_ALL", payload: saved });
-  }, []);
 
-  // Save to localStorage
   useEffect(() => {
-    localStorage.setItem("meals", JSON.stringify(state.meals));
-  }, [state.meals]);
+  const loadMeals = async () => {
+    try {
+      const res = await fetch("/api/meals");
 
-  // Handle add meal + notification
-  const handleAddMeal = useCallback(() => {
-    if (!state.mealName || state.inputCalories <= 0) return;
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      dispatch({
+        type: "SET_ALL",
+        payload: data.meals.map((meal) => ({
+          id: meal.id,
+          mealName: meal.meal_name,
+          option: meal.meal_type,
+          calories: meal.calories,
+        })),
+      });
+    } catch (error) {
+      console.error("Failed to load meals", error);
+    }
+  };
+
+  loadMeals();
+}, []);
+
+  const handleAddMeal = useCallback(async () => {
+  if (!state.mealName || state.inputCalories <= 0) return;
+
+  try {
+    await fetch("/api/meals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mealName: state.mealName,
+        option: state.option,
+        calories: state.inputCalories,
+      }),
+    });
+
+    // Update UI instantly
     dispatch({ type: "ADD_MEAL" });
-    showNotification("تمت إضافة وجبة", `${state.mealName} أضيفت بنجاح!`);
-  }, [state.mealName, state.inputCalories]);
 
-  const handleDeleteMeal = useCallback((id) => {
+    showNotification(
+      "تمت إضافة وجبة",
+      `${state.mealName} أضيفت بنجاح!`
+    );
+  } catch (error) {
+    console.error("Failed to add meal", error);
+  }
+}, [state.mealName, state.inputCalories, state.option]);
+
+
+const handleDeleteMeal = useCallback(async (id) => {
+  try {
+    await fetch("/api/meals", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
     dispatch({ type: "DELETE_MEAL", payload: id });
-  }, []);
+  } catch (error) {
+    console.error("Failed to delete meal", error);
+  }
+}, []);
+
 
   return (
     <div className="min-h-screen p-4 md:p-10 bg-[var(--color-primary-light)]">
