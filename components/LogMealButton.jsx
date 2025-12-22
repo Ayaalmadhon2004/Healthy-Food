@@ -9,7 +9,7 @@ export default function LogMealButton({calory,mealName}) {
   return (
      <button 
       onClick={handleClick}
-      className="shadow-xl rounded-xl p-4 mt-10 cursor bg-[var(--color-primary)] font-bold text-[var(--color-white)]"
+      className="shadow-xl rounded-xl p-4  cursor bg-[var(--color-primary)] font-bold text-[var(--color-white)]"
     >
     Log this meals
     </button>

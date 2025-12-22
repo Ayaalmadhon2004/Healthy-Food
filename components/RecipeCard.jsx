@@ -34,7 +34,7 @@ export default function RecipeCard({ meal }) {
         </div>
 
         <ViewButton id={meal.id} />
-        <AddToCartButton meal={meal}/>
+        <AddToCartButton meal={meal} className="font-normal mt-4 bg-[var(--color-primary)] text-white rounded-lg px-4 py-2 hover:bg-green-600 transition-colors text-sm sm:text-base"/>
 
       </div>
     </div>
