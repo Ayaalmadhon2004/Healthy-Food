@@ -2,6 +2,8 @@ import Image from "next/image";
 import { getRecipes } from "@/lib/recipes";
 import BackButton from "../../../components/BackButton";
 import LogMealButton from "../../../components/LogMealButton";
+import AddToCartButton from "../../../components/AddToCartButton";
+
 
 export default async function RecipePage({ params }) {
   const resolvedParams = await params;
@@ -52,8 +54,10 @@ export default async function RecipePage({ params }) {
               </div>
             ))}
           </div>
-
-          <LogMealButton calory={meal.cal} mealName={meal.title}/>
+          <div className="flex flex-col md:flex-row md:justify-between items-center gap-4 mt-6">
+            <LogMealButton calory={meal.cal} mealName={meal.title} className="w-full md:w-auto"/>
+            <AddToCartButton meal={meal} className="w-full md:w-auto"/>
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import ViewButton from "./ViewButton";
 import { Clock, Activity } from "lucide-react";
+import AddToCartButton from "./AddToCartButton";
 
 
 export default function RecipeCard({ meal }) {
@@ -33,6 +34,8 @@ export default function RecipeCard({ meal }) {
         </div>
 
         <ViewButton id={meal.id} />
+        <AddToCartButton meal={meal}/>
+
       </div>
     </div>
   );

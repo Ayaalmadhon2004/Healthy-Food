@@ -46,7 +46,7 @@ export const useCartStore = create(
         set((state) => ({ isCartOpen: !state.isCartOpen })),
     }),
     {
-      name: "cart-storage", // 👈 localStorage key
+      name: "cart-storage", 
     }
   )
 );
