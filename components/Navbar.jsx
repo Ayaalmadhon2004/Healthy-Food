@@ -104,6 +104,8 @@ export default function Navbar() {
             <Link href="/tracker" className="text-gray-900 hover:text-green-600">Meal Tracker</Link>
             <Link href="/tips" className="text-gray-900 hover:text-green-600">Tips</Link>
             <Link href="/doctors" className="text-gray-900 hover:text-green-600">Doctors</Link>
+            <Link href="/gaza-kitchen" className="text-gray-900 hover:text-green-600">Gaza Kitchen</Link>
+
 
             <div className="h-px bg-gray-200"></div>
 
