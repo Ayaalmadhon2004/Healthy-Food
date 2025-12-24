@@ -1,4 +1,4 @@
-import { Droplet, Bed, footprints, Leaf, Activity } from "lucide-react";
+import { Droplet, Bed, person-standing, Leaf, Activity } from "lucide-react";
 
 export async function GET() {
   const data = [
@@ -14,7 +14,7 @@ export async function GET() {
     {
       id: 1,
       header: "Healthy Meals",
-      icon: Activity, // استخدمي أيقونة Lucide مناسبة للوجبات
+      icon: Activity, 
       advice: "Eat balanced meals.",
       details: "Include proteins, vegetables, carbs, and healthy fats in every meal.",
       moreDetails: `...`,
@@ -30,7 +30,7 @@ export async function GET() {
     {
       id: 3,
       header: "Movement",
-      icon: footprints,
+      icon: person-standing,
       advice: "Move your body daily.",
       details: "Even a 15-minute walk improves circulation and reduces stress.",
       moreDetails: `...`,

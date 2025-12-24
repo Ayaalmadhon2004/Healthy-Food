@@ -20,14 +20,12 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Client-side fetch فقط
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       })
 
-      // استدعاء fetchUser من store بأمان
       const store = useUserStore.getState()
       if ("fetchUser" in store && typeof store.fetchUser === "function") {
         await store.fetchUser()
@@ -41,7 +39,6 @@ export default function LoginPage() {
         return
       }
 
-      // Redirect بعد تسجيل الدخول
       router.push("/")
       router.refresh()
     } catch (err: unknown) {

@@ -11,9 +11,8 @@ export default function KitchensFilterClient() {
   useEffect(() => {
     const fetchKitchens = async () => {
       try {
-        const url = process.env.NEXT_PUBLIC_BASE_URL
-          ? `${process.env.NEXT_PUBLIC_BASE_URL}/api/kitchens`
-          : "http://localhost:3000/api/kitchens"
+        // استخدم URL نسبي فقط، يمنع مشاكل localhost
+        const url = "/api/kitchens"
 
         const res = await fetch(url)
         if (!res.ok) throw new Error("Failed to fetch kitchens")
