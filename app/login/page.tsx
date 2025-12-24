@@ -20,13 +20,14 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      // Client-side fetch فقط
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       })
 
-      // استدعاء fetchUser بشكل آمن بدون any
+      // استدعاء fetchUser من store بأمان
       const store = useUserStore.getState()
       if ("fetchUser" in store && typeof store.fetchUser === "function") {
         await store.fetchUser()
@@ -40,7 +41,7 @@ export default function LoginPage() {
         return
       }
 
-      // Redirect to home page after successful login
+      // Redirect بعد تسجيل الدخول
       router.push("/")
       router.refresh()
     } catch (err: unknown) {
@@ -119,13 +120,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-sm font-semibold text-green-900 mb-2">{"Demo Accounts:"}</p>
-          <div className="text-xs text-green-800 space-y-1">
-            <p>abdullah@nutriflow.com / abdullah123</p>
-            <p>aya@nutriflow.com / aya123</p>
-          </div>
-        </div>
       </div>
     </div>
   )
