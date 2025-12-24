@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { AlertCircle } from "lucide-react"
-import { useUserData } from "@/hooks/useUserData"
+import { useUserStore } from "@/store/useUserStore"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -25,10 +25,13 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       })
-      await useUserData.getState().fetchUser()
 
+      // استدعاء fetchUser بشكل آمن بدون any
+      const store = useUserStore.getState()
+      if ("fetchUser" in store && typeof store.fetchUser === "function") {
+        await store.fetchUser()
+      }
 
-      
       const data = await res.json()
 
       if (!res.ok) {
@@ -37,15 +40,15 @@ export default function LoginPage() {
         return
       }
 
-
-
-
       // Redirect to home page after successful login
       router.push("/")
       router.refresh()
-      // window.location.reload();
-    } catch (err) {
-      setError("An error occurred. Please try again.")
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("An error occurred. Please try again.")
+      }
       setIsLoading(false)
     }
   }
@@ -79,7 +82,6 @@ export default function LoginPage() {
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                 placeholder="you@example.com"
-                // dir={language === "ar" ? "rtl" : "ltr"}
               />
             </div>
 
@@ -95,7 +97,6 @@ export default function LoginPage() {
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
                 placeholder="••••••••"
-                // dir={language === "ar" ? "rtl" : "ltr"}
               />
             </div>
 
@@ -104,7 +105,7 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
             >
-              {isLoading ? ("Signing in...") : "loginButton"}
+              {isLoading ? "Signing in..." : "loginButton"}
             </button>
           </form>
 
@@ -119,9 +120,7 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-sm font-semibold text-green-900 mb-2">
-            {"Demo Accounts:"}
-          </p>
+          <p className="text-sm font-semibold text-green-900 mb-2">{"Demo Accounts:"}</p>
           <div className="text-xs text-green-800 space-y-1">
             <p>abdullah@nutriflow.com / abdullah123</p>
             <p>aya@nutriflow.com / aya123</p>

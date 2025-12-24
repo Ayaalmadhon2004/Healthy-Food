@@ -1,4 +1,4 @@
-import { Droplet, Bed, Walk, Leaf, Activity } from "lucide-react";
+import { Droplet, Bed, footprints, Leaf, Activity } from "lucide-react";
 
 export async function GET() {
   const data = [
@@ -30,7 +30,7 @@ export async function GET() {
     {
       id: 3,
       header: "Movement",
-      icon: Walk,
+      icon: footprints,
       advice: "Move your body daily.",
       details: "Even a 15-minute walk improves circulation and reduces stress.",
       moreDetails: `...`,

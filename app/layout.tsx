@@ -3,14 +3,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
 import { ErrorProvider } from "@/context/ErrorProvider";
-import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
+import { ReactNode } from "react";
 
-export const metadata = {
+export const metadata:Metadata = {
   title: { default: "NutriFlow", template: "%s | NutriFlow" },
   description: "Healthy recipes and meals built with Next.js.",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }:{children:ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

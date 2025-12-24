@@ -7,6 +7,7 @@ type User = {
 } | null
 
 type UserState = {
+  
   user: User
   loading: boolean
   error: string | null
