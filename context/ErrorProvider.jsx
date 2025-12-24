@@ -15,7 +15,8 @@ export const ErrorProvider = ({ children }) => {
   const router = useRouter();
 
   const handleTryAgain = () => {
-    setError("");           
+    setError("");      
+    // replace not push ...     
     router.replace("/login"); 
   };
 

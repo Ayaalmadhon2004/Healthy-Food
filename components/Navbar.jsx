@@ -5,17 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useError } from "@/context/ErrorProvider";
 import { Menu, ShoppingCart, X } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseClient } from "@/lib/supabase/client.ts";
 import { useCartStore } from "@/store/cartStore";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
 
 export default function Navbar() {
   const [open, setOpen] = useState(false); 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(supabaseClient.auth.getUser()?.data?.user ?? null);
   const { setError } = useError(); 
   const router = useRouter();
 
@@ -34,17 +29,17 @@ export default function Navbar() {
     router.push("/login");
   };
 
-  // Fetch user on mount
+
   useEffect(() => {
     async function fetchUser() {
       try {
         const { data: { user: supaUser }, error } = await supabase.auth.getUser();
         if (error) throw error;
-        if (!supaUser) throw new Error("أنت غير مسجل الدخول");
+        if (!supaUser) throw new Error("you are not loggined in");
         setUser(supaUser);
       } catch (err) {
         setUser(null);
-        if (setError) setError(err.message || "حدث خطأ غير معروف");
+        if (setError) setError(err.message || "An Unexpected error occurred");
       }
     }
     fetchUser();
@@ -112,15 +107,29 @@ export default function Navbar() {
 
             <div className="h-px bg-gray-200"></div>
 
-            {!user ? (
-              <>
+            <div className="flex justify-around items-center mt-4 w-full">
+              {!user ? (
+                <>
                 <Link href="/login" className="text-gray-900 hover:text-green-600">Sign In</Link>
-                <Link href="/signup" className="text-center text-white px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600">Sign Up</Link>
-              </>
-            ) : (
+                <Link href="/signup" className="px-4 py-2 rounded-lg text-white bg-green-500 hover:bg-green-600">Sign Up</Link>
+                </>
+              ) : (
               <span className="text-gray-900">Hello, {user.email}</span>
             )}
-          </div>
+
+            <button 
+              onClick={toggleCart} 
+              className="relative text-gray-900 hover:text-green-600"
+            >
+          <ShoppingCart className="w-5 h-5" />
+          {cartItems.length > 0 && (
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+            {cartItems.length}
+          </span>
+          )}
+          </button>
+        </div> 
+        </div>
         )}
       </nav>
 

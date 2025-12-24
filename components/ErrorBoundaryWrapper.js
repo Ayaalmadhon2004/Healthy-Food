@@ -38,7 +38,6 @@ export default function ErrorBoundaryWrapper({
       FallbackComponent={(props) => <Fallback {...props} message={message} />}
       onError={(error, info) => {
         console.error("ErrorBoundary caught an error:", error, info);
-        // Optional: send error to external logging service like Sentry
       }}
     >
       {children}

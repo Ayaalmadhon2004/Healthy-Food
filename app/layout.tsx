@@ -19,11 +19,9 @@ export default function RootLayout({ children }) {
       </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         <ErrorProvider>
-          <ErrorBoundaryWrapper message="Error in UI">
             <Navbar />
             <main className="pt-20">{children}</main>
             <Footer />
-          </ErrorBoundaryWrapper>
         </ErrorProvider>
       </body>
     </html>
