@@ -1,12 +1,8 @@
 import Link from "next/link";
+import { healthTips } from "@/lib/data"; 
 
 export async function generateStaticParams() {
-  const res = await fetch("http://localhost:3000/api/health-tips", {
-    cache: "force-cache", 
-  });
-  const data = await res.json();
-
-  return data.map((tip) => ({
+  return healthTips.map((tip) => ({
     id: tip.id.toString(),
   }));
 }
@@ -14,27 +10,24 @@ export async function generateStaticParams() {
 export default async function TipDetails({ params }) {
   const { id } = await params;
 
-  const res = await fetch("http://localhost:3000/api/health-tips", {
-    cache: "force-cache", 
-  });
-  const data = await res.json();
+  const tip = healthTips.find((t) => t.id.toString() === id);
 
-  const tip = data.find((t) => t.id.toString() === id);
-
-  if (!tip)
+  if (!tip) {
     return (
       <p className="text-center text-red-500 mt-20 text-lg md:text-xl">
         Tip not found
       </p>
     );
+  }
+
+  const IconComponent = tip.icon;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#eef7f0] to-[#f6f6f6] p-4 md:p-6 lg:p-10">
       <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-10 border border-gray-100">
 
-        {/* Icon */}
         <div className="text-5xl sm:text-6xl md:text-7xl text-green-600 mb-6 flex justify-center">
-          {tip.icon}
+          {IconComponent ? <IconComponent size={80} strokeWidth={1.5} /> : null}
         </div>
 
         {/* Header */}
