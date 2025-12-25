@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { healthTips } from "@/lib/data"; // تأكد من المسار الصحيح
+import { healthTips } from "@/lib/data"; 
 import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
 
 const IconMap = {
@@ -18,7 +18,6 @@ export async function generateStaticParams() {
 export default async function TipDetails({ params }) {
   const { id } = await params;
 
-  // البحث عن النصيحة بناءً على الـ ID
   const tip = healthTips.find((t) => t.id.toString() === id);
 
   if (!tip) {
@@ -31,7 +30,6 @@ export default async function TipDetails({ params }) {
     );
   }
 
-  // استخراج المكون الصحيح من الخريطة بناءً على الاسم النصي iconName
   const IconComponent = IconMap[tip.iconName] || HelpCircle;
 
   return (
