@@ -10,11 +10,11 @@ import { useCartStore } from "@/store/cartStore";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false); 
-  const [user, setUser] = useState(supabaseClient.auth.getUser()?.data?.user ?? null);
+  // 1️⃣ اجعل القيمة الابتدائية null دائماً لتجنب أخطاء السيرفر
+  const [user, setUser] = useState(null);
   const { setError } = useError(); 
   const router = useRouter();
 
-  // Zustand Cart
   const cartItems = useCartStore((state) => state.cartItems);
   const isCartOpen = useCartStore((state) => state.isCartOpen);
   const toggleCart = useCartStore((state) => state.toggleCart);
@@ -22,24 +22,25 @@ export default function Navbar() {
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
 
-  // Logout
+  // 2️⃣ تصحيح دالة Logout باستخدام الاسم الصحيح supabaseClient
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push("/login");
+    if (supabaseClient) {
+      await supabaseClient.auth.signOut();
+      setUser(null);
+      router.push("/login");
+    }
   };
-
 
   useEffect(() => {
     async function fetchUser() {
+      if (!supabaseClient) return;
+
       try {
-        const { data: { user: supaUser }, error } = await supabase.auth.getUser();
+        const { data: { user: supaUser }, error } = await supabaseClient.auth.getUser();
         if (error) throw error;
-        if (!supaUser) throw new Error("you are not loggined in");
-        setUser(supaUser);
+        setUser(supaUser); 
       } catch (err) {
         setUser(null);
-        if (setError) setError(err.message || "An Unexpected error occurred");
       }
     }
     fetchUser();
