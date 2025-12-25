@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { healthTips } from "@/lib/data"; 
+import { healthTips } from "@/lib/data"; // تأكد من المسار الصحيح
+import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
+
+const IconMap = {
+  Droplet: Droplet,
+  Bed: Bed,
+  Leaf: Leaf,
+  Activity: Activity,
+};
 
 export async function generateStaticParams() {
   return healthTips.map((tip) => ({
@@ -10,24 +18,29 @@ export async function generateStaticParams() {
 export default async function TipDetails({ params }) {
   const { id } = await params;
 
+  // البحث عن النصيحة بناءً على الـ ID
   const tip = healthTips.find((t) => t.id.toString() === id);
 
   if (!tip) {
     return (
-      <p className="text-center text-red-500 mt-20 text-lg md:text-xl">
-        Tip not found
-      </p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500 text-lg md:text-xl font-bold">
+          Tip not found
+        </p>
+      </div>
     );
   }
 
-  const IconComponent = tip.icon;
+  // استخراج المكون الصحيح من الخريطة بناءً على الاسم النصي iconName
+  const IconComponent = IconMap[tip.iconName] || HelpCircle;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#eef7f0] to-[#f6f6f6] p-4 md:p-6 lg:p-10">
       <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-10 border border-gray-100">
 
-        <div className="text-5xl sm:text-6xl md:text-7xl text-green-600 mb-6 flex justify-center">
-          {IconComponent ? <IconComponent size={80} strokeWidth={1.5} /> : null}
+        {/* Icon Display */}
+        <div className="text-green-600 mb-6 flex justify-center">
+          <IconComponent size={80} strokeWidth={1.5} />
         </div>
 
         {/* Header */}
@@ -46,7 +59,7 @@ export default async function TipDetails({ params }) {
         </p>
 
         {/* More Details Section */}
-        <div className="mt-6 md:mt-8 bg-[var(--color-primary-light)] rounded-xl p-2 sm:p-6 md:p-8 border border-gray-200 shadow-sm">
+        <div className="mt-6 md:mt-8 bg-[#f9fcf9] rounded-xl p-6 md:p-8 border border-green-50 border-gray-200 shadow-sm">
           <h2 className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-4">
             More Details
           </h2>
@@ -59,7 +72,7 @@ export default async function TipDetails({ params }) {
         <div className="mt-6 md:mt-10 flex justify-center">
           <Link
             href="/tips"
-            className="px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-3 rounded-xl bg-[var(--color-primary)] text-white font-semibold hover:bg-green-700 transition text-sm sm:text-base md:text-lg"
+            className="px-6 sm:px-8 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition shadow-md text-sm sm:text-base md:text-lg"
           >
             ← Back to Tips
           </Link>

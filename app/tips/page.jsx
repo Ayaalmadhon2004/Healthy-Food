@@ -1,49 +1,61 @@
-// app/tips/page.js
 import Link from "next/link";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
+import { healthTips } from "@/lib/data";
+import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
+
+// هذه هي الخريطة التي تحول النص إلى أيقونة
+const IconMap = {
+  Droplet: Droplet,
+  Bed: Bed,
+  Leaf: Leaf,
+  Activity: Activity,
+};
 
 export const revalidate = 60;
 
-async function getTips() {
-  const res = await fetch("http://localhost:3000/api/health-tips", { cache: "force-cache" });
-  if (!res.ok) throw new Error("Failed to fetch tips");
-  return res.json();
-}
-
 export default async function TipsPage() {
-  const tips = await getTips();
+  const tips = healthTips;
 
   return (
-    <div className="bg-[var(--color-primary-light)] min-h-screen p-4 md:p-10">
+    <div className="bg-[#fdfcf9] min-h-screen p-4 md:p-10">
       <div className="container mx-auto">
-        <h1 className="text-xl md:text-3xl font-bold">Health & Nutrition Tips</h1>
-        <p className="pb-3 text-gray-700">Some helpful tips for a healthier life.</p>
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-2">Health & Nutrition Tips</h1>
+        <p className="pb-8 text-gray-600">Simple steps for a better, healthier lifestyle.</p>
 
-        {tips.map((item) => (
-          <div key={item.id} className="mb-6">
-            <h3 className="pt-4 pb-2 md:pt-6 md:pb-3 font-bold">{item.header}</h3>
+        <div className="grid grid-cols-1 gap-8">
+          {tips.map((item) => {
+            // هنا نقوم باستخراج الأيقونة من الخريطة بناءً على الاسم
+            const IconComponent = IconMap[item.iconName] || HelpCircle;
 
-            <div className="bg-[var(--color-white)] shadow-lg rounded-xl p-4 md:p-6 w-full">
-              <div className="flex items-center justify-between bg-[rgba(250, 243, 230, 1)] p-3 md:p-4 rounded-lg">
-                <p className="text-2xl">{item.icon}</p>
-                <span className="font-semibold">{item.header}</span>
+            return (
+              <div key={item.id} className="group">
+                <h3 className="mb-3 font-bold text-gray-800 text-lg">{item.header}</h3>
+
+                <div className="bg-white shadow-md hover:shadow-xl transition-shadow rounded-2xl p-6 border border-gray-100">
+                  <div className="flex items-center justify-between bg-orange-50/60 p-4 rounded-xl mb-4">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      {/* رندرة الأيقونة كمكون React */}
+                      <IconComponent className="w-6 h-6 text-green-600" />
+                    </div>
+                    <span className="font-bold text-gray-900">{item.header}</span>
+                  </div>
+
+                  <p className="font-semibold text-gray-800 mb-1">{item.advice}</p>
+                  <p className="text-gray-500 mb-6 text-sm leading-relaxed">{item.details}</p>
+
+                  <ErrorBoundaryWrapper message="Link error">
+                    <Link
+                      className="inline-block px-6 py-2 bg-green-500 text-white text-sm font-bold rounded-full hover:bg-green-600 transition-colors no-underline shadow-sm"
+                      href={`/tips/${item.id}`}
+                    >
+                      Read more!
+                    </Link>
+                  </ErrorBoundaryWrapper>
+                </div>
               </div>
-
-              <p className="font-medium mt-2">{item.advice}</p>
-              <p className="text-gray-500 mb-3">{item.details}</p>
-
-              {/* ErrorBoundary حول client component إذا كان تفاعلي */}
-              <ErrorBoundaryWrapper message="Failed to render Read More link">
-                <Link
-                  className="text-[var(--color-black)] no-underline bg-[var(--color-primary-light)] rounded-xl p-2 inline-block"
-                  href={`/tips/${item.id}`}
-                >
-                  Read more!
-                </Link>
-              </ErrorBoundaryWrapper>
-            </div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
