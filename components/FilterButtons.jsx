@@ -10,7 +10,6 @@ export default function FilterButtons({ initialRecipes, loading = false }) {
       ? initialRecipes
       : initialRecipes.filter((r) => r.type === filter);
 
-  // Number of skeleton cards to show
   const skeletonCount = 8;
 
   return (

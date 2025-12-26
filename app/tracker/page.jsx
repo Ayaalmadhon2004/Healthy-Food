@@ -5,7 +5,6 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { requestNotificationPermission, showNotification } from "@/utils/notification";
 
-// المكونات الفرعية
 const ProgressCard = dynamic(() => import("@/components/ProgressCard"), { ssr: false });
 const AddMealForm = dynamic(() => import("@/components/AddMealForm"), { ssr: false });
 const MealList = dynamic(() => import("@/components/MealList"), { ssr: false });
@@ -29,7 +28,6 @@ function reducer(state, action) {
   }
 }
 
-// 1️⃣ المكون الداخلي الذي يحتوي على المنطق
 function TrackerContent() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [mounted, setMounted] = useState(false);
@@ -87,7 +85,6 @@ function TrackerContent() {
   );
 }
 
-// 2️⃣ المكون الأساسي (Export Default) الذي يوفر الـ Suspense
 export default function TrackerPage() {
   return (
     <div className="min-h-screen p-4 md:p-10 bg-[var(--color-primary-light)]">

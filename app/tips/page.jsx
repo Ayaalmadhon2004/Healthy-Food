@@ -3,7 +3,6 @@ import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import { healthTips } from "@/lib/data";
 import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
 
-// هذه هي الخريطة التي تحول النص إلى أيقونة
 const IconMap = {
   Droplet: Droplet,
   Bed: Bed,
@@ -24,7 +23,6 @@ export default async function TipsPage() {
 
         <div className="grid grid-cols-1 gap-8">
           {tips.map((item) => {
-            // هنا نقوم باستخراج الأيقونة من الخريطة بناءً على الاسم
             const IconComponent = IconMap[item.iconName] || HelpCircle;
 
             return (

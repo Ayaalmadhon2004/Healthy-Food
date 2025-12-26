@@ -7,7 +7,7 @@ export default function LogMealButton({calory,mealName}) {
     router.push(`/tracker?meal=${mealName}&cal=${calory}`);
   };
   return (
-     <button 
+    <button 
       onClick={handleClick}
       className="shadow-xl rounded-xl p-4  cursor bg-[var(--color-primary)] font-bold text-[var(--color-white)]"
     >

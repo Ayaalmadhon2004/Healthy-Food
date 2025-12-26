@@ -11,7 +11,6 @@ export default function KitchensFilterClient() {
   useEffect(() => {
     const fetchKitchens = async () => {
       try {
-        // استخدم URL نسبي فقط، يمنع مشاكل localhost
         const url = "/api/kitchens"
 
         const res = await fetch(url)

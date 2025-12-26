@@ -3,7 +3,6 @@
 import { Trash } from "lucide-react";
 
 
-// Single meal item
 function MealItem({ meal, onDelete }) {
   return (
     <div className="p-6 border rounded-2xl mb-2 bg-white border-gray-100">

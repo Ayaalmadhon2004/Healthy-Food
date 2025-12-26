@@ -1,5 +1,5 @@
 import KitchensFilterClient from "./KitchensFilterClient"
-import NutritionSectionClient from "./NutritionSection"
+import NutritionSectionClient from "@/components/NutritionSection"
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper"
 
 export default function Page() {
@@ -19,7 +19,6 @@ export default function Page() {
         </p>
       </div>
 
-      {/* Client Components مع ErrorBoundary */}
       <ErrorBoundaryWrapper message="Failed to load Kitchens Filter">
         <KitchensFilterClient />
       </ErrorBoundaryWrapper>

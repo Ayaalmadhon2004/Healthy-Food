@@ -1,4 +1,3 @@
-// app/recipes/page.js
 import { getRecipes } from "@/lib/recipes";
 import FilterButtons from "../../components/FilterButtons";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
