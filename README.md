@@ -85,7 +85,7 @@ The **Healthcare Professionals** section connects you with experts for personali
 * **Dr. Emily Rodriguez – Holistic Health Coach:** Combines nutrition science with holistic practices.
 * **Dr. James Wilson – Sports Nutritionist:** Optimizes nutrition for athletes and fitness enthusiasts.
 
-![Doctors](https://github.com/user-attachments/assets/918dccf6-2266-4d11-8fd1-d14a163911b6)
+<img width="1586" height="914" alt="image" src="https://github.com/user-attachments/assets/a6b4ac14-0259-4ea5-9db0-10fb565acd7d" />
 
 ---
 
