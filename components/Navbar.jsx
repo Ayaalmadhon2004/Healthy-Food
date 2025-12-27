@@ -36,12 +36,15 @@ export default function Navbar() {
     <>
       <nav className="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-orange-600 flex items-center justify-center text-white font-bold">
-              NF
-            </div>
-            <span className="text-xl font-heading text-gray-900 font-bold">NutriFlow</span>
+          <div 
+            className="flex items-center gap-2 cursor-pointer" 
+            onClick={() => router.push("/")} 
+          >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-orange-600 flex items-center justify-center text-white font-bold">
+          NF
           </div>
+        <span className="text-xl font-heading text-gray-900 font-bold">NutriFlow</span>
+        </div>
 
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-6">

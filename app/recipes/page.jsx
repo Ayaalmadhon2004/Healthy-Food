@@ -1,6 +1,5 @@
 import { getRecipes } from "@/lib/recipes";
 import FilterButtons from "../../components/FilterButtons";
-import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 
 export default async function RecipesPage() {
   const recipes = await getRecipes();
@@ -11,10 +10,7 @@ export default async function RecipesPage() {
       <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center sm:text-left">
         Browse Recipes
       </h1>
-
-      <ErrorBoundaryWrapper message="Failed to load Filter Buttons">
         <FilterButtons initialRecipes={recipes} />
-      </ErrorBoundaryWrapper>
       </div>
     </div>
   );

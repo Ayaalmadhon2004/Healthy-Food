@@ -10,7 +10,7 @@ const IconMap = {
   Activity: Activity,
 };
 
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export default async function TipsPage() {
   const tips = healthTips;
@@ -32,7 +32,6 @@ export default async function TipsPage() {
                 <div className="bg-white shadow-md hover:shadow-xl transition-shadow rounded-2xl p-6 border border-gray-100">
                   <div className="flex items-center justify-between bg-orange-50/60 p-4 rounded-xl mb-4">
                     <div className="p-2 bg-white rounded-lg shadow-sm">
-                      {/* رندرة الأيقونة كمكون React */}
                       <IconComponent className="w-6 h-6 text-green-600" />
                     </div>
                     <span className="font-bold text-gray-900">{item.header}</span>

@@ -1,4 +1,3 @@
-// components/ErrorBoundaryWrapper.js
 "use client";
 
 import { ErrorBoundary } from "react-error-boundary";
@@ -27,7 +26,6 @@ function DefaultFallback({ error, resetErrorBoundary, message }) {
   );
 }
 
-// 2️⃣ Main Error Boundary Wrapper
 export default function ErrorBoundaryWrapper({
   children,
   fallbackComponent: Fallback = DefaultFallback,
