@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ORG
+  DOCTOR
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String          @unique
+  role          Role            @default(USER)
+  cart          Cart?
+  recipes       Recipe[]
+  mealTrackers  MealTracker[]
+  doctor        Doctor?
+  appointments  Appointment[]
+  createdAt     DateTime        @default(now())
+}
+
+model Recipe {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Organization {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  meals     Meal[]
+}
+
+model Meal {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String
+  calories       Int
+  isAvailable    Boolean  @default(true)
+  organizationId Int
+  createdAt      DateTime @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  cartItems      CartItem[]
+  mealTrackers   MealTracker[]
+}
+
+model Cart {
+  id      Int      @id @default(autoincrement())
+  userId  Int      @unique
+  user    User     @relation(fields: [userId], references: [id])
+  items   CartItem[]
+}
+
+model CartItem {
+  id       Int      @id @default(autoincrement())
+  cartId   Int
+  mealId   Int
+  quantity Int      @default(1)
+  cart     Cart     @relation(fields: [cartId], references: [id])
+  meal     Meal     @relation(fields: [mealId], references: [id])
+}
+
+model MealTracker {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  mealId   Int
+  date     DateTime @default(now())
+  quantity Int      @default(1)
+  user     User     @relation(fields: [userId], references: [id])
+  meal     Meal     @relation(fields: [mealId], references: [id])
+}
+
+model WaterBus {
+  id       Int      @id @default(autoincrement())
+  location String
+  schedule String
+  isActive Boolean  @default(true)
+}
+
+model Doctor {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  specialization String
+  user           User     @relation(fields: [userId], references: [id])
+  appointments   Appointment[]
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  doctorId  Int
+  userId    Int
+  dateTime  DateTime
+  status    AppointmentStatus @default(PENDING)
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
