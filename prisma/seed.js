@@ -1,14 +1,6 @@
-// prisma/seed.js
-import { PrismaClient } from "../src/generated/index.js"; 
-import { PrismaPg } from '@prisma/adapter-pg'; // إذا كنت تستخدم Postgres
-import pg from 'pg';
+import { prisma } from '../lib/prisma.js'; 
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-
-// تمرير الـ adapter هنا ضروري في الإصدار 7
-const prisma = new PrismaClient({ adapter });
-
+// --- DATA SOURCE ---
 const healthTips = [
   {
     header: "Hydration",
@@ -46,13 +38,120 @@ const healthTips = [
     moreDetails: "Deep breathing lowers anxiety and stress."
   }
 ];
+
+const recipes = [
+  {
+    id: 0,
+    img: "/assets/Berry.jpg",
+    type: "Breakfast",
+    title: "Berry Smoothie Bowl",
+    time: "5 min",
+    cal: "280cal",
+    nutrition: { protein: "10g", carbs: "35g", fat: "8g", fiber: "6g" },
+    ingredients: ["1 cup frozen berries", "1 banana", "1/2 cup yogurt", "1/4 cup granola", "Honey (optional)"],
+    instructions: ["Blend frozen berries, banana, and yogurt until smooth.", "Pour smoothie into a bowl.", "Top with granola and extra berries.", "Drizzle honey if desired."]
+  },
+  {
+    id: 1,
+    img: "/assets/Quinoa Buddha Bowl.jpg",
+    type: "Lunch",
+    title: "Quinoa Buddha Bowl",
+    time: "15 min",
+    cal: "420cal",
+    nutrition: { protein: "18g", carbs: "52g", fat: "14g", fiber: "12g" },
+    ingredients: ["1 cup cooked quinoa", "1 can chickpeas, drained", "1 avocado, sliced", "2 cups mixed greens", "1 cup cherry tomatoes, halved", "1/2 cucumber, diced", "1/4 cup tahini", "Lemon juice, salt, pepper"],
+    instructions: ["Cook quinoa according to package directions.", "Roast chickpeas with olive oil and spices at 400°F for 25 minutes.", "Arrange mixed greens in a bowl.", "Add cooked quinoa, chickpeas, avocado, tomatoes, and cucumber.", "Drizzle with tahini dressing.", "Season with salt and pepper."]
+  },
+  {
+    id: 2,
+    img: "/assets/Grilled Salmon.jpg",
+    type: "Dinner",
+    title: "Grilled Salmon",
+    time: "20 min",
+    cal: "520cal",
+    nutrition: { protein: "34g", carbs: "10g", fat: "32g", fiber: "2g" },
+    ingredients: ["1 salmon fillet", "1 tbsp olive oil", "Salt and pepper", "1 lemon slice", "Steamed vegetables"],
+    instructions: ["Season salmon with salt, pepper, and olive oil.", "Grill for 6–8 minutes per side.", "Serve with steamed vegetables.", "Garnish with lemon."]
+  },
+  {
+    id: 3,
+    img: "/assets/Greek Salad.jpg",
+    type: "Lunch",
+    title: "Greek Salad",
+    time: "10 min",
+    cal: "310cal",
+    nutrition: { protein: "7g", carbs: "14g", fat: "22g", fiber: "4g" },
+    ingredients: ["1 cucumber, diced", "2 tomatoes, chopped", "1/4 cup olives", "Feta cheese", "Olive oil and lemon"],
+    instructions: ["Chop all vegetables.", "Add olives and feta cheese.", "Drizzle with lemon and olive oil.", "Toss gently and serve."]
+  },
+  {
+    id: 4,
+    img: "/assets/Chicken Stir Fry.jpg",
+    type: "Dinner",
+    title: "Chicken Stir Fry",
+    time: "25 min",
+    cal: "480cal",
+    nutrition: { protein: "40g", carbs: "30g", fat: "18g", fiber: "5g" },
+    ingredients: ["1 chicken breast, sliced", "1 cup mixed vegetables", "2 tbsp soy sauce", "1 tbsp olive oil", "1 garlic clove"],
+    instructions: ["Cook chicken in olive oil until golden.", "Add vegetables and stir fry 5 minutes.", "Add soy sauce and garlic.", "Serve warm."]
+  },
+  {
+    id: 5,
+    img: "/assets/Avocado Toast.jpg",
+    type: "Breakfast",
+    title: "Avocado Toast",
+    time: "8 min",
+    cal: "320cal",
+    nutrition: { protein: "9g", carbs: "28g", fat: "20g", fiber: "7g" },
+    ingredients: ["2 bread slices", "1 avocado", "Salt and pepper", "Cherry tomatoes"],
+    instructions: ["Toast bread slices.", "Mash avocado and spread over toast.", "Season with salt and pepper.", "Add cherry tomatoes on top."]
+  },
+  {
+    id: 6,
+    img: "/assets/Lentil Soup.jpg",
+    type: "Lunch",
+    title: "Lentil Soup",
+    time: "30 min",
+    cal: "290cal",
+    nutrition: { protein: "16g", carbs: "40g", fat: "4g", fiber: "15g" },
+    ingredients: ["1 cup red lentils", "1 onion, chopped", "1 carrot, chopped", "1 tbsp olive oil", "Salt, pepper, cumin"],
+    instructions: ["Cook onions and carrots in olive oil.", "Add lentils and water.", "Simmer for 20 minutes.", "Blend if desired and season."]
+  },
+  {
+    id: 7,
+    img: "/assets/Veggie Wrap.jpg",
+    type: "Lunch",
+    title: "Veggie Wrap",
+    time: "12 min",
+    cal: "350cal",
+    nutrition: { protein: "12g", carbs: "44g", fat: "11g", fiber: "8g" },
+    ingredients: ["1 tortilla wrap", "1/2 cup mixed veggies", "Hummus", "Lettuce", "Salt and pepper"],
+    instructions: ["Spread hummus on tortilla.", "Add veggies and lettuce.", "Roll tightly.", "Slice and enjoy."]
+  }
+];
+
+// --- SEED EXECUTION ---
+
 async function main() {
-  // نصيحة احترافية: استخدم createMany للأداء الأفضل بدلاً من Loop
-  await prisma.HealthTip.createMany({
+  console.log("🌱 Start seeding...");
+
+  // تنظيف البيانات
+  await prisma.healthTip.deleteMany({});
+  await prisma.foodRecipe.deleteMany({}); // لاحظ الاسم الجديد هنا
+
+  // 1. إضافة النصائح الصحية
+  await prisma.healthTip.createMany({
     data: healthTips,
-    skipDuplicates: true, // اختياري: لتجنب الخطأ إذا كانت البيانات موجودة مسبقاً
   });
-  console.log("✅ Seeded health tips successfully!");
+  console.log("✅ Seeded health tips!");
+
+  // 2. إضافة الوصفات (باستخدام الموديل الجديد)
+  await prisma.foodRecipe.createMany({
+    data: recipes,
+  });
+  console.log("✅ Seeded Food Recipes!");
+
+  console.log("🏁 Seeding finished.");
 }
 
 main()

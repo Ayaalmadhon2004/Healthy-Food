@@ -1,6 +1,5 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,4 +13,16 @@ model HealthTip {
   advice      String
   details     String
   moreDetails String
+}
+
+model FoodRecipe {
+  id           Int      @id @default(autoincrement())
+  img          String
+  type         String
+  title        String
+  time         String
+  cal          String
+  nutrition    Json     // Stores {protein, carbs, etc.}
+  ingredients  String[] // Array of strings
+  instructions String[] // Array of strings
 }
