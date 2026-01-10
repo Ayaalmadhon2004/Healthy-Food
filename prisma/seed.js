@@ -1,6 +1,5 @@
 import { prisma } from '../lib/prisma.js'; 
 
-// --- DATA SOURCE ---
 const healthTips = [
   {
     header: "Hydration",
@@ -41,7 +40,6 @@ const healthTips = [
 
 const recipes = [
   {
-    id: 0,
     img: "/assets/Berry.jpg",
     type: "Breakfast",
     title: "Berry Smoothie Bowl",
@@ -52,7 +50,6 @@ const recipes = [
     instructions: ["Blend frozen berries, banana, and yogurt until smooth.", "Pour smoothie into a bowl.", "Top with granola and extra berries.", "Drizzle honey if desired."]
   },
   {
-    id: 1,
     img: "/assets/Quinoa Buddha Bowl.jpg",
     type: "Lunch",
     title: "Quinoa Buddha Bowl",
@@ -63,7 +60,6 @@ const recipes = [
     instructions: ["Cook quinoa according to package directions.", "Roast chickpeas with olive oil and spices at 400°F for 25 minutes.", "Arrange mixed greens in a bowl.", "Add cooked quinoa, chickpeas, avocado, tomatoes, and cucumber.", "Drizzle with tahini dressing.", "Season with salt and pepper."]
   },
   {
-    id: 2,
     img: "/assets/Grilled Salmon.jpg",
     type: "Dinner",
     title: "Grilled Salmon",
@@ -74,7 +70,6 @@ const recipes = [
     instructions: ["Season salmon with salt, pepper, and olive oil.", "Grill for 6–8 minutes per side.", "Serve with steamed vegetables.", "Garnish with lemon."]
   },
   {
-    id: 3,
     img: "/assets/Greek Salad.jpg",
     type: "Lunch",
     title: "Greek Salad",
@@ -85,7 +80,6 @@ const recipes = [
     instructions: ["Chop all vegetables.", "Add olives and feta cheese.", "Drizzle with lemon and olive oil.", "Toss gently and serve."]
   },
   {
-    id: 4,
     img: "/assets/Chicken Stir Fry.jpg",
     type: "Dinner",
     title: "Chicken Stir Fry",
@@ -96,7 +90,6 @@ const recipes = [
     instructions: ["Cook chicken in olive oil until golden.", "Add vegetables and stir fry 5 minutes.", "Add soy sauce and garlic.", "Serve warm."]
   },
   {
-    id: 5,
     img: "/assets/Avocado Toast.jpg",
     type: "Breakfast",
     title: "Avocado Toast",
@@ -107,7 +100,6 @@ const recipes = [
     instructions: ["Toast bread slices.", "Mash avocado and spread over toast.", "Season with salt and pepper.", "Add cherry tomatoes on top."]
   },
   {
-    id: 6,
     img: "/assets/Lentil Soup.jpg",
     type: "Lunch",
     title: "Lentil Soup",
@@ -118,7 +110,6 @@ const recipes = [
     instructions: ["Cook onions and carrots in olive oil.", "Add lentils and water.", "Simmer for 20 minutes.", "Blend if desired and season."]
   },
   {
-    id: 7,
     img: "/assets/Veggie Wrap.jpg",
     type: "Lunch",
     title: "Veggie Wrap",
@@ -130,26 +121,150 @@ const recipes = [
   }
 ];
 
-// --- SEED EXECUTION ---
+const kitchens = [
+    {
+      name: "Al-Sadaqa Kitchen",
+      location: "Al-Shuja'iyya, Gaza City",
+      region: "Gaza",
+      distribution_time: "1:00 PM",
+      capacity: "350-500 families",
+      todays_meal: "Lentil soup + bread",
+      access_info: "Open to all families. No registration needed.",
+      contact: "+970-599-123456"
+    },
+    {
+      name: "Rahma Charity Kitchen",
+      location: "Beit Lahia, North Gaza",
+      region: "North",
+      distribution_time: "12:30 PM",
+      capacity: "300 families",
+      todays_meal: "Rice & beans",
+      access_info: "First come, first served. Bring your own containers.",
+      contact: "+970-597-554321"
+    },
+    {
+      name: "Al-Amal Women's Community Kitchen",
+      location: "Nuseirat Camp, Middle Area",
+      region: "Middle",
+      distribution_time: "2:00 PM",
+      capacity: "250 families",
+      todays_meal: "Vegetable soup",
+      access_info: "Women-run kitchen. Wheelchair accessible entrance.",
+      contact: "+970-592-876543"
+    },
+    {
+      name: "Khan Younis Public Kitchen",
+      location: "Khan Younis Camp, Khan Younis",
+      region: "Khan Younis",
+      distribution_time: "1:30 PM",
+      capacity: "600 families",
+      todays_meal: "Chicken rice (weekly), lentils (daily)",
+      access_info: "Large capacity. Multiple distribution points in the camp.",
+      contact: "+970-591-334477"
+    },
+    {
+      name: "Al-Tadhamon Social Kitchen",
+      location: "Tal Al-Sultan, Rafah",
+      region: "Rafah",
+      distribution_time: "12:00 PM",
+      capacity: "200 families",
+      todays_meal: "Pasta + tomato sauce",
+      access_info: "Located near main road. Easy to find.",
+      contact: "+970-599-884422"
+    }
+];
+
+const doctorsData = [
+    {
+      id: 1,
+      name: "Dr. Sarah Johnson",
+      specialty: "Nutritionist",
+      qualifications: ["RD, LDN", "MS Nutrition", "Certified Nutrition Specialist"],
+      rating: 4.9,
+      reviews: 127,
+      location: "New York, NY",
+      phone: "+1 (555) 123-4567",
+      email: "sarah@nutritioncare.com",
+      about:
+        "Dr. Sarah specializes in personalized nutrition plans for weight management and chronic disease prevention.",
+      image: "/assets/doctor1.jpg",
+      availability: "Mon-Fri, 9AM-5PM",
+    },
+    {
+      id: 2,
+      name: "Dr. Michael Chen",
+      specialty: "Cardiologist & Wellness",
+      qualifications: ["MD", "Board Certified Cardiology", "Preventive Medicine"],
+      rating: 4.8,
+      reviews: 98,
+      location: "San Francisco, CA",
+      phone: "+1 (555) 234-5678",
+      email: "michael@wellnessmd.com",
+      about:
+        "Dr. Chen focuses on heart-healthy nutrition and lifestyle modifications to prevent cardiovascular disease.",
+      image: "/assets/doctor1.jpg",
+      availability: "Mon-Thu, 10AM-6PM",
+    },
+    {
+      id: 3,
+      name: "Dr. Emily Rodriguez",
+      specialty: "Holistic Health Coach",
+      qualifications: ["PhD Nutrition Science", "Holistic Health Certification", "Yoga Instructor"],
+      rating: 4.9,
+      reviews: 156,
+      location: "Austin, TX",
+      phone: "+1 (555) 345-6789",
+      email: "emily@holistichealth.com",
+      about:
+        "Emily combines modern nutrition science with holistic wellness practices for sustainable health transformation.",
+      image: "/assets/doctor1.jpg",
+      availability: "Flexible Scheduling",
+    },
+    {
+      id: 4,
+      name: "Dr. James Wilson",
+      specialty: "Sports Nutritionist",
+      qualifications: ["RD, CSSD", "Sports Nutrition Specialist", "Exercise Physiology"],
+      rating: 4.7,
+      reviews: 112,
+      location: "Los Angeles, CA",
+      phone: "+1 (555) 456-7890",
+      email: "james@sportsnutrition.com",
+      about: "James helps athletes and fitness enthusiasts optimize their nutrition for peak performance and recovery.",
+      image: "/assets/doctor1.jpg",
+      availability: "Tue-Sat, 8AM-8PM",
+    },
+];
+
 
 async function main() {
   console.log("🌱 Start seeding...");
 
-  // تنظيف البيانات
   await prisma.healthTip.deleteMany({});
-  await prisma.foodRecipe.deleteMany({}); // لاحظ الاسم الجديد هنا
+  await prisma.foodRecipe.deleteMany({});
+  await prisma.kitchen.deleteMany({});
+  await prisma.doctor.deleteMany({});
 
-  // 1. إضافة النصائح الصحية
   await prisma.healthTip.createMany({
     data: healthTips,
   });
   console.log("✅ Seeded health tips!");
 
-  // 2. إضافة الوصفات (باستخدام الموديل الجديد)
   await prisma.foodRecipe.createMany({
     data: recipes,
   });
   console.log("✅ Seeded Food Recipes!");
+
+
+  await prisma.kitchen.createMany({
+    data: kitchens 
+  });
+  console.log("✅ Seeded kitchens!");
+
+  await prisma.doctor.createMany({
+    data:doctorsData
+  });
+  console.log("✅ Seeded doctors!");
 
   console.log("🏁 Seeding finished.");
 }
