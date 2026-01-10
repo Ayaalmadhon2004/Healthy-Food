@@ -13,17 +13,27 @@ export default function DoctorsPage() {
   useInitUser();
 
   useEffect(() => {
-    fetch("/api/doctors")
-      .then((res) => res.json())
-      .then((data) => {
-        setDoctors(data)
-        setLoading(false)
-      })
-      .catch((error) => {
-        console.error("Error fetching doctors:", error)
-        setLoading(false)
-      })
-  }, [])
+  const fetchDoctors = async () => {
+    try {
+      // Use the correct port since your terminal said 3001
+      const res = await fetch("/api/doctors"); 
+      
+      if (!res.ok) {
+        // If this throws, it means the API route is broken (405 or 500)
+        throw new Error(`Server responded with ${res.status}`);
+      }
+
+      const data = await res.json();
+      setDoctors(data);
+    } catch (err) {
+      console.error("Doctor Fetch Error:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDoctors();
+}, []);
 
   if (loading) {
     return (

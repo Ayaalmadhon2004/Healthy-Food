@@ -1,8 +1,8 @@
-import { getRecipes } from "@/lib/recipes";
+import { prisma } from "@/lib/prisma";
 import FilterButtons from "../../components/FilterButtons";
 
 export default async function RecipesPage() {
-  const recipes = await getRecipes();
+  const recipes = await prisma.foodRecipe.findMany();
 
   return (
     <div className="min-h-screen p-4 md:p-10 bg-[var(--color-primary-light)]">

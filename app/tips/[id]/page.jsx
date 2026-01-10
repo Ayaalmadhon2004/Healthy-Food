@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { healthTips } from "@/lib/data"; 
 import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
 const IconMap = {
   Droplet: Droplet,
@@ -8,6 +8,8 @@ const IconMap = {
   Leaf: Leaf,
   Activity: Activity,
 };
+
+const healthTips=await prisma.healthTip.findMany();
 
 export async function generateStaticParams() {
   return healthTips.map((tip) => ({

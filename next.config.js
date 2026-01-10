@@ -1,15 +1,25 @@
-const withPWA = require("next-pwa")({
+import withPWAInit from "next-pwa";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const withPWA = withPWAInit({
   dest: "public",
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
-  // runtimeCaching: [], // عطلنا مؤقتًا
 });
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  turbopack: {}, 
+  // Note: Turbopack and next-pwa sometimes conflict in dev mode.
+  // If you see errors, try removing the 'turbopack' key.
+  experimental: {
+  },
   outputFileTracingRoot: __dirname,
 };
 
-module.exports = withPWA(nextConfig);
+export default withPWA(nextConfig);

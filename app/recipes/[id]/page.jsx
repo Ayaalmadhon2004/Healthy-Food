@@ -1,13 +1,13 @@
 import Image from "next/image";
-import { getRecipes } from "@/lib/recipes";
 import BackButton from "../../../components/BackButton";
 import LogMealButton from "../../../components/LogMealButton";
 import AddToCartButton from "../../../components/AddToCartButton";
+import { prisma } from "@/lib/prisma";
 
 
 export default async function RecipePage({ params }) {
   const resolvedParams = await params;
-  const recipes = await getRecipes();
+  const recipes = await prisma.foodRecipe.findMany();
   const meal = recipes.find((m) => m.id.toString() === resolvedParams.id);
 
   if (!meal) {

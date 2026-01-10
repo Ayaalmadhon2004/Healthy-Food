@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
-import { healthTips } from "@/lib/data";
 import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
 const IconMap = {
   Droplet: Droplet,
@@ -13,7 +13,7 @@ const IconMap = {
 export const revalidate = 3600;
 
 export default async function TipsPage() {
-  const tips = healthTips;
+  const tips = await prisma.healthTip.findMany();
 
   return (
     <div className="bg-[#fdfcf9] min-h-screen p-4 md:p-10">
