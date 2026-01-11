@@ -1,0 +1,18 @@
+{
+  "auth": {
+    "login_title": "NutriFlow Auth",
+    "login_subtitle": "Login",
+    "email_label": "Email Address",
+    "password_label": "Password",
+    "email_placeholder": "you@example.com",
+    "password_placeholder": "••••••••",
+    "login_button": "Sign In",
+    "signing_in": "Signing in...",
+    "no_account": "Don't have an account?",
+    "create_account": "Create an account",
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "general_error": "An error occurred. Please try again."
+    }
+  }
+}

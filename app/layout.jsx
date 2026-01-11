@@ -1,18 +1,19 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Metadata } from "next";
 import { ErrorProvider } from "@/context/ErrorProvider";
-import { ReactNode } from "react";
+import { cookies } from "next/headers";
 
-export const metadata:Metadata = {
+export const metadata= {
   title: { default: "NutriFlow", template: "%s | NutriFlow" },
   description: "Healthy recipes and meals built with Next.js.",
 };
 
-export default function RootLayout({ children }:{children:ReactNode}) {
+export default async function RootLayout ({ children }){
+  const cookieStore = await cookies();
+  const lang = cookieStore.get('lang')?.value || 'ar';
   return (
-    <html lang="en" suppressHydrationWarning>
+      <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#4CAF50" />

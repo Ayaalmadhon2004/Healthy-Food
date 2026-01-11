@@ -4,7 +4,7 @@ import { useInitUser, useUserData } from "@/hooks/useUserData";
 
 export default function Home() {
   const router = useRouter();
-  const { user, loading }: any = useUserData();
+  const { user, loading }= useUserData();
   console.log("User data in layout:t", user);
 
   useInitUser();
