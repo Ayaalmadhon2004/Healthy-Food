@@ -42,15 +42,17 @@ model Kitchen {
 
 model Doctor {
   id             Int      @id @default(autoincrement())
-  name           String
-  specialty      String
-  qualifications String[] // Native array support in Postgres
+  name           Json
+  specialty      Json
+  about          Json
+  qualifications Json       // بدل String[]
   rating         Float
   reviews        Int
-  location       String
+  location       Json      // إذا تحب تدعم en/ar
   phone          String
   email          String
-  about          String   @db.Text
-  image          String   @db.Text // Use Text for long base64 strings
-  availability   String
+  image          String   @db.Text
+  availability   Json      // بدل String لو en/ar
 }
+
+

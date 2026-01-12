@@ -175,65 +175,46 @@ const kitchens = [
 ];
 
 const doctorsData = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      specialty: "Nutritionist",
-      qualifications: ["RD, LDN", "MS Nutrition", "Certified Nutrition Specialist"],
-      rating: 4.9,
-      reviews: 127,
-      location: "New York, NY",
-      phone: "+1 (555) 123-4567",
-      email: "sarah@nutritioncare.com",
-      about:
-        "Dr. Sarah specializes in personalized nutrition plans for weight management and chronic disease prevention.",
-      image: "/assets/doctor1.jpg",
-      availability: "Mon-Fri, 9AM-5PM",
+  {
+    id: 1,
+    name: { en: "Dr. Sarah Johnson", ar: "د. سارة جونسون" },
+    specialty: { en: "Nutritionist", ar: "أخصائية تغذية" },
+    qualifications: {
+      en: ["RD, LDN", "MS Nutrition", "Certified Nutrition Specialist"],
+      ar: ["أخصائية تغذية مرخصة", "ماجستير علوم التغذية", "أخصائي تغذية معتمد"]
     },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      specialty: "Cardiologist & Wellness",
-      qualifications: ["MD", "Board Certified Cardiology", "Preventive Medicine"],
-      rating: 4.8,
-      reviews: 98,
-      location: "San Francisco, CA",
-      phone: "+1 (555) 234-5678",
-      email: "michael@wellnessmd.com",
-      about:
-        "Dr. Chen focuses on heart-healthy nutrition and lifestyle modifications to prevent cardiovascular disease.",
-      image: "/assets/doctor1.jpg",
-      availability: "Mon-Thu, 10AM-6PM",
+    rating: 4.9,
+    reviews: 127,
+    location: { en: "New York, NY", ar: "نيويورك، الولايات المتحدة" },
+    phone: "+1 (555) 123-4567",
+    email: "sarah@nutritioncare.com",
+    about: {
+      en: "Dr. Sarah specializes in personalized nutrition plans for weight management and chronic disease prevention.",
+      ar: "تتخصص د. سارة في وضع خطط تغذية شخصية لإدارة الوزن والوقاية من الأمراض المزمنة."
     },
-    {
-      id: 3,
-      name: "Dr. Emily Rodriguez",
-      specialty: "Holistic Health Coach",
-      qualifications: ["PhD Nutrition Science", "Holistic Health Certification", "Yoga Instructor"],
-      rating: 4.9,
-      reviews: 156,
-      location: "Austin, TX",
-      phone: "+1 (555) 345-6789",
-      email: "emily@holistichealth.com",
-      about:
-        "Emily combines modern nutrition science with holistic wellness practices for sustainable health transformation.",
-      image: "/assets/doctor1.jpg",
-      availability: "Flexible Scheduling",
+    image: "/assets/doctor1.jpg",
+    availability: { en: "Mon-Fri, 9AM-5PM", ar: "الإثنين-الجمعة، 9ص-5م" },
+  },
+  {
+    id: 2,
+    name: { en: "Dr. Michael Chen", ar: "د. مايكل تشن" },
+    specialty: { en: "Cardiologist & Wellness", ar: "طبيب قلب وعافية" },
+    qualifications: {
+      en: ["MD", "Board Certified Cardiology", "Preventive Medicine"],
+      ar: ["دكتوراه في الطب", "بورد معتمد في أمراض القلب", "طب وقائي"]
     },
-    {
-      id: 4,
-      name: "Dr. James Wilson",
-      specialty: "Sports Nutritionist",
-      qualifications: ["RD, CSSD", "Sports Nutrition Specialist", "Exercise Physiology"],
-      rating: 4.7,
-      reviews: 112,
-      location: "Los Angeles, CA",
-      phone: "+1 (555) 456-7890",
-      email: "james@sportsnutrition.com",
-      about: "James helps athletes and fitness enthusiasts optimize their nutrition for peak performance and recovery.",
-      image: "/assets/doctor1.jpg",
-      availability: "Tue-Sat, 8AM-8PM",
+    rating: 4.8,
+    reviews: 98,
+    location: { en: "San Francisco, CA", ar: "سان فرانسيسكو، كاليفورنيا" },
+    phone: "+1 (555) 234-5678",
+    email: "michael@wellnessmd.com",
+    about: {
+      en: "Dr. Chen focuses on heart-healthy nutrition and lifestyle modifications to prevent cardiovascular disease.",
+      ar: "يركز د. تشن على التغذية الصحية للقلب وتعديلات نمط الحياة للوقاية من أمراض القلب والأوعية الدموية."
     },
+    image: "/assets/doctor1.jpg",
+    availability: { en: "Mon-Thu, 10AM-6PM", ar: "الإثنين-الخميس، 10ص-6م" },
+  }
 ];
 
 
@@ -261,9 +242,9 @@ async function main() {
   });
   console.log("✅ Seeded kitchens!");
 
-  await prisma.doctor.createMany({
-    data:doctorsData
-  });
+  for (const doctor of doctorsData) {
+    await prisma.doctor.create({ data: doctor });
+  }
   console.log("✅ Seeded doctors!");
 
   console.log("🏁 Seeding finished.");

@@ -1,18 +1,20 @@
-// app/login/page.tsx
-import i18n from "@/lib/i18n";
-import { cookies } from "next/headers";
-import Login from "./LoginClient"; // تأكد أن ملف الكلاينت في نفس المجلد
+import { cookies } from 'next/headers';
+import { getDictionaryServer } from '@/lib/i18n';
+import LoginClient from './LoginClient';
 
-export default async function Page() {
-  // جلب اللغة من الكوكيز
+export default async function LoginPage() {
+  // 1. جلب اللغة من الكوكيز (السيرفر)
   const cookieStore = await cookies();
   const lang = cookieStore.get('lang')?.value || 'ar';
   
-  i18n.setLocale(lang);
+  // 2. جلب نصوص الترجمة الخاصة بقسم الـ auth فقط
+  const fullDict = await getDictionaryServer(lang);
+  const t = fullDict.auth; // نأخذ قسم auth من ملف الـ JSON
 
-  // جلب الترجمة
-  const catalog = i18n.getCatalog(lang);
-  const t = catalog ? catalog.auth : {};
-
-  return <Login t={t} lang={lang} />;
+  return (
+    <main>
+       {/* نمرر النصوص لـ LoginClient كـ props */}
+        <LoginClient t={t} lang={lang} />
+    </main>
+  );
 }

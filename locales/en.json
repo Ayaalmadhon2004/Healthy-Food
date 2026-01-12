@@ -14,5 +14,19 @@
       "invalidCredentials": "Invalid email or password.",
       "general_error": "An error occurred. Please try again."
     }
+  },
+  "doctors": {
+    "title": "Healthcare Professionals",
+    "subtitle": "Experts of Healthcare Professionals",
+    "loading": "Loading doctors...",
+    "reviews": "reviews",
+    "qualifications": "Qualifications",
+    "bookBtn": "Book Consultation",
+    "modal": {
+      "bookWith": "Book with",
+      "specialtyLabel": "Specialty",
+      "close": "Close",
+      "confirm": "Schedule Now"
+    }
   }
 }
