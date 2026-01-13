@@ -6,8 +6,7 @@ import Link from "next/link"
 import { AlertCircle } from "lucide-react"
 import { useUserStore } from "@/store/useUserStore"
 
-// نمرر t (الترجمة) و lang (اللغة الحالية) من السيرفر
-export default function LoginClient({ t, lang }) {
+export default function LoginClient({ t }) {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
@@ -34,13 +33,11 @@ export default function LoginClient({ t, lang }) {
         const data = await res.json()
 
         if (!res.ok) {
-            // جلب رسالة الخطأ المترجمة من الـ JSON بناءً على الكود القادم من الـ API
             setError(t.errors[data.error] || t.errors.general_error)
             setIsLoading(false)
             return
         }
 
-        // بما أننا لا نستخدم [lang] في الرابط، نعود للرئيسية مباشرة
         router.push("/")
         router.refresh()
         } catch (err) {

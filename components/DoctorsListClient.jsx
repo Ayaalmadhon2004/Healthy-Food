@@ -10,7 +10,6 @@ export default function DoctorsListClient({ initialDoctors, lang }) {
       className="max-w-7xl mx-auto p-4 md:p-8" 
       dir={isAr ? "rtl" : "ltr"}
     >
-      {/* عنوان الصفحة المترجم */}
       <div className="mb-10 text-center md:text-start">
         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900">
           {isAr ? "أطباؤنا المتخصصون" : "Our Specialized Doctors"}
@@ -29,7 +28,6 @@ export default function DoctorsListClient({ initialDoctors, lang }) {
             className="group border p-6 rounded-2xl shadow-sm bg-white hover:shadow-xl transition-all duration-300 border-gray-100"
           >
             <div className="flex flex-col md:flex-row gap-6">
-              {/* صورة الطبيب */}
               <div className="relative">
                 <img 
                   src={doctor.image} 
@@ -37,7 +35,7 @@ export default function DoctorsListClient({ initialDoctors, lang }) {
                   alt={doctor.name[lang]} 
                 />
                 <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1 rounded-lg">
-                   <Award size={16} />
+                    <Award size={16} />
                 </div>
               </div>
 

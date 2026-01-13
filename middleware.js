@@ -1,4 +1,3 @@
-// middleware.js (أو proxy.js حسب طلب النظام لديك)
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
