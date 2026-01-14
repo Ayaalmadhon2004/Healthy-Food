@@ -17,7 +17,6 @@ export default function RecipeCard({ meal }) {
     >
       <Image
         src={meal.img}
-        // استخدام [lang] للوصول للنص الصحيح
         alt={meal.title[lang]} 
         width={475}
         height={475}
