@@ -136,6 +136,104 @@ const doctorsData = [
   }
 ];
 
+export const nutritionGuide = {
+  header: {
+    badge: { en: "Nutrition Knowledge", ar: "الثقافة الغذائية" },
+    title: { en: "Family Nutrition Guide", ar: "دليل تغذية العائلة" },
+    subtitle: {
+      en: "Learn how to maximize nutrition from community kitchen meals and make the most of available ingredients for your family's health.",
+      ar: "تعرف على كيفية تحقيق أقصى استفادة من وجبات المطابخ المجتمعية والمكونات المتاحة للحفاظ على صحة عائلتك.",
+    },
+  },
+
+  sections: [
+    {
+      title: { en: "Complete Protein Combinations", ar: "تكامل البروتينات" },
+      description: {
+        en: "When meals contain rice or bread, pair them with lentils or beans to create complete protein - essential for children's growth and family health.",
+        ar: "عندما تحتوي الوجبات على الأرز أو الخبز، ادمجها مع العدس أو الفاصوليا للحصول على بروتين كامل - وهو أمر ضروري لنمو الأطفال وصحة الأسرة.",
+      },
+      listTitle: { en: "Smart Pairing Examples:", ar: "أمثلة للدمج الذكي:" },
+      items: [
+        { en: "Rice + Lentils = Complete protein", ar: "أرز + عدس = بروتين كامل" },
+        { en: "Bread + Hummus/beans = Full nutrition", ar: "خبز + حمص/بقوليات = تغذية كاملة" },
+        { en: "Pasta + Chickpeas = Balanced meal", ar: "معكرونة + حمص = وجبة متوازنة" },
+      ],
+      color: "green",
+    },
+    {
+      title: { en: "Food Preservation Tips", ar: "نصائح حفظ الطعام" },
+      description: {
+        en: "Keep meals fresh longer without refrigeration. These traditional methods help preserve food safety and prevent waste in difficult conditions.",
+        ar: "حافظ على الوجبات طازجة لفترة أطول بدون ثلاجة. هذه الطرق التقليدية تساعد في الحفاظ على سلامة الغذاء ومنع الهدر في الظروف الصعبة.",
+      },
+      listTitle: { en: "Preservation Methods:", ar: "طرق الحفظ:" },
+      items: [
+        { en: "Store in cool, shaded areas", ar: "التخزين في أماكن باردة ومظللة" },
+        { en: "Use covered containers to prevent contamination", ar: "استخدام أوعية مغطاة لمنع التلوث" },
+        { en: "Consume cooked meals within 4–6 hours", ar: "تناول الوجبات المطبوخة خلال 4-6 ساعات" },
+        { en: "Keep bread in cloth bags, not plastic", ar: "حفظ الخبز في أكياس قماشية وليس بلاستيكية" },
+      ],
+      color: "orange",
+    },
+    {
+      title: { en: "Children's Nutrition Priority", ar: "أولوية تغذية الأطفال" },
+      description: {
+        en: "Children need consistent nutrition for growth and development. Ensure they receive adequate portions from community meals daily.",
+        ar: "يحتاج الأطفال إلى تغذية مستمرة للنمو والتطور. تأكد من حصولهم على حصص كافية من الوجبات المجتمعية يومياً.",
+      },
+      listTitle: { en: "Essential for Children:", ar: "ضروريات للأطفال:" },
+      items: [
+        { en: "Protein-rich foods (lentils, beans, eggs)", ar: "الأطعمة الغنية بالبروتين (عدس، بقوليات، بيض)" },
+        { en: "Regular meal times (3 meals daily)", ar: "مواعيد منتظمة للوجبات (3 وجبات يومياً)" },
+        { en: "Adequate water intake", ar: "شرب كميات كافية من الماء" },
+        { en: "Any available fruits or vegetables", ar: "أي فواكه أو خضروات متاحة" },
+      ],
+      color: "blue",
+    },
+  ],
+
+  stretching: {
+    title: { en: "Stretching Community Meals", ar: "مضاعفة فوائد الوجبات" },
+    subtitle: {
+      en: "Simple ways to make kitchen meals serve your family better and last longer",
+      ar: "طرق بسيطة لجعل وجبات المطابخ تكفي عائلتك بشكل أفضل وتدوم لفترة أطول",
+    },
+    steps: [
+      {
+        number: 1,
+        title: { en: "Add Vegetables or Greens", ar: "إضافة الخضروات أو الأوراق الخضراء" },
+        text: { en: "If you can access any vegetables, adding them to soup or rice increases volume and nutrition.", ar: "إذا استطعت الحصول على أي خضروات، فإن إضافتها للحساء أو الأرز تزيد من حجم الوجبة وقيمتها الغذائية." },
+      },
+      {
+        number: 2,
+        title: { en: "Save Bread for Breakfast", ar: "توفير الخبز للإفطار" },
+        text: { en: "Save bread for the next morning; stale bread can be softened with water or tea.", ar: "وفر بعض الخبز لصباح اليوم التالي؛ يمكن تليين الخبز الجاف بالماء أو الشاي." },
+      },
+      {
+        number: 3,
+        title: { en: "Split Into Smaller Portions", ar: "التقسيم إلى حصص صغيرة" },
+        text: { en: "Serve smaller portions 3 times daily to maintain energy levels.", ar: "قدم حصصاً أصغر 3 مرات يومياً للحفاظ على مستويات الطاقة." },
+      },
+      {
+        number: 4,
+        title: { en: "Use All the Broth", ar: "استهلاك المرق بالكامل" },
+        text: { en: "Soup broth contains nutrients — don't waste it.", ar: "مرق الحساء يحتوي على مواد مغذية — لا تهدره." },
+      },
+      {
+        number: 5,
+        title: { en: "Prioritize Pregnant & Nursing Mothers", ar: "الأولوية للحوامل والمرضعات" },
+        text: { en: "Mothers need extra nutrition. Ensure they receive protein portions.", ar: "تحتاج الأمهات إلى تغذية إضافية. تأكد من حصولهن على حصص البروتين." },
+      },
+      {
+        number: 6,
+        title: { en: "Visit Multiple Kitchens", ar: "زيارة مطابخ متعددة" },
+        text: { en: "Different kitchens serve different meals. Variety improves nutrition.", ar: "تقدم المطابخ المختلفة وجبات متنوعة. التنوع يحسن القيمة الغذائية." },
+      },
+    ],
+  },
+};
+
 
 async function main() {
   console.log("🌱 Start seeding...");
@@ -144,6 +242,7 @@ async function main() {
   await prisma.foodRecipe.deleteMany({});
   await prisma.kitchen.deleteMany({});
   await prisma.doctor.deleteMany({});
+  await prisma.nutritionGuide.deleteMany({});
 
   await prisma.healthTip.createMany({
     data: healthTips,
@@ -163,8 +262,16 @@ async function main() {
 
   for (const doctor of doctorsData) {
     await prisma.doctor.create({ data: doctor });
-  }
+  };
   console.log("✅ Seeded doctors!");
+
+  await prisma.nutritionGuide.create({
+    data: {
+      content: nutritionGuide // هنا نضع الكائن بالكامل داخل حقل content
+    }
+  });
+  
+  console.log("✅ Seeded nutritionGuide into the content field!");
 
   console.log("🏁 Seeding finished.");
 }

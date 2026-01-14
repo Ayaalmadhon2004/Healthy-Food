@@ -57,4 +57,10 @@ model Doctor {
   availability   Json      // بدل String لو en/ar
 }
 
+model NutritionGuide {
+  id        Int      @id @default(autoincrement())
+  content   Json     
+  updatedAt DateTime @updatedAt
+}
+
 

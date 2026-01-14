@@ -1,17 +1,35 @@
-import { nutritionGuide } from "@/data/nutritionData";
+import {prisma} from "@/lib/prisma";
+import { cookies } from "next/headers";
 
-export default function NutritionSection() {
-  const { header, sections, stretching } = nutritionGuide;
+export default async function NutritionSection() {
+  // 1. جلب اللغة في السيرفر (Next.js 15)
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+  const isRtl = lang === "ar";
+
+  // 2. جلب البيانات من JSON field في قاعدة البيانات
+  const guideData = await prisma.nutritionGuide.findFirst();
+  
+  if (!guideData || !guideData.content) return null;
+  
+  const { header, sections, stretching } = guideData.content;
 
   return (
-    <section className="max-w-5xl mx-auto px-6 py-12">
+    <section 
+      className="max-w-5xl mx-auto px-6 py-12" 
+      dir={isRtl ? "rtl" : "ltr"}
+    >
       {/* Header */}
       <div className="text-center mb-12">
-        <span className="inline-block bg-green-100 text-green-700 font-medium px-4 py-1 rounded-full">
-          {header.badge}
+        <span className="inline-block bg-green-100 text-green-700 font-medium px-4 py-1 rounded-full text-sm">
+          {header.badge[lang]}
         </span>
-        <h1 className="text-3xl font-bold mt-4">{header.title}</h1>
-        <p className="text-gray-600 mt-2">{header.subtitle}</p>
+        <h1 className="text-3xl font-bold mt-4 text-gray-900">
+          {header.title[lang]}
+        </h1>
+        <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+          {header.subtitle[lang]}
+        </p>
       </div>
 
       {/* Sections */}
@@ -19,15 +37,23 @@ export default function NutritionSection() {
         {sections.map((sec, index) => (
           <article
             key={index}
-            className={`p-6 rounded-xl border ${sec.color}`}
+            className={`p-6 rounded-xl border ${
+              sec.color === "green" ? "bg-green-50 border-green-100" :
+              sec.color === "orange" ? "bg-orange-50 border-orange-100" :
+              "bg-blue-50 border-blue-100"
+            }`}
           >
-            <h2 className="text-xl font-semibold">{sec.title}</h2>
-            <p className="mt-2 text-gray-700">{sec.description}</p>
+            <h2 className="text-xl font-bold text-gray-800">{sec.title[lang]}</h2>
+            <p className="mt-2 text-gray-700 text-sm leading-relaxed">
+              {sec.description[lang]}
+            </p>
 
-            <h4 className="mt-4 font-semibold">{sec.listTitle}</h4>
-            <ul className="mt-2 list-disc ml-6 text-gray-700 space-y-1">
+            <h4 className="mt-6 font-bold text-gray-800 text-xs uppercase tracking-wider">
+              {sec.listTitle[lang]}
+            </h4>
+            <ul className={`mt-2 space-y-2 text-gray-700 text-sm list-disc ${isRtl ? "pr-5" : "pl-5"}`}>
               {sec.items.map((item, i) => (
-                <li key={i}>{item}</li>
+                <li key={i}>{item[lang]}</li>
               ))}
             </ul>
           </article>
@@ -35,19 +61,21 @@ export default function NutritionSection() {
       </div>
 
       {/* Stretching Meals */}
-      <div className="mt-12 bg-gray-50 p-6 rounded-xl">
-        <h2 className="text-2xl font-bold">{stretching.title}</h2>
-        <p className="text-gray-600 mt-1">{stretching.subtitle}</p>
+      <div className="mt-12 bg-gray-50 p-8 rounded-2xl border border-gray-100">
+        <h2 className="text-2xl font-bold text-gray-900">{stretching.title[lang]}</h2>
+        <p className="text-gray-600 mt-1">{stretching.subtitle[lang]}</p>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
           {stretching.steps.map((step) => (
-            <div key={step.number} className="flex gap-4">
-              <span className="bg-blue-100 text-blue-700 w-10 h-10 flex items-center justify-center rounded-full font-bold">
+            <div key={step.number} className="flex gap-4 items-start">
+              <span className="shrink-0 bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold">
                 {step.number}
               </span>
               <div>
-                <h3 className="font-semibold">{step.title}</h3>
-                <p className="text-gray-700">{step.text}</p>
+                <h3 className="font-bold text-gray-800">{step.title[lang]}</h3>
+                <p className="text-gray-600 text-sm mt-1 leading-relaxed">
+                  {step.text[lang]}
+                </p>
               </div>
             </div>
           ))}
