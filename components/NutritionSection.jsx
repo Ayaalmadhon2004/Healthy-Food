@@ -2,12 +2,10 @@ import {prisma} from "@/lib/prisma";
 import { cookies } from "next/headers";
 
 export default async function NutritionSection() {
-  // 1. جلب اللغة في السيرفر (Next.js 15)
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const isRtl = lang === "ar";
 
-  // 2. جلب البيانات من JSON field في قاعدة البيانات
   const guideData = await prisma.nutritionGuide.findFirst();
   
   if (!guideData || !guideData.content) return null;

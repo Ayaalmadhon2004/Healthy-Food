@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 
 const IconMap = {
   Droplet: Droplet,
@@ -9,10 +10,10 @@ const IconMap = {
   Activity: Activity,
 };
 
-const healthTips=await prisma.healthTip.findMany();
-
+// توليد المسارات الثابتة (Next.js Static Generation)
 export async function generateStaticParams() {
-  return healthTips.map((tip) => ({
+  const tips = await prisma.healthTip.findMany();
+  return tips.map((tip) => ({
     id: tip.id.toString(),
   }));
 }
@@ -20,13 +21,21 @@ export async function generateStaticParams() {
 export default async function TipDetails({ params }) {
   const { id } = await params;
 
-  const tip = healthTips.find((t) => t.id.toString() === id);
+  // 1. جلب اللغة من الكوكيز
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+  const isRtl = lang === "ar";
+
+  // 2. جلب النصيحة المحددة من قاعدة البيانات مباشرة
+  const tip = await prisma.healthTip.findUnique({
+    where: { id: parseInt(id) },
+  });
 
   if (!tip) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-red-500 text-lg md:text-xl font-bold">
-          Tip not found
+          {lang === "ar" ? "النصيحة غير موجودة" : "Tip not found"}
         </p>
       </div>
     );
@@ -35,46 +44,53 @@ export default async function TipDetails({ params }) {
   const IconComponent = IconMap[tip.iconName] || HelpCircle;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#eef7f0] to-[#f6f6f6] p-4 md:p-6 lg:p-10">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-6 md:p-10 border border-gray-100">
+    <div 
+      className="min-h-screen bg-gradient-to-br from-[#eef7f0] to-[#f6f6f6] p-4 md:p-6 lg:p-10"
+      dir={isRtl ? "rtl" : "ltr"}
+    >
+      <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-3xl p-6 md:p-12 border border-gray-100">
 
         {/* Icon Display */}
-        <div className="text-green-600 mb-6 flex justify-center">
-          <IconComponent size={80} strokeWidth={1.5} />
+        <div className="text-green-600 mb-8 flex justify-center">
+          <div className="p-5 bg-green-50 rounded-full shadow-inner">
+            <IconComponent size={64} strokeWidth={1.5} />
+          </div>
         </div>
 
         {/* Header */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 text-center">
-          {tip.header}
+        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 text-center leading-tight">
+          {tip.header[lang]}
         </h1>
 
         {/* Advice */}
-        <p className="text-base sm:text-lg md:text-xl mt-4 md:mt-6 text-gray-700 leading-relaxed text-center">
-          {tip.advice}
+        <p className="text-lg sm:text-xl md:text-2xl mt-6 text-green-700 font-medium leading-relaxed text-center">
+          {tip.advice[lang]}
         </p>
 
         {/* Details */}
-        <p className="text-gray-500 mt-4 md:mt-6 leading-relaxed text-center text-sm sm:text-base md:text-lg">
-          {tip.details}
+        <p className="text-gray-500 mt-6 leading-relaxed text-center text-base sm:text-lg md:text-xl max-w-2xl mx-auto">
+          {tip.details[lang]}
         </p>
 
         {/* More Details Section */}
-        <div className="mt-6 md:mt-8 bg-[#f9fcf9] rounded-xl p-6 md:p-8 border border-green-50 border-gray-200 shadow-sm">
-          <h2 className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-4">
-            More Details
+        <div className="mt-10 md:mt-12 bg-[#fdfcf9] rounded-2xl p-6 md:p-10 border border-gray-100 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
+            {lang === "ar" ? "تفاصيل إضافية" : "More Details"}
           </h2>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base md:text-lg">
-            {tip.moreDetails}
+          <p className="text-gray-700 leading-loose whitespace-pre-line text-sm sm:text-base md:text-lg">
+            {tip.moreDetails[lang]}
           </p>
         </div>
 
         {/* Back Button */}
-        <div className="mt-6 md:mt-10 flex justify-center">
+        <div className="mt-10 md:mt-14 flex justify-center">
           <Link
             href="/tips"
-            className="px-6 sm:px-8 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition shadow-md text-sm sm:text-base md:text-lg"
+            className="group flex items-center gap-2 px-8 py-4 rounded-2xl bg-gray-900 text-white font-bold hover:bg-green-600 transition-all duration-300 shadow-lg active:scale-95"
           >
-            ← Back to Tips
+            <span className={isRtl ? "rotate-180" : ""}>←</span>
+            {lang === "ar" ? "العودة للنصائح" : "Back to Tips"}
           </Link>
         </div>
       </div>
