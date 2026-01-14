@@ -1,177 +1,96 @@
 import { prisma } from '../lib/prisma.js'; 
 
-const healthTips = [
+export const healthTips = [
   {
-    header: "Hydration",
+    id: 1,
+    header: { en: "Hydration", ar: "الترطيب" },
     iconName: "Droplet",
-    advice: "Stay hydrated.",
-    details: "Drink enough water daily.",
-    moreDetails: "Water improves energy, focus, and digestion."
+    advice: { en: "Stay hydrated.", ar: "حافظ على شرب الماء." },
+    details: { en: "Drink enough water daily.", ar: "اشرب كمية كافية من الماء يومياً." },
+    moreDetails: { en: "Water improves energy, focus, and digestion.", ar: "الماء يحسن الطاقة والتركيز والهضم." }
   },
   {
-    header: "Healthy Meals",
+    id: 2,
+    header: { en: "Healthy Meals", ar: "وجبات صحية" },
     iconName: "Activity",
-    advice: "Eat balanced meals.",
-    details: "Include proteins, vegetables, carbs, and fats.",
-    moreDetails: "Balanced meals give your body essential nutrients."
+    advice: { en: "Eat balanced meals.", ar: "تناول وجبات متوازنة." },
+    details: { en: "Include proteins, vegetables, carbs, and fats.", ar: "تضمن البروتينات والخضار والكربوهيدرات والدهون." },
+    moreDetails: { en: "Balanced meals give your body essential nutrients.", ar: "الوجبات المتوازنة تمنح جسمك العناصر الغذائية الأساسية." }
   },
   {
-    header: "Sleep",
+    id: 3,
+    header: { en: "Sleep", ar: "النوم" },
     iconName: "Bed",
-    advice: "Get enough sleep.",
-    details: "7–9 hours improves mood and productivity.",
-    moreDetails: "Quality sleep is essential for emotional well-being."
+    advice: { en: "Get enough sleep.", ar: "احصل على قسط كافٍ من النوم." },
+    details: { en: "7–9 hours improves mood and productivity.", ar: "7–9 ساعات تحسن المزاج والإنتاجية." },
+    moreDetails: { en: "Quality sleep is essential for emotional well-being.", ar: "النوم الجيد ضروري للصحة النفسية." }
   },
   {
-    header: "Movement",
+    id: 4,
+    header: { en: "Movement", ar: "الحركة" },
     iconName: "Activity",
-    advice: "Move daily.",
-    details: "15-minute walks improve circulation.",
-    moreDetails: "Regular activity reduces stress and boosts health."
+    advice: { en: "Move daily.", ar: "تحرك يومياً." },
+    details: { en: "15-minute walks improve circulation.", ar: "المشي 15 دقيقة يحسن الدورة الدموية." },
+    moreDetails: { en: "Regular activity reduces stress and boosts health.", ar: "النشاط المنتظم يقلل التوتر ويعزز الصحة." }
   },
   {
-    header: "Breathing",
+    id: 5,
+    header: { en: "Breathing", ar: "التنفس" },
     iconName: "Leaf",
-    advice: "Take deep breaths.",
-    details: "Slow breathing relaxes your nervous system.",
-    moreDetails: "Deep breathing lowers anxiety and stress."
+    advice: { en: "Take deep breaths.", ar: "تنفس بعمق." },
+    details: { en: "Slow breathing relaxes your nervous system.", ar: "التنفس البطيء يريح الجهاز العصبي." },
+    moreDetails: { en: "Deep breathing lowers anxiety and stress.", ar: "التنفس العميق يقلل القلق والتوتر." }
   }
 ];
 
-const recipes = [
+export const foodRecipes = [
   {
+    id: 1,
     img: "/assets/Berry.jpg",
-    type: "Breakfast",
-    title: "Berry Smoothie Bowl",
-    time: "5 min",
-    cal: "280cal",
-    nutrition: { protein: "10g", carbs: "35g", fat: "8g", fiber: "6g" },
-    ingredients: ["1 cup frozen berries", "1 banana", "1/2 cup yogurt", "1/4 cup granola", "Honey (optional)"],
-    instructions: ["Blend frozen berries, banana, and yogurt until smooth.", "Pour smoothie into a bowl.", "Top with granola and extra berries.", "Drizzle honey if desired."]
+    type: { en: "Breakfast", ar: "فطور" },
+    title: { en: "Berry Smoothie Bowl", ar: "وعاء سموثي التوت" },
+    time: { en: "5 min", ar: "5 دقائق" },
+    cal: { en: "280 cal", ar: "280 سعرة" },
+    nutrition: { protein: { en: "10g", ar: "10غ" }, carbs: { en: "35g", ar: "35غ" }, fat: { en: "8g", ar: "8غ" }, fiber: { en: "6g", ar: "6غ" } },
+    ingredients: { en: ["1 cup frozen berries", "1 banana", "1/2 cup yogurt", "1/4 cup granola", "Honey (optional)"], ar: ["1 كوب توت مجمد", "1 موزة", "1/2 كوب زبادي", "1/4 كوب جرانولا", "عسل (اختياري)"] },
+    instructions: { en: ["Blend frozen berries, banana, and yogurt until smooth.", "Pour smoothie into a bowl.", "Top with granola and extra berries.", "Drizzle honey if desired."], ar: ["اخلط التوت المجمد والموز والزبادي حتى يصبح ناعماً.", "صب السموثي في وعاء.", "ضع الجرانولا والتوت الإضافي على الوجه.", "أضف العسل إذا رغبت."] }
   },
   {
+    id: 2,
     img: "/assets/Quinoa Buddha Bowl.jpg",
-    type: "Lunch",
-    title: "Quinoa Buddha Bowl",
-    time: "15 min",
-    cal: "420cal",
-    nutrition: { protein: "18g", carbs: "52g", fat: "14g", fiber: "12g" },
-    ingredients: ["1 cup cooked quinoa", "1 can chickpeas, drained", "1 avocado, sliced", "2 cups mixed greens", "1 cup cherry tomatoes, halved", "1/2 cucumber, diced", "1/4 cup tahini", "Lemon juice, salt, pepper"],
-    instructions: ["Cook quinoa according to package directions.", "Roast chickpeas with olive oil and spices at 400°F for 25 minutes.", "Arrange mixed greens in a bowl.", "Add cooked quinoa, chickpeas, avocado, tomatoes, and cucumber.", "Drizzle with tahini dressing.", "Season with salt and pepper."]
-  },
-  {
-    img: "/assets/Grilled Salmon.jpg",
-    type: "Dinner",
-    title: "Grilled Salmon",
-    time: "20 min",
-    cal: "520cal",
-    nutrition: { protein: "34g", carbs: "10g", fat: "32g", fiber: "2g" },
-    ingredients: ["1 salmon fillet", "1 tbsp olive oil", "Salt and pepper", "1 lemon slice", "Steamed vegetables"],
-    instructions: ["Season salmon with salt, pepper, and olive oil.", "Grill for 6–8 minutes per side.", "Serve with steamed vegetables.", "Garnish with lemon."]
-  },
-  {
-    img: "/assets/Greek Salad.jpg",
-    type: "Lunch",
-    title: "Greek Salad",
-    time: "10 min",
-    cal: "310cal",
-    nutrition: { protein: "7g", carbs: "14g", fat: "22g", fiber: "4g" },
-    ingredients: ["1 cucumber, diced", "2 tomatoes, chopped", "1/4 cup olives", "Feta cheese", "Olive oil and lemon"],
-    instructions: ["Chop all vegetables.", "Add olives and feta cheese.", "Drizzle with lemon and olive oil.", "Toss gently and serve."]
-  },
-  {
-    img: "/assets/Chicken Stir Fry.jpg",
-    type: "Dinner",
-    title: "Chicken Stir Fry",
-    time: "25 min",
-    cal: "480cal",
-    nutrition: { protein: "40g", carbs: "30g", fat: "18g", fiber: "5g" },
-    ingredients: ["1 chicken breast, sliced", "1 cup mixed vegetables", "2 tbsp soy sauce", "1 tbsp olive oil", "1 garlic clove"],
-    instructions: ["Cook chicken in olive oil until golden.", "Add vegetables and stir fry 5 minutes.", "Add soy sauce and garlic.", "Serve warm."]
-  },
-  {
-    img: "/assets/Avocado Toast.jpg",
-    type: "Breakfast",
-    title: "Avocado Toast",
-    time: "8 min",
-    cal: "320cal",
-    nutrition: { protein: "9g", carbs: "28g", fat: "20g", fiber: "7g" },
-    ingredients: ["2 bread slices", "1 avocado", "Salt and pepper", "Cherry tomatoes"],
-    instructions: ["Toast bread slices.", "Mash avocado and spread over toast.", "Season with salt and pepper.", "Add cherry tomatoes on top."]
-  },
-  {
-    img: "/assets/Lentil Soup.jpg",
-    type: "Lunch",
-    title: "Lentil Soup",
-    time: "30 min",
-    cal: "290cal",
-    nutrition: { protein: "16g", carbs: "40g", fat: "4g", fiber: "15g" },
-    ingredients: ["1 cup red lentils", "1 onion, chopped", "1 carrot, chopped", "1 tbsp olive oil", "Salt, pepper, cumin"],
-    instructions: ["Cook onions and carrots in olive oil.", "Add lentils and water.", "Simmer for 20 minutes.", "Blend if desired and season."]
-  },
-  {
-    img: "/assets/Veggie Wrap.jpg",
-    type: "Lunch",
-    title: "Veggie Wrap",
-    time: "12 min",
-    cal: "350cal",
-    nutrition: { protein: "12g", carbs: "44g", fat: "11g", fiber: "8g" },
-    ingredients: ["1 tortilla wrap", "1/2 cup mixed veggies", "Hummus", "Lettuce", "Salt and pepper"],
-    instructions: ["Spread hummus on tortilla.", "Add veggies and lettuce.", "Roll tightly.", "Slice and enjoy."]
+    type: { en: "Lunch", ar: "غداء" },
+    title: { en: "Quinoa Buddha Bowl", ar: "وعاء بوذا بالكينوا" },
+    time: { en: "15 min", ar: "15 دقيقة" },
+    cal: { en: "420 cal", ar: "420 سعرة" },
+    nutrition: { protein: { en: "18g", ar: "18غ" }, carbs: { en: "52g", ar: "52غ" }, fat: { en: "14g", ar: "14غ" }, fiber: { en: "12g", ar: "12غ" } },
+    ingredients: { en: ["1 cup cooked quinoa", "1 can chickpeas, drained", "1 avocado, sliced", "2 cups mixed greens", "1 cup cherry tomatoes, halved", "1/2 cucumber, diced", "1/4 cup tahini", "Lemon juice, salt, pepper"], ar: ["1 كوب كينوا مطبوخ", "1 علبة حمص مصفى", "1 أفوكادو مقطع", "2 كوب خضار مشكلة", "1 كوب طماطم كرزية مقطعة", "1/2 خيار مقطع", "1/4 كوب طحينة", "عصير ليمون، ملح، فلفل"] },
+    instructions: { en: ["Cook quinoa according to package directions.", "Roast chickpeas with olive oil and spices at 400°F for 25 minutes.", "Arrange mixed greens in a bowl.", "Add cooked quinoa, chickpeas, avocado, tomatoes, and cucumber.", "Drizzle with tahini dressing.", "Season with salt and pepper."], ar: ["اطبخ الكينوا حسب التعليمات.", "حمص الحمص مع زيت الزيتون والتوابل في فرن 200° مئوية لمدة 25 دقيقة.", "ضع الخضار المشكلة في وعاء.", "أضف الكينوا المطبوخ والحمص والأفوكادو والطماطم والخيار.", "رش صلصة الطحينة.", "تبل بالملح والفلفل."] }
   }
 ];
 
-const kitchens = [
-    {
-      name: "Al-Sadaqa Kitchen",
-      location: "Al-Shuja'iyya, Gaza City",
-      region: "Gaza",
-      distribution_time: "1:00 PM",
-      capacity: "350-500 families",
-      todays_meal: "Lentil soup + bread",
-      access_info: "Open to all families. No registration needed.",
-      contact: "+970-599-123456"
-    },
-    {
-      name: "Rahma Charity Kitchen",
-      location: "Beit Lahia, North Gaza",
-      region: "North",
-      distribution_time: "12:30 PM",
-      capacity: "300 families",
-      todays_meal: "Rice & beans",
-      access_info: "First come, first served. Bring your own containers.",
-      contact: "+970-597-554321"
-    },
-    {
-      name: "Al-Amal Women's Community Kitchen",
-      location: "Nuseirat Camp, Middle Area",
-      region: "Middle",
-      distribution_time: "2:00 PM",
-      capacity: "250 families",
-      todays_meal: "Vegetable soup",
-      access_info: "Women-run kitchen. Wheelchair accessible entrance.",
-      contact: "+970-592-876543"
-    },
-    {
-      name: "Khan Younis Public Kitchen",
-      location: "Khan Younis Camp, Khan Younis",
-      region: "Khan Younis",
-      distribution_time: "1:30 PM",
-      capacity: "600 families",
-      todays_meal: "Chicken rice (weekly), lentils (daily)",
-      access_info: "Large capacity. Multiple distribution points in the camp.",
-      contact: "+970-591-334477"
-    },
-    {
-      name: "Al-Tadhamon Social Kitchen",
-      location: "Tal Al-Sultan, Rafah",
-      region: "Rafah",
-      distribution_time: "12:00 PM",
-      capacity: "200 families",
-      todays_meal: "Pasta + tomato sauce",
-      access_info: "Located near main road. Easy to find.",
-      contact: "+970-599-884422"
-    }
+export const kitchens = [
+  {
+    id: 1,
+    name: { en: "Al-Sadaqa Kitchen", ar: "مطبخ الصداقة" },
+    location: { en: "Al-Shuja'iyya, Gaza City", ar: "الشجاعية، غزة" },
+    region: { en: "Gaza", ar: "غزة" },
+    distributionTime: { en: "1:00 PM", ar: "1:00 ظهراً" },
+    capacity: { en: "350-500 families", ar: "350-500 أسرة" },
+    todaysMeal: { en: "Lentil soup + bread", ar: "شوربة عدس + خبز" },
+    accessInfo: { en: "Open to all families. No registration needed.", ar: "مفتوح لجميع العائلات. لا حاجة للتسجيل." },
+    contact: "+970-599-123456"
+  },
+  {
+    id: 2,
+    name: { en: "Rahma Charity Kitchen", ar: "مطبخ رحمة" },
+    location: { en: "Beit Lahia, North Gaza", ar: "بيت لاهيا، شمال غزة" },
+    region: { en: "North", ar: "الشمال" },
+    distributionTime: { en: "12:30 PM", ar: "12:30 ظهراً" },
+    capacity: { en: "300 families", ar: "300 أسرة" },
+    todaysMeal: { en: "Rice & beans", ar: "أرز وفاصوليا" },
+    accessInfo: { en: "First come, first served. Bring your own containers.", ar: "الأسبقية لمن يصل أولاً. أحضر وعاءك." },
+    contact: "+970-597-554321"
+  }
 ];
 
 const doctorsData = [
@@ -232,7 +151,7 @@ async function main() {
   console.log("✅ Seeded health tips!");
 
   await prisma.foodRecipe.createMany({
-    data: recipes,
+  data: foodRecipes,
   });
   console.log("✅ Seeded Food Recipes!");
 
