@@ -13,7 +13,6 @@ export default function CartModal() {
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
 
-  // نصوص الواجهة
   const t = {
     title: { en: "Your Cart", ar: "سلة المشتريات" },
     empty: { en: "Your cart is empty", ar: "السلة فارغة حالياً" },
@@ -56,12 +55,10 @@ export default function CartModal() {
                 className="flex justify-between items-start mb-6 border-b border-gray-100 pb-4 group"
               >
                 <div className="flex-1">
-                  {/* اسم الوجبة - معالجة الكائن أو النص */}
                   <p className="font-bold text-gray-800 group-hover:text-green-600 transition-colors">
                     {typeof item.name === 'object' ? item.name[lang] : item.name}
                   </p>
                   
-                  {/* السعرات - معالجة الكائن أو النص */}
                   <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                     {typeof item.calories === 'object' ? item.calories[lang] : item.calories}
                   </p>
