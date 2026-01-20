@@ -38,7 +38,7 @@ export default function LoginClient({ t }) {
             return
         }
 
-        router.push("/")
+        router.push("/dashboard")
         router.refresh()
         } catch (err) {
         setError(t.errors.general_error)

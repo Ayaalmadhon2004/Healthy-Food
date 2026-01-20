@@ -1,4 +1,4 @@
-import { supabaseServer } from "@/lib/supabase/server"
+import { getSupabaseServer } from "@/lib/supabase/server"
 import { prismaClient } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
@@ -36,6 +36,8 @@ export async function POST(req: Request) {
         { status: 400 }
       )
     }
+
+    const supabaseServer = await getSupabaseServer()
 
     if (!supabaseServer) {
       return NextResponse.json(

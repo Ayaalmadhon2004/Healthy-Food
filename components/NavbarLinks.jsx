@@ -34,6 +34,7 @@ export default function NavbarLinks({ className }) {
 
   return (
     <>
+      <Link href="/dashboard" className={className}>Dashboard</Link>
       <Link href="/recipes" className={className}>Recipes</Link>
       <Link href="/tracker" className={className}>Meal Tracker</Link>
       <Link href="/tips" className={className}>Tips</Link>

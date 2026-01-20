@@ -1,35 +1,45 @@
-import { supabaseServer } from "@/lib/supabase/server"
+import { getSupabaseServer } from "@/lib/supabase/server"
+import { prismaClient } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const supabaseServer = await getSupabaseServer()
+
     if (!supabaseServer) {
       return NextResponse.json(
         { error: "Internal server configuration error" },
         { status: 500 }
-      );
+      )
     }
 
     // 1️⃣ Get currently authenticated user from Supabase
-    const { data: authData, error: authError } =
+    const { data: { user }, error: authError } =
       await supabaseServer.auth.getUser()
 
-    if (authError || !authData.user) {
+    if (authError || !user) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401 }
       )
     }
 
-    // 2️⃣ Fetch user profile from your users table
-    const { data: profile, error: profileError } =
-      await supabaseServer
-        .from("users")
-        .select("id, name, email")
-        .eq("id", authData.user.id)
-        .single()
+    // 2️⃣ Fetch user profile from database using Prisma
+    const profile = await prismaClient.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        dietary_preferences: true,
+        health_goals: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
 
-    if (profileError) {
+    if (!profile) {
       return NextResponse.json(
         { error: "User profile not found" },
         { status: 404 }
@@ -41,7 +51,7 @@ export async function GET() {
       user: profile,
     })
   } catch (error) {
-    console.error("Get User Error:", error);
+    console.error("Get User Error:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -1,17 +1,19 @@
-import { supabaseServer } from "@/lib/supabase/server"
+import { getSupabaseServer } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 export async function POST() {
   try {
-    // 🛡️ تحقق الأمان لإرضاء TypeScript ومنع خطأ الـ Build
+    const supabaseServer = await getSupabaseServer()
+
+    // Check server connection
     if (!supabaseServer) {
       return NextResponse.json(
-        { error: "Supabase server is not initialized" },
+        { error: "Internal server configuration error" },
         { status: 500 }
-      );
+      )
     }
 
-    // تسجيل الخروج من Supabase (يحذف الجلسة والكوكيز تلقائياً)
+    // Sign out from Supabase (automatically clears session & cookies)
     const { error } = await supabaseServer.auth.signOut()
 
     if (error) {
@@ -23,9 +25,9 @@ export async function POST() {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Logout Error:", error);
+    console.error("Logout Error:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "An unexpected error occurred. Please try again." },
       { status: 500 }
     )
   }

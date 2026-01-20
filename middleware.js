@@ -53,6 +53,11 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
     */
+  /*
+  if(!user && request.nextUrl.pathname.startsWith('/dashboard')){
+    return NextResponse.redirect(new URL('/login',request.url))
+  }
+    */
 
   return response
 }
