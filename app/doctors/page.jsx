@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import DoctorsListClient from '@/components/DoctorsListClient';
+import { prisma } from '@/lib/prisma';
 
 export default async function Page() {
   const cookieStore = await cookies();

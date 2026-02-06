@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { prismaClient } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabaseServer = await getSupabaseServer();
+    const supabaseServer = await getSupabaseAdmin();
 
     if (!supabaseServer) {
       return NextResponse.json(

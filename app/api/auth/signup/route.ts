@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase/server"
+import { getSupabaseAdmin } from "@/lib/supabase/server"
 import { prismaClient } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
@@ -33,9 +33,9 @@ export async function POST(req: Request) {
       )
     }
 
-    const supabaseServer = await getSupabaseServer()
+    const supabaseAdmin = await getSupabaseAdmin()
 
-    if (!supabaseServer) {
+    if (!supabaseAdmin) {
       return NextResponse.json(
         { error: "Internal server configuration error" },
         { status: 500 }
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     }
 
     const { data: auth, error: authError } =
-      await supabaseServer.auth.admin.createUser({
+      await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     })
 
     if (!user) {
-      await supabaseServer.auth.admin.deleteUser(auth.user.id)
+      await supabaseAdmin.auth.admin.deleteUser(auth.user.id)
       return NextResponse.json(
         { error: "Failed to create user profile" },
         { status: 500 }

@@ -53,27 +53,40 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
+      // التأكد من أن المسار يبدأ بـ /api/auth ليتم استثناؤه في الـ Middleware
       const res = await fetch("/api/auth/signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          // أحياناً نحتاج لإرسال هيدر بسيط لتجنب اعتراض بعض الفلاتر
+          "Accept": "application/json"
+        },
         body: JSON.stringify({ name, email, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error === "emailExists" ? t.errExists[lang] : data.error || t.errGeneric[lang]);
+        // إذا كان السيرفر يعيد رسالة Bearer token، سنقوم بترجمتها لرسالة مفهومة للمستخدم
+        const serverError = data.message || data.error || "";
+        if (serverError.includes("Bearer")) {
+            setError(t.errGeneric[lang]);
+            console.error("Auth Issue: Middleware is blocking the API route.");
+        } else {
+            setError(data.error === "emailExists" ? t.errExists[lang] : serverError || t.errGeneric[lang]);
+        }
         setIsLoading(false);
         return;
       }
 
-      router.push("/");
+      router.push("/login"); // الأفضل التوجيه للوجن أولاً لتأكيد الجلسة
       router.refresh();
     } catch (err) {
       setError(t.errGeneric[lang]);
       setIsLoading(false);
     }
   };
+
 
   return (
     <div 
