@@ -8,7 +8,6 @@ export default function NavbarLinks({ className }) {
   const router = useRouter();
   const [currentLocale, setCurrentLocale] = useState("ar");
 
-  // قراءة اللغة من الكوكيز عند تحميل المكون
   useEffect(() => {
     const lang = document.cookie
       .split("; ")
@@ -18,17 +17,10 @@ export default function NavbarLinks({ className }) {
   }, []);
 
   const switchLanguage = (newLocale) => {
-    // 1. تحديث الكوكي يدوياً
-    document.cookie = `lang=${newLocale}; path=/; max-age=31536000`; // صالح لمدة سنة
+    document.cookie = `lang=${newLocale}; path=/; max-age=31536000`; 
     
-    // 2. تحديث الحالة في الواجهة
     setCurrentLocale(newLocale);
-
-    // 3. إعادة تحميل البيانات من السيرفر ليعرف السيرفر أن اللغة تغيرت
     router.refresh();
-    
-    // ملاحظة: أحياناً في Next.js يفضل استخدام window.location.reload() 
-    // لضمان إعادة رندرة الـ Layout بالكامل بالاتجاه الجديد (RTL/LTR)
     window.location.reload();
   };
 

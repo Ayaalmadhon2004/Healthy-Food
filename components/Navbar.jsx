@@ -19,11 +19,11 @@ export default function Navbar() {
   const isCartOpen = useCartStore((state) => state.isCartOpen);
   const { setError } = useError();
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (!user) {
       setError("You must sign in to access this page!");
     }
-  }, [user, setError]);
+  }, [user, setError]);*/
 
 
   const logout = async () => {

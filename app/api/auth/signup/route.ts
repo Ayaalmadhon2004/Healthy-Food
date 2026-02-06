@@ -8,12 +8,10 @@ export async function POST(req: Request) {
   try {
     let { name, email, password } = await req.json()
 
-    // 1️⃣ Trim inputs
     name = name?.trim() || ""
     email = email?.trim().toLowerCase() || ""
     password = password?.trim() || ""
 
-    // 2️⃣ Validate all fields
     if (!name || !email || !password) {
       return NextResponse.json(
         { error: "Name, email, and password are required" },
@@ -21,7 +19,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 3️⃣ Validate email format
     if (!EMAIL_REGEX.test(email)) {
       return NextResponse.json(
         { error: "Invalid email format" },
@@ -29,7 +26,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 4️⃣ Validate password length
     if (password.length < 6) {
       return NextResponse.json(
         { error: "Password must be at least 6 characters" },
@@ -46,7 +42,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 5️⃣ Check if user exists in database
     const existingUser = await prismaClient.user.findUnique({
       where: { email },
     })
@@ -58,7 +53,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 6️⃣ Create auth user in Supabase
     const { data: auth, error: authError } =
       await supabaseServer.auth.admin.createUser({
         email,
@@ -73,7 +67,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 7️⃣ Create user profile in database
     const user = await prismaClient.user.create({
       data: {
         id: auth.user.id,
@@ -86,7 +79,6 @@ export async function POST(req: Request) {
     })
 
     if (!user) {
-      // Cleanup: Delete auth user if profile creation fails
       await supabaseServer.auth.admin.deleteUser(auth.user.id)
       return NextResponse.json(
         { error: "Failed to create user profile" },
@@ -94,7 +86,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // 8️⃣ Return success with user data
     return NextResponse.json(
       {
         success: true,

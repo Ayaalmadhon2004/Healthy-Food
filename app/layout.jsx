@@ -2,7 +2,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ErrorProvider } from "@/context/ErrorProvider";
-import { LanguageProvider } from "@/context/LanguageContext"; // استيراد البروفايدر الجديد
+import { LanguageProvider } from "@/context/LanguageContext"; 
 import { cookies } from "next/headers";
 
 export const metadata = {
@@ -21,7 +21,6 @@ export default async function RootLayout({ children }) {
         <meta name="theme-color" content="#4CAF50" />
       </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
-        {/* نمرر اللغة المستخرجة من الكوكيز إلى الـ Provider */}
         <LanguageProvider initialLang={lang}>
           <ErrorProvider>
             <Navbar />

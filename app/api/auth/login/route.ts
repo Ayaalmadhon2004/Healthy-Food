@@ -8,11 +8,9 @@ export async function POST(request: Request) {
   try {
     let { email, password } = await request.json();
 
-    // 1️⃣ Trim and normalize inputs
     email = email?.trim().toLowerCase() || "";
     password = password?.trim() || "";
 
-    // 2️⃣ Validate inputs
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
@@ -20,7 +18,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3️⃣ Validate email format
     if (!EMAIL_REGEX.test(email)) {
       return NextResponse.json(
         { error: "Invalid email format" },
@@ -30,7 +27,6 @@ export async function POST(request: Request) {
 
     const supabaseServer = await getSupabaseServer();
 
-    // 4️⃣ Check Supabase server connection
     if (!supabaseServer) {
       return NextResponse.json(
         { error: "Internal server configuration error" },
@@ -38,7 +34,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5️⃣ Authenticate user with Supabase Auth
     const { data: authData, error: authError } =
       await supabaseServer.auth.signInWithPassword({
         email,
@@ -52,7 +47,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 6️⃣ Fetch user profile from database using Prisma
     const user = await prismaClient.user.findUnique({
       where: { id: authData.user.id },
       select: {
@@ -72,7 +66,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 7️⃣ Return success with user data
     return NextResponse.json(
       {
         success: true,

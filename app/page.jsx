@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useInitUser, useUserData } from "@/hooks/useUserData";
-import { useLanguage } from "@/context/LanguageContext"; // استيراد سياق اللغة
+import { useLanguage } from "@/context/LanguageContext"; 
 
 export default function Home() {
   const router = useRouter();
@@ -13,7 +13,6 @@ export default function Home() {
 
   useInitUser();
 
-  // نصوص الترجمة
   const content = {
     title: { 
       en: "Eat Healthy, Live Healthy", 
