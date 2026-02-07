@@ -1,101 +1,29 @@
-'use client'
+"use client";
+import { useLanguage } from "@/context/LanguageContext";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import DashboardSection from '@/components/dashboard/DashboardSection'
-import WelcomeSection from '@/components/dashboard/sections/WelcomeSection'
-import ProgressSection from '@/components/dashboard/sections/ProgressSection'
-import MealLogSection from '@/components/dashboard/sections/MealLogSection'
-import NutritionSummarySection from '@/components/dashboard/sections/NutritionSummarySection'
-import RecommendationsSection from '@/components/dashboard/sections/RecommendationsSection'
-
-export default function DashboardPage() {
-  const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('/api/auth/me')
-        if (!res.ok) {
-          router.push('/login')
-          return
-        }
-        const userData = await res.json()
-        setUser(userData)
-      } catch (error) {
-        console.error('Error fetching user:', error)
-        router.push('/login')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchUser()
-  }, [router])
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري التحميل...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return null
-  }
+export default function DashboardHome() {
+  const { lang } = useLanguage();
+  const userName = "User"; 
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow container mx-auto px-4 py-8">
-        {/* Dashboard Sections Container - Extensible */}
-        <div className="space-y-6">
-          
-          {/* Welcome Section */}
-          <DashboardSection>
-            <WelcomeSection user={user} />
-          </DashboardSection>
+    <div className="p-8">
+      <header className="mb-8">
+        <h1 className="text-3xl font-black text-gray-900">
+          {lang === "ar" ? `مرحباً بك، ${userName}!` : `Welcome back, ${userName}!`}
+        </h1>
+        <p className="text-gray-500 font-medium mt-2">
+          {lang === "ar" 
+            ? "إليك ما يحدث في خطتك الصحية اليوم." 
+            : "Here's what's happening with your health plan today."}
+        </p>
+      </header>
 
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            {/* Progress Section */}
-            <DashboardSection>
-              <ProgressSection user={user} />
-            </DashboardSection>
-
-            {/* Nutrition Summary Section */}
-            <DashboardSection>
-              <NutritionSummarySection user={user} />
-            </DashboardSection>
-
-          </div>
-
-          {/* Full Width Sections */}
-          
-          {/* Meal Log Section */}
-          <DashboardSection>
-            <MealLogSection user={user} />
-          </DashboardSection>
-
-          {/* Recommendations Section */}
-          <DashboardSection>
-            <RecommendationsSection user={user} />
-          </DashboardSection>
-
+      {/* منطقة فارغة للأقسام القادمة */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="h-40 border-2 border-dashed border-gray-200 rounded-3xl flex items-center justify-center text-gray-400">
+          Stat Card Placeholder
         </div>
-      </main>
-
-      <Footer />
+      </div>
     </div>
-  )
+  );
 }
