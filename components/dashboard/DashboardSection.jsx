@@ -1,6 +1,3 @@
-// Base reusable wrapper for all dashboard sections
-// Open/Closed Principle: Easy to add new sections without modifying this file
-
 export default function DashboardSection({ 
   children, 
   className = '',
