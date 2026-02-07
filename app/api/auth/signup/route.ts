@@ -1,46 +1,31 @@
 import { getSupabaseAdmin } from "@/lib/supabase/server"
 import { prismaClient } from "@/lib/prisma"
 import { NextResponse } from "next/server"
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+import { signupSchema } from "@/lib/validations/auth"
 
 export async function POST(req: Request) {
   try {
-    let { name, email, password } = await req.json()
+    const body = await req.json()
 
-    name = name?.trim() || ""
-    email = email?.trim().toLowerCase() || ""
-    password = password?.trim() || ""
+    const validation = signupSchema.safeParse(body)
 
-    if (!name || !email || !password) {
+    if (!validation.success) {
+      const errors = validation.error.flatten().fieldErrors;
+      
+      const fieldErrors: Record<string, string> = {};
+      for (const key in errors) {
+        if (errors[key]) {
+          fieldErrors[key] = errors[key]![0]; // نأخذ أول رسالة خطأ لكل حقل
+        }
+      }
+
       return NextResponse.json(
-        { error: "Name, email, and password are required" },
+        { error: "Validation failed", fieldErrors },
         { status: 400 }
-      )
+      );
     }
 
-    if (!EMAIL_REGEX.test(email)) {
-      return NextResponse.json(
-        { error: "Invalid email format" },
-        { status: 400 }
-      )
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
-        { status: 400 }
-      )
-    }
-
-    const supabaseAdmin = await getSupabaseAdmin()
-
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: "Internal server configuration error" },
-        { status: 500 }
-      )
-    }
+    const { name, email, password } = validation.data
 
     const existingUser = await prismaClient.user.findUnique({
       where: { email },
@@ -50,7 +35,17 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Email already registered" },
         { status: 409 }
-      )
+      );
+    }
+
+    const supabaseAdmin = getSupabaseAdmin()
+
+    if (!supabaseAdmin) {
+      console.error("🚨 Supabase Admin Keys are missing in .env");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
     }
 
     const { data: auth, error: authError } =
@@ -62,46 +57,44 @@ export async function POST(req: Request) {
 
     if (authError || !auth.user) {
       return NextResponse.json(
-        { error: authError?.message || "Failed to create account" },
+        { error: authError?.message || "Auth provider error" },
         { status: 400 }
-      )
+      );
     }
 
-    const user = await prismaClient.user.create({
-      data: {
-        id: auth.user.id,
-        name,
-        email,
-        phone: "",
-        dietary_preferences: [],
-        health_goals: [],
-      },
-    })
-
-    if (!user) {
-      await supabaseAdmin.auth.admin.deleteUser(auth.user.id)
-      return NextResponse.json(
-        { error: "Failed to create user profile" },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
+    try {
+      const user = await prismaClient.user.create({
+        data: {
+          id: auth.user.id,
+          name,
+          email,
+          phone: "",
+          dietary_preferences: [],
+          health_goals: [],
         },
-      },
-      { status: 201 }
-    )
-  } catch (error) {
-    console.error("Signup Error:", error)
+      })
+
+      return NextResponse.json(
+        {
+          success: true,
+          user: { id: user.id, name: user.name, email: user.email },
+        },
+        { status: 201 }
+      );
+    } catch (prismaError) {
+      await supabaseAdmin.auth.admin.deleteUser(auth.user.id)
+      console.error("🚨 Prisma DB Error:", prismaError)
+      return NextResponse.json(
+        { error: "Database error occurred" },
+        { status: 500 }
+      );
+    }
+    
+  } catch (error: any) {
+    console.error("🚨 Global Signup API Error:", error.message)
     return NextResponse.json(
-      { error: "An unexpected error occurred. Please try again." },
+      { error: "Something went wrong on our end" },
       { status: 500 }
-    )
+    );
   }
 }
