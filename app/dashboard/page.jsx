@@ -18,7 +18,6 @@ export default function DashboardHome() {
         </p>
       </header>
 
-      {/* منطقة فارغة للأقسام القادمة */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="h-40 border-2 border-dashed border-gray-200 rounded-3xl flex items-center justify-center text-gray-400">
           Stat Card Placeholder

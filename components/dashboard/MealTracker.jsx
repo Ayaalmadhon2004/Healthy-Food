@@ -23,7 +23,6 @@ const MealTracker = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
       <header className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-black text-gray-900">
@@ -39,7 +38,6 @@ const MealTracker = () => {
         </div>
       </header>
 
-      {/* Meals List */}
       <div className="grid gap-5">
         {mealTypes.map((meal) => (
           <div key={meal.id} className="bg-white p-6 rounded-[2.5rem] border border-gray-50 flex items-center justify-between hover:shadow-xl hover:shadow-gray-100/50 transition-all group">
@@ -62,7 +60,6 @@ const MealTracker = () => {
         ))}
       </div>
 
-      {/* Simple Add Meal Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-6">
           <div className="bg-white w-full max-w-md rounded-[3rem] p-10 relative shadow-2xl animate-in zoom-in duration-300">
