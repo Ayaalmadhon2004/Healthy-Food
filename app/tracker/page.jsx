@@ -7,7 +7,6 @@ import { createBrowserClient } from "@supabase/ssr";
 import { requestNotificationPermission, showNotification } from "@/utils/notification";
 import { addMealAction, getMealsAction, deleteMealAction } from "@/app/actions/mealActions";
 
-// استيراد المكونات ديناميكياً كما في كودك الأصلي
 const ProgressCard = dynamic(() => import("@/components/ProgressCard"), { ssr: false });
 const AddMealForm = dynamic(() => import("@/components/AddMealForm"), { ssr: false });
 const MealList = dynamic(() => import("@/components/MealList"), { ssr: false });
@@ -72,7 +71,6 @@ function TrackerContent() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // إعداد سوبابيس
   const [supabase] = useState(() => 
     createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -80,7 +78,6 @@ function TrackerContent() {
     )
   );
 
-  // 1. جلب البيانات من السيرفر عند التحميل
   const loadData = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {

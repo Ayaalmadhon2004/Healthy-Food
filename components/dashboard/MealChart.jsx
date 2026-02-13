@@ -6,7 +6,6 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recha
 const MealChart = ({ meals = [], lang }) => {
   const [mounted, setMounted] = useState(false);
 
-  // التأكد من أن المكون يعمل في المتصفح فقط (حل مشكلة Next.js)
   useEffect(() => {
     setMounted(true);
   }, []);
