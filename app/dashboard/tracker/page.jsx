@@ -129,93 +129,9 @@ const MealTracker = () => {
         </div>
       </header>
 
-      <div className="grid gap-6">
-        {mealTypes.map((type) => {
-          const typeMeals = meals.filter((m) => m.mealType === type.id);
-          const typeCalories = typeMeals.reduce((s, m) => s + m.calories, 0);
-
-          return (
-            <div key={type.id} className="space-y-4">
-              <div className="bg-white p-6 rounded-[2.5rem] border border-gray-50 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-5">
-                  <div className={`p-4 rounded-[1.8rem] ${type.color} shadow-sm`}>
-                    {type.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xl text-gray-800">{type.label[lang]}</h3>
-                    <p className="text-sm text-gray-400 font-black">{typeCalories} KCAL</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => { setSelectedMealType(type.id); setIsModalOpen(true); }}
-                  className="p-4 bg-gray-50 text-gray-400 rounded-[1.5rem] hover:bg-green-600 hover:text-white transition-all transform active:scale-90"
-                >
-                  <Plus size={24} strokeWidth={3} />
-                </button>
-              </div>
-
-              <div className="grid gap-2 px-4">
-                {typeMeals.map((meal) => (
-                  <div key={meal.id} className={`flex justify-between items-center p-4 bg-white/50 border border-gray-100 rounded-[1.5rem] group ${meal.isOptimistic ? 'opacity-60 italic' : 'opacity-100'}`}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      <span className="font-bold text-gray-700">{meal.foodName}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-black text-gray-400 text-sm">{meal.calories} kcal</span>
-                      <button 
-                        onClick={() => handleDelete(meal.id)} 
-                        className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-            </div>
-          );
-        })}
-      </div>
-
       <div className="mt-10">
         <MealChart meals={meals} lang={lang} />
       </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-          <div className="bg-white w-full max-w-md rounded-[3rem] p-10 relative animate-in zoom-in duration-200 shadow-2xl">
-              <h2 className="text-2xl font-black mb-8 text-gray-800">
-                {lang === "ar" ? "ماذا أكلت؟" : "What did you eat?"}
-              </h2>
-              <div className="space-y-4">                 
-                <input 
-                  autoFocus
-                  className="w-full p-5 bg-gray-50 rounded-[1.5rem] outline-none border-2 border-transparent focus:border-green-500 font-bold transition-all" 
-                  placeholder={lang === "ar" ? "اسم الطعام..." : "Food name..."}
-                  value={foodName}
-                  onChange={(e) => setFoodName(e.target.value)}
-                />
-                <input 
-                  type="number"
-                  className="w-full p-5 bg-gray-50 rounded-[1.5rem] outline-none border-2 border-transparent focus:border-green-500 font-bold transition-all" 
-                  placeholder={lang === "ar" ? "السعرات..." : "Calories..."}
-                  value={calories}
-                  onChange={(e) => setCalories(e.target.value)}
-                />
-                <div className="flex gap-3 pt-4">
-                  <button onClick={() => setIsModalOpen(false)} className="flex-1 py-5 bg-gray-100 text-gray-500 rounded-[1.5rem] font-bold hover:bg-gray-200 transition-all">
-                    {lang === "ar" ? "إلغاء" : "Cancel"}
-                  </button>
-                  <button onClick={handleSave} className="flex-[2] py-5 bg-green-600 text-white rounded-[1.5rem] font-black text-xl shadow-lg shadow-green-200 hover:bg-green-700 transition-all">
-                    {lang === "ar" ? "إضافة" : "Add"}
-                  </button>
-                </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       </div>
   );
