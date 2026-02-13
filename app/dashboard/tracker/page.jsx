@@ -5,11 +5,11 @@ import { createBrowserClient } from "@supabase/ssr";
 import { Plus, Coffee, Sun, Moon, Utensils, X, Trash2, Loader2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { addMealAction, getMealsAction, deleteMealAction } from "@/app/actions/mealActions";
+import MealChart from "@/components/dashboard/MealChart"
 
 const MealTracker = () => {
   const { lang } = useLanguage();
   
-  // Initialize Supabase correctly for SSR/Client components
   const [supabase] = useState(() => 
     createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -61,7 +61,6 @@ const MealTracker = () => {
       isOptimistic: true,
     };
 
-    // Optimistic Update
     setMeals((prev) => [tempMeal, ...prev]);
     setIsModalOpen(false);
     setFoodName("");
@@ -82,7 +81,6 @@ const MealTracker = () => {
         setMeals((prev) => prev.filter((m) => m.id !== tempId));
         alert("Failed to save to database");
       } else {
-        // Swap temp meal with the real one from DB
         setMeals((prev) => prev.map((m) => (m.id === tempId ? result.meal : m)));
       }
     } catch (error) {
@@ -112,6 +110,7 @@ const MealTracker = () => {
       </p>
     </div>
   );
+  console.log("meals",meals);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
@@ -174,18 +173,23 @@ const MealTracker = () => {
                   </div>
                 ))}
               </div>
+
             </div>
           );
         })}
       </div>
 
+      <div className="mt-10">
+        <MealChart meals={meals} lang={lang} />
+      </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
           <div className="bg-white w-full max-w-md rounded-[3rem] p-10 relative animate-in zoom-in duration-200 shadow-2xl">
-             <h2 className="text-2xl font-black mb-8 text-gray-800">
-               {lang === "ar" ? "ماذا أكلت؟" : "What did you eat?"}
-             </h2>
-             <div className="space-y-4">
+              <h2 className="text-2xl font-black mb-8 text-gray-800">
+                {lang === "ar" ? "ماذا أكلت؟" : "What did you eat?"}
+              </h2>
+              <div className="space-y-4">                 
                 <input 
                   autoFocus
                   className="w-full p-5 bg-gray-50 rounded-[1.5rem] outline-none border-2 border-transparent focus:border-green-500 font-bold transition-all" 
@@ -208,11 +212,12 @@ const MealTracker = () => {
                     {lang === "ar" ? "إضافة" : "Add"}
                   </button>
                 </div>
-             </div>
+            </div>
           </div>
         </div>
       )}
-    </div>
+
+      </div>
   );
 };
 
