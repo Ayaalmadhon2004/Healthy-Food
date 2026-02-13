@@ -28,7 +28,7 @@ function MealItem({ meal, onDelete, lang }) {
 
       <div className="bg-green-50/50 p-5 rounded-xl flex justify-between items-center w-full mt-4">
         <span className="text-green-800 font-bold">
-          {meal.mealName}
+          {meal.foodName || meal.mealName}
         </span>
 
         <button
