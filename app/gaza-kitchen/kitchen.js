@@ -4,7 +4,6 @@ import { useState } from "react";
 import { MapPin, Clock, Users, PhoneCall, Info } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext"; // استيراد الـ context
 
-// مناطق الفلترة باللغتين
 const REGIONS = [
   { id: "ALL", en: "ALL", ar: "الكل" },
   { id: "North", en: "North", ar: "الشمال" },
@@ -25,7 +24,6 @@ export default function KitchensFilter({ kitchens }) {
 
   return (
     <>
-      {/* قسم المعلومات مترجم */}
       <div className="flex justify-center items-center gap-6 mb-4 bg-[var(--color-secondary-light)] bg-opacity-50 p-5 border-[var(--color-secondary-light)] rounded-xl w-full max-w-6xl">
         <Info size={24} className="text-[var(--color-primary)] shrink-0" />
         <div>
@@ -40,7 +38,6 @@ export default function KitchensFilter({ kitchens }) {
         </div>
       </div>
 
-      {/* أزرار الفلترة مترجمة */}
       <div className="flex flex-wrap gap-2 mb-4 mt-12 justify-center w-full">
         {REGIONS.map((region) => (
           <button

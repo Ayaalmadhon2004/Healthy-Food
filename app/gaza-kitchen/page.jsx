@@ -1,14 +1,15 @@
 import { headers } from "next/headers";
-import { prisma } from "@/lib/prisma";
 import KitchensFilterClient from "./KitchensFilterClient";
 import NutritionSectionClient from "@/components/NutritionSection";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
+import { getKitchensAction } from "@/app/actions/kitchenActions";
 
 export default async function Page() {
   const allHeaders = await headers(); 
   const lang = allHeaders.get("x-custom-lang") || "en";
 
-  const kitchens = await prisma.kitchen.findMany();
+  const result=await getKitchensAction();
+  const kitchens=result.success ? result.kitchens : [];
 
   return (
     <div className="bg-gradient-to-b
