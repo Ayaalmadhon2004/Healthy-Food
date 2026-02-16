@@ -6,7 +6,6 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// 1. الدالة التي يحتاجها الـ Login (تتعامل مع الكوكيز)
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
 
@@ -30,7 +29,6 @@ export async function createSupabaseServerClient() {
   });
 }
 
-// 2. الدالة التي يحتاجها الـ Signup (صلاحيات الآدمن)
 export function getSupabaseAdmin() {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
     throw new Error("Missing Supabase Service Role Key!");
