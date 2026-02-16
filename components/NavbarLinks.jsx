@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import { Building2 } from "lucide-react";
 
-export default function NavbarLinks({ className }) {
+export default function NavbarLinks({ className, userRole }) {
   const router = useRouter();
   const { lang, changeLanguage } = useLanguage();
+
+  const isOrg = userRole === "ADMIN" || userRole === "ORG";
 
   const content = {
     ar: {
@@ -16,6 +19,7 @@ export default function NavbarLinks({ className }) {
       tips: "نصائح صحية",
       doctors: "الأطباء",
       kitchen: "مطبخ غزة",
+      organization: "إدارة المنظمة",
       langBtn: "English"
     },
     en: {
@@ -25,17 +29,12 @@ export default function NavbarLinks({ className }) {
       tips: "Health Tips",
       doctors: "Doctors",
       kitchen: "Gaza Kitchen",
+      organization: "Organization",
       langBtn: "العربية"
     }
   };
 
   const t = content[lang] || content.ar;
-
-  const switchLanguage = (newLocale) => {
-    document.cookie = `lang=${newLocale}; path=/; max-age=31536000`; 
-    setLang(newLocale);
-    router.refresh();
-  };
 
   return (
     <>
@@ -45,7 +44,18 @@ export default function NavbarLinks({ className }) {
       <Link href="/tips" className={className}>{t.tips}</Link>
       <Link href="/doctors" className={className}>{t.doctors}</Link>
       <Link href="/gaza-kitchen" className={className}>{t.kitchen}</Link>
-      
+
+      {/* يظهر هذا الرابط فقط للمنظمة والمدير */}
+      {isOrg && (
+        <Link 
+          href="/organization" 
+          className={`${className} text-[var(--color-primary)] font-bold flex items-center gap-1`}
+        >
+          <Building2 size={16} />
+          {t.organization}
+        </Link>
+      )}
+
       <div className="flex gap-2 mx-4">
         <button 
           onClick={() => changeLanguage(lang === 'ar' ? 'en' : 'ar')}

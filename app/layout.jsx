@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { ErrorProvider } from "@/context/ErrorProvider";
 import { LanguageProvider } from "@/context/LanguageContext"; 
 import { cookies } from "next/headers";
+import { getCurrentUserRole } from "./actions/authActions";
 
 export const metadata = {
   title: { default: "NutriFlow", template: "%s | NutriFlow" },
@@ -13,6 +14,7 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get('lang')?.value || 'ar';
+  const role = await getCurrentUserRole();
 
   return (
     <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -23,7 +25,7 @@ export default async function RootLayout({ children }) {
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         <LanguageProvider initialLang={lang}>
           <ErrorProvider>
-            <Navbar />
+            <Navbar userRole={role}/>
             <main className="pt-20">{children}</main>
             <Footer />
           </ErrorProvider>
