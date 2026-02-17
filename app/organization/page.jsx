@@ -2,7 +2,7 @@ import { getKitchensAction } from "@/app/actions/kitchenActions";
 import { getCurrentUserRole } from "@/app/actions/authActions";
 import { redirect } from "next/navigation";
 import OrgKitchenTable from "@/components/dashboard/OrgKitchenTable";
-import { Building2, Plus } from "lucide-react";
+import { Building2} from "lucide-react";
 import { cookies } from "next/headers";
 import AddKitchenModal from "@/components/dashboard/AddKitchenModal";
 

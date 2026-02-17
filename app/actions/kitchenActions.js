@@ -1,18 +1,18 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { createSupabaseServerClient } from "@/lib/supabase/server"; // استخدمي الملف الذي أنشأناه سابقاً
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 /**
- * دالة داخلية للتحقق من صلاحية المستخدم (سيرفر فقط)
+ * دالة داخلية للتحقق من صلاحية المستخدم
  */
 async function getIsAuthorized() {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return false;
 
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) return false;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
 
   const dbUser = await prisma.user.findUnique({
     where: { email: user.email },
@@ -23,7 +23,7 @@ async function getIsAuthorized() {
 }
 
 /**
- * جلب جميع المطابخ
+ * ✅ جلب جميع المطابخ (هذه الدالة التي كانت تنقصك)
  */
 export async function getKitchensAction() {
   try {
@@ -38,7 +38,7 @@ export async function getKitchensAction() {
 }
 
 /**
- * إضافة مطبخ جديد (لدعم الزر الذي أنشأناه سابقاً)
+ * إضافة مطبخ جديد
  */
 export async function addKitchenAction(formData) {
   try {
@@ -52,51 +52,47 @@ export async function addKitchenAction(formData) {
         location: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
         todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
         distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
-        status: "ACTIVE",
+        
+        // حقول إجبارية بناءً على Schema.prisma
+        contact: formData.get("contact") || "No Contact",
+        capacity: { 
+            ar: formData.get("capacity") || "0", 
+            en: formData.get("capacity") || "0" 
+        },
+        accessInfo: { ar: "", en: "" },
       },
     });
 
     revalidatePath("/organization");
     return { success: true, kitchen: newKitchen };
   } catch (error) {
+    console.error("Prisma Create Error:", error);
     return { success: false, error: error.message };
   }
 }
 
 /**
- * تحديث بيانات المطبخ (التعديل)
+ * تحديث بيانات المطبخ
  */
 export async function updateKitchenAction(kitchenId, formData) {
   try {
     const isAuthorized = await getIsAuthorized();
-    if (!isAuthorized) {
-      return { success: false, error: "Unauthorized access" };
-    }
+    if (!isAuthorized) return { success: false, error: "Unauthorized" };
 
-    // التحويل إلى رقم ليتوافق مع Prisma (Int)
     const idAsNumber = Number(kitchenId);
 
     const updatedKitchen = await prisma.kitchen.update({
       where: { id: idAsNumber },
       data: {
-        // نحدث القيم بناءً على هيكل الـ JSON الثنائي اللغة
-        todaysMeal: { 
-          ar: formData.get("mealAr"), 
-          en: formData.get("mealEn") 
+        name: { ar: formData.get("nameAr"), en: formData.get("nameEn") },
+        region: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
+        todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
+        distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
+        contact: formData.get("contact") || "No Contact",
+        capacity: { 
+            ar: formData.get("capacity") || "0", 
+            en: formData.get("capacity") || "0" 
         },
-        distributionTime: { 
-          ar: formData.get("timeAr"), 
-          en: formData.get("timeEn") 
-        },
-        // إذا كان هناك حقول أخرى مثل الاسم والمنطقة يمكن إضافتها هنا
-        name: {
-          ar: formData.get("nameAr"),
-          en: formData.get("nameEn")
-        },
-        region: {
-          ar: formData.get("regionAr"),
-          en: formData.get("regionEn")
-        }
       }
     });
 
