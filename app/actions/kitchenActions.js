@@ -71,9 +71,6 @@ export async function addKitchenAction(formData) {
   }
 }
 
-/**
- * تحديث بيانات المطبخ
- */
 export async function updateKitchenAction(kitchenId, formData) {
   try {
     const isAuthorized = await getIsAuthorized();
@@ -95,7 +92,6 @@ export async function updateKitchenAction(kitchenId, formData) {
         },
       }
     });
-
     revalidatePath("/organization");
     revalidatePath(`/organization/${kitchenId}/edit`);
     
@@ -105,3 +101,18 @@ export async function updateKitchenAction(kitchenId, formData) {
     return { success: false, error: error.message };
   }
 }
+
+  export async function deleteKitchenAction(kitchenId){
+      try{
+        const isAuthorized = await getIsAuthorized();
+        if(!isAuthorized) return {success:false,error:"Unauthorized"};
+
+        await prisma.kitchen.delete({
+          where:{id:Number(kitchenId)}
+        });
+        revalidatePath("/organization");
+        return {success:true};
+      } catch(error){
+        return {success:false,error:"Failed to delete kitchen"};
+      }
+  }
