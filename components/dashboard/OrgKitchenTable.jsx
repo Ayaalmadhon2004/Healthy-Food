@@ -5,6 +5,7 @@ import { Edit3, MapPin, Clock, Search, Trash2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
 import { deleteKitchenAction } from "@/app/actions/kitchenActions";
+import { toast } from "react-hot-toast";
 
 export default function OrgKitchenTable({ initialKitchens }) {
     const { lang } = useLanguage();
@@ -38,18 +39,54 @@ export default function OrgKitchenTable({ initialKitchens }) {
     k.region[lang]?.toLowerCase().includes(search.toLowerCase())
   );
 
-  async function handleDelete(id){
-    const confirmDelete = lang === "ar" ? "هل أنت متأكد من الحذف؟" : "Are you sure you want to delete?";
+ async function handleDelete(id) {
+  // إنشاء Toast مخصص يحتوي على أزرار التأكيد
+  toast((t) => (
+    <div className="flex flex-col gap-3 p-1">
+      <p className="font-bold text-gray-800 text-sm">
+        {lang === "ar" ? "هل أنت متأكد من حذف هذا المطبخ؟" : "Are you sure you want to delete this kitchen?"}
+      </p>
+      <div className="flex justify-end gap-2">
+        {/* زر الإلغاء */}
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-all"
+        >
+          {lang === "ar" ? "إلغاء" : "Cancel"}
+        </button>
+        {/* زر التأكيد النهائي */}
+        <button
+          onClick={async () => {
+            toast.dismiss(t.id); // إغلاق سؤال التأكيد
+            executeDelete(id);    // تنفيذ الحذف الفعلي
+          }}
+          className="px-3 py-1.5 text-xs font-bold bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm transition-all"
+        >
+          {lang === "ar" ? "نعم، احذف" : "Yes, Delete"}
+        </button>
+      </div>
+    </div>
+  ), {
+    duration: 5000, // يبقى ظاهراً لـ 5 ثوانٍ
+    position: "top-center",
+  });
+}
 
-    if(window.confirm(confirmDelete)){
-      const result = await deleteKitchenAction(id);
-      if(result.success){
-        
-      }else{
-        alert(result.error);
-      }
+// دالة التنفيذ الفعلي للحذف (التي تظهر الـ Toasts السابقة)
+async function executeDelete(id) {
+  const loadingToast = toast.loading(lang === "ar" ? "جاري الحذف..." : "Deleting...");
+  
+  try {
+    const result = await deleteKitchenAction(id);
+    if (result.success) {
+      toast.success(lang === "ar" ? "تم حذف المطبخ بنجاح" : "Deleted successfully", { id: loadingToast });
+    } else {
+      toast.error(result.error || "Error", { id: loadingToast });
     }
+  } catch (error) {
+    toast.error("Error", { id: loadingToast });
   }
+}
 
   return (
     <div className="w-full font-sans" dir={lang === "ar" ? "rtl" : "ltr"}>
