@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Edit3, MapPin, Clock, Search } from "lucide-react";
+import { Edit3, MapPin, Clock, Search, Trash2 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
+import { deleteKitchenAction } from "@/app/actions/kitchenActions";
 
 export default function OrgKitchenTable({ initialKitchens }) {
     const { lang } = useLanguage();
@@ -36,6 +37,19 @@ export default function OrgKitchenTable({ initialKitchens }) {
     k.name[lang]?.toLowerCase().includes(search.toLowerCase()) ||
     k.region[lang]?.toLowerCase().includes(search.toLowerCase())
   );
+
+  async function handleDelete(id){
+    const confirmDelete = lang === "ar" ? "هل أنت متأكد من الحذف؟" : "Are you sure you want to delete?";
+
+    if(window.confirm(confirmDelete)){
+      const result = await deleteKitchenAction(id);
+      if(result.success){
+        
+      }else{
+        alert(result.error);
+      }
+    }
+  }
 
   return (
     <div className="w-full font-sans" dir={lang === "ar" ? "rtl" : "ltr"}>
@@ -102,6 +116,12 @@ export default function OrgKitchenTable({ initialKitchens }) {
                       >
                         <Edit3 size={18} />
                       </Link>
+                      <button
+                        onClick={()=>handleDelete(kitchen.id)}
+                        className="p-3 bg-white border border-gray-100 text-red-400 rounded-2xl hover:border-red-500 hover:text-red-500 transition-all active:scale-95"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   </td>
                 </tr>
