@@ -102,7 +102,7 @@ export async function updateKitchenAction(kitchenId, formData) {
   }
 }
 
-  export async function deleteKitchenAction(kitchenId){
+export async function deleteKitchenAction(kitchenId){
       try{
         const isAuthorized = await getIsAuthorized();
         if(!isAuthorized) return {success:false,error:"Unauthorized"};
@@ -116,3 +116,26 @@ export async function updateKitchenAction(kitchenId, formData) {
         return {success:false,error:"Failed to delete kitchen"};
       }
   }
+
+export async function getKitchensAction(page=1,limit=5){
+  try{
+    const skip=(page-1)*limit;
+
+    const [kitchens,totalCount] = await Promise.all([
+      prisma.kitchen.findMany({
+        orderBy:{createdAt:"desc"},
+        skip:skip,
+        take:limit,
+      }),
+      prisma.kitchen.count()
+    ]);
+    return{
+      success:true,
+      kitchens,
+      totalPages:Math.ceil(totalCount/limit),
+      currentPage:page,
+    };
+  } catch(error){
+    return {success:false,error:"Failed to load kitchens"};
+  }
+}
