@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
-import { Building2 } from "lucide-react";
+import { Building2, Languages } from "lucide-react";
 
 export default function NavbarLinks({ className, userRole }) {
   const router = useRouter();
@@ -20,7 +20,8 @@ export default function NavbarLinks({ className, userRole }) {
       doctors: "الأطباء",
       kitchen: "مطبخ غزة",
       organization: "إدارة المنظمة",
-      langBtn: "English"
+      langName: "English",
+      shortLang: "EN"
     },
     en: {
       dashboard: "Dashboard",
@@ -30,7 +31,8 @@ export default function NavbarLinks({ className, userRole }) {
       doctors: "Doctors",
       kitchen: "Gaza Kitchen",
       organization: "Organization",
-      langBtn: "العربية"
+      langName: "العربية",
+      shortLang: "AR"
     }
   };
 
@@ -45,23 +47,33 @@ export default function NavbarLinks({ className, userRole }) {
       <Link href="/doctors" className={className}>{t.doctors}</Link>
       <Link href="/gaza-kitchen" className={className}>{t.kitchen}</Link>
 
-      {/* يظهر هذا الرابط فقط للمنظمة والمدير */}
       {isOrg && (
         <Link 
           href="/organization" 
-          className={`${className} text-[var(--color-primary)] font-bold flex items-center gap-1`}
+          className={`${className} text-[var(--color-primary)] font-bold flex items-center gap-1.5`}
         >
           <Building2 size={16} />
           {t.organization}
         </Link>
       )}
 
-      <div className="flex gap-2 mx-4">
+      <div className="flex items-center ml-4 mr-2 border-l border-gray-200 pl-4 h-6 my-auto">
         <button 
           onClick={() => changeLanguage(lang === 'ar' ? 'en' : 'ar')}
-          className="px-3 py-1 rounded text-sm transition-all bg-gray-100 hover:bg-green-100 border border-gray-300 text-gray-700 flex items-center gap-1"
+          className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full 
+            bg-white border border-gray-200 hover:border-[var(--color-primary)] 
+            hover:bg-green-50/50 transition-all duration-300 shadow-sm active:scale-95"
+          title={t.langName}
         >
-          {t.langBtn}
+          <Languages 
+            size={16} 
+            className="text-gray-400 group-hover:text-[var(--color-primary)] transition-colors" 
+          />
+          <span className="text-xs font-bold tracking-wider text-gray-600 group-hover:text-gray-900 uppercase">
+            {t.shortLang}
+          </span>
+          
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full border-2 border-white"></span>
         </button>
       </div>
     </>
