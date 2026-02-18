@@ -1,23 +1,18 @@
 "use client";
 
-// 1. استيراد "use" من ريأكت للتعامل مع الـ Promise
 import { useEffect, useState, use } from "react"; 
 import { getKitchensAction } from "@/app/actions/kitchenActions";
 import OrgKitchenTable from "@/components/dashboard/OrgKitchenTable";
 import AddKitchenModal from "@/components/dashboard/AddKitchenModal";
-import { Plus } from "lucide-react";
 
 export default function OrganizationPage({ searchParams }) {
-  
-  // 2. استخدام دالة use لفك searchParams قبل استخراج القيم منها
   const resolvedSearchParams = use(searchParams);
   const currentPage = Number(resolvedSearchParams?.page) || 1;
 
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(true);
   const [data, setData] = useState({ kitchens: [], totalPages: 1 });
   const lang = "ar"; 
 
-  // جلب البيانات عند تغيير الصفحة
   useEffect(() => {
     async function fetchData() {
       const result = await getKitchensAction(currentPage, 5);
@@ -50,7 +45,14 @@ export default function OrganizationPage({ searchParams }) {
           </p>
         </div>
 
-        {showModal && <AddKitchenModal onClose={() => setShowModal(false)} />}
+        {showModal && (
+          <AddKitchenModal 
+            isOpen={showModal} 
+            onClose={() => setShowModal(false)} 
+            lang={lang} 
+            kitchens={data.kitchens}
+          />
+        )}
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">

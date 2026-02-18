@@ -51,17 +51,38 @@ export async function getKitchensAction(page = 1, limit = 5) {
   }
 }
 
-/**
- * إضافة مطبخ جديد
- */
 export async function addKitchenAction(formData) {
   try {
     const isAuthorized = await getIsAuthorized();
     if (!isAuthorized) return { success: false, error: "Unauthorized" };
 
+    const nameAr = formData.get("nameAr");
+    const nameEn = formData.get("nameEn");
+
+    // 1. البحث عن المطابخ التي تبدأ بنفس الاسم العربي
+    // نستخدم "startsWith" لنتأكد من عدّ النسخ القديمة والجديدة
+    const existingKitchens = await prisma.kitchen.findMany({
+      where: {
+        name: {
+          path: ['ar'],
+          string_startsWith: nameAr
+        }
+      }
+    });
+
+    let finalNameAr = nameAr;
+    let finalNameEn = nameEn;
+
+    // 2. إذا وجدنا تكرار، نحسب الرقم الجديد
+    if (existingKitchens.length > 0) {
+      const nextNumber = existingKitchens.length + 1;
+      finalNameAr = `${nameAr} ${nextNumber}`;
+      finalNameEn = `${nameEn} ${nextNumber}`;
+    }
+
     const newKitchen = await prisma.kitchen.create({
       data: {
-        name: { ar: formData.get("nameAr"), en: formData.get("nameEn") },
+        name: { ar: finalNameAr, en: finalNameEn },
         region: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
         location: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
         todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
@@ -83,9 +104,6 @@ export async function addKitchenAction(formData) {
   }
 }
 
-/**
- * تحديث بيانات مطبخ
- */
 export async function updateKitchenAction(kitchenId, formData) {
   try {
     const isAuthorized = await getIsAuthorized();
