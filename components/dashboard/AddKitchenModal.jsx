@@ -5,10 +5,10 @@ import { Plus, X, Utensils, MapPin, Clock, Salad, AlertCircle } from "lucide-rea
 import { addKitchenAction } from "@/app/actions/kitchenActions";
 import { useRouter } from "next/navigation";
 
-export default function AddKitchenModal({ lang = "ar", kitchens = [] }) {
+export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [nameInput, setNameInput] = useState(""); // لمراقبة ما يكتبه المستخدم
+  const [nameInput, setNameInput] = useState(""); 
   const router = useRouter();
 
   const translations = {
@@ -46,9 +46,10 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [] }) {
 
   const t = translations[lang] || translations.ar;
 
-  // التحقق من التكرار فوراً أثناء الكتابة
+  // التحقق من التكرار فوراً (نستخدم trim لضمان دقة المقارنة)
   const isDuplicate = kitchens.some(k => {
-    const existingName = typeof k.name === 'string' ? k.name : k.name?.ar;
+    // استخراج الاسم سواء كان نصاً مباشراً أو كائناً
+    const existingName = (typeof k.name === 'string' ? k.name : k.name?.ar)?.trim();
     return existingName === nameInput.trim() && nameInput.trim() !== "";
   });
 
@@ -63,7 +64,13 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [] }) {
         setIsOpen(false);
         setNameInput("");
         e.target.reset();
-        router.refresh();
+        
+        // تحديث البيانات في الصفحة الأب فوراً
+        if (onSuccess) {
+          await onSuccess();
+        }
+        
+        router.refresh(); 
       }
     } catch (error) {
       console.error("Error adding kitchen:", error);
@@ -101,7 +108,6 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [] }) {
 
             <form onSubmit={handleSubmit} className="p-8 grid grid-cols-1 md:grid-cols-2 gap-5">
               
-              {/* حقل الاسم العربي مع الإشارة الحمراء */}
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center justify-between">
                   <span className="flex items-center gap-1"><Utensils size={12} /> {t.nameAr}</span>
@@ -114,7 +120,7 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [] }) {
                 <input 
                   name="nameAr" 
                   required 
-                  className={`form-input ${isDuplicate ? 'border-red-300 bg-red-50' : ''}`}
+                  className={`form-input ${isDuplicate ? 'border-red-400 bg-red-50 text-red-900' : ''}`}
                   placeholder="مثال: مطبخ الأمل"
                   onChange={(e) => setNameInput(e.target.value)}
                 />
@@ -127,6 +133,7 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [] }) {
                 <input name="nameEn" required className="form-input" placeholder="e.g. Al-Amal Kitchen" />
               </div>
 
+              {/* ... باقي الحقول ... */}
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
                   <MapPin size={12} /> {t.regionAr}

@@ -4,32 +4,41 @@ import { useEffect, useState, use } from "react";
 import { getKitchensAction } from "@/app/actions/kitchenActions";
 import OrgKitchenTable from "@/components/dashboard/OrgKitchenTable";
 import AddKitchenModal from "@/components/dashboard/AddKitchenModal";
+// ✅ استيراد الـ Hook الخاص باللغة (تأكدي من المسار الصحيح في مشروعك)
+import { useLanguage } from "@/context/LanguageContext"; 
 
 export default function OrganizationPage({ searchParams }) {
-  const resolvedSearchParams = use(searchParams);
-  const currentPage = Number(resolvedSearchParams?.page) || 1;
+  // 1. فك بارامترات الصفحة (فقط لرقم الصفحة)
+  const params = use(searchParams);
+  const currentPage = Number(params?.page) || 1;
+  
+  // ✅ 2. قراءة اللغة من الـ Context بدلاً من الرابط
+  const { lang } = useLanguage(); 
 
-  const [showModal, setShowModal] = useState(true);
   const [data, setData] = useState({ kitchens: [], totalPages: 1 });
-  const lang = "ar"; 
+  const [isLoading, setIsLoading] = useState(true);
+
+  const refreshData = async () => {
+    setIsLoading(true);
+    const result = await getKitchensAction(currentPage, 5);
+    if (result.success) {
+      setData({ 
+        kitchens: result.kitchens || [], 
+        totalPages: result.totalPages || 1 
+      });
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    async function fetchData() {
-      const result = await getKitchensAction(currentPage, 5);
-      if (result.success) {
-        setData({ 
-          kitchens: result.kitchens || [], 
-          totalPages: result.totalPages || 1 
-        });
-      }
-    }
-    fetchData();
+    refreshData();
   }, [currentPage]);
 
   const t = {
-    ar: { title: "إدارة المطابخ", addBtn: "إضافة مطبخ جديد" },
-    en: { title: "Kitchen Management", addBtn: "Add New Kitchen" }
+    ar: { title: "إدارة المطابخ", desc: "إدارة وتعديل وحذف المطابخ التابعة لمؤسستك." },
+    en: { title: "Kitchen Management", desc: "Manage, edit, and delete your kitchens." }
   };
+  
   const currentT = t[lang] || t.ar;
 
   return (
@@ -38,41 +47,30 @@ export default function OrganizationPage({ searchParams }) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-gray-900">{currentT.title}</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            {lang === "ar" 
-              ? "يمكنك إدارة وتعديل وحذف المطابخ التابعة لمؤسستك من هنا." 
-              : "Manage, edit, and delete your organization's kitchens here."}
-          </p>
+          <p className="text-gray-500 text-sm mt-1">{currentT.desc}</p>
         </div>
 
-        {showModal && (
-          <AddKitchenModal 
-            isOpen={showModal} 
-            onClose={() => setShowModal(false)} 
-            lang={lang} 
-            kitchens={data.kitchens}
-          />
-        )}
-      </div>
-
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-        <OrgKitchenTable 
-          initialKitchens={data.kitchens} 
-          totalPages={data.totalPages}
-          currentPage={currentPage}
-          lang={lang}
+        <AddKitchenModal 
+          lang={lang} 
+          kitchens={data.kitchens} 
+          onSuccess={refreshData} 
         />
       </div>
 
-      {!data.kitchens?.length && (
-        <div className="text-center p-12 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-          <p className="text-gray-400">
-            {lang === "ar" 
-              ? "لا تتوفر مطابخ حالياً، ابدأ بإضافة مطبخك الأول!" 
-              : "No kitchens available yet, start by adding your first one!"}
-          </p>
-        </div>
-      )}
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        {isLoading ? (
+          <div className="p-20 text-center text-gray-400 animate-pulse">
+             {lang === "ar" ? "جاري التحميل..." : "Loading..."}
+          </div>
+        ) : (
+          <OrgKitchenTable 
+            initialKitchens={data.kitchens} 
+            totalPages={data.totalPages}
+            currentPage={currentPage}
+            lang={lang} 
+          />
+        )}
+      </div>
     </div>
   );
 }

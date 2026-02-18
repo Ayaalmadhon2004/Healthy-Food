@@ -65,7 +65,7 @@ export async function addKitchenAction(formData) {
       where: {
         name: {
           path: ['ar'],
-          string_startsWith: nameAr
+          string_starts_with: nameAr.trim(),
         }
       }
     });

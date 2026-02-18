@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react"; // أضفنا useEffect
 import { Edit3, Trash2, ChevronLeft, ChevronRight, MapPin, Clock, Users, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,15 @@ export default function OrgKitchenTable({
 }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  
+  // ✅ إصلاح 1: وضع البيانات في State داخلية لتحديثها فوراً عند الإضافة
+  const [kitchens, setKitchens] = useState(initialKitchens);
 
-  // النصوص المترجمة للواجهة
+  // تحديث الحالة الداخلية كلما تغيرت البيانات القادمة من الأب (Props)
+  useEffect(() => {
+    setKitchens(initialKitchens);
+  }, [initialKitchens]);
+
   const t = {
     ar: {
       searchPlaceholder: "ابحث عن مطبخ أو منطقة...",
@@ -56,22 +63,18 @@ export default function OrgKitchenTable({
     }
   };
 
-  const currentT = t[lang] || t.ar;
+  // ✅ إصلاح 2: التأكد من اختيار اللغة بشكل صارم
+  const currentT = t[lang] || t["ar"];
 
-  /**
-   * دالة ذكية لاستخراج النص بناءً على نوع البيانات (String أو Object)
-   */
   const getText = (field, language) => {
     if (!field) return "";
     if (typeof field === "string") return field;
+    // إذا كان كائن، نبحث عن اللغة المطلوبة، وإذا لم توجد نأخذ العربية
     if (typeof field === "object") return field[language] || field["ar"] || "";
     return "";
   };
 
-  /**
-   * منطق الفلترة (Filtering Logic)
-   */
-  const filtered = (initialKitchens || []).filter((kitchen) => {
+  const filtered = (kitchens || []).filter((kitchen) => {
     const name = getText(kitchen.name, lang).toLowerCase();
     const region = getText(kitchen.region, lang).toLowerCase();
     const searchTerm = search.toLowerCase();
@@ -110,7 +113,7 @@ export default function OrgKitchenTable({
   };
 
   return (
-    <div className="flex flex-col w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 font-sans">
+    <div className="flex flex-col w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 font-sans" dir={lang === "ar" ? "rtl" : "ltr"}>
       
       {/* شريط البحث */}
       <div className="p-5 border-b border-gray-50 flex items-center gap-4 bg-gray-50/30">
@@ -126,13 +129,13 @@ export default function OrgKitchenTable({
 
       {/* الجدول */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-right rtl:text-right ltr:text-left">
+        <table className="w-full text-sm">
           <thead className="bg-gray-50/50 text-gray-400 font-bold border-b border-gray-100">
             <tr className="text-[11px] uppercase tracking-wider">
-              <th className="px-6 py-4">{currentT.name}</th>
-              <th className="px-6 py-4">{currentT.location}</th>
-              <th className="px-6 py-4">{currentT.time}</th>
-              <th className="px-6 py-4">{currentT.capacity}</th>
+              <th className="px-6 py-4 text-start">{currentT.name}</th>
+              <th className="px-6 py-4 text-start">{currentT.location}</th>
+              <th className="px-6 py-4 text-start">{currentT.time}</th>
+              <th className="px-6 py-4 text-start">{currentT.capacity}</th>
               <th className="px-6 py-4 text-center">{currentT.actions}</th>
             </tr>
           </thead>
@@ -190,13 +193,13 @@ export default function OrgKitchenTable({
         </table>
       </div>
 
-      {/* شريط التنقل (Pagination) */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-6 py-5 bg-gray-50/50 border-t border-gray-100">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm disabled:hover:border-gray-200"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
           >
             {lang === "ar" ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             {currentT.prev}
@@ -209,7 +212,7 @@ export default function OrgKitchenTable({
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm disabled:hover:border-gray-200"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
           >
             {currentT.next}
             {lang === "ar" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
