@@ -40,25 +40,22 @@ export default function OrgKitchenTable({ initialKitchens }) {
   );
 
  async function handleDelete(id) {
-  // إنشاء Toast مخصص يحتوي على أزرار التأكيد
   toast((t) => (
     <div className="flex flex-col gap-3 p-1">
       <p className="font-bold text-gray-800 text-sm">
         {lang === "ar" ? "هل أنت متأكد من حذف هذا المطبخ؟" : "Are you sure you want to delete this kitchen?"}
       </p>
       <div className="flex justify-end gap-2">
-        {/* زر الإلغاء */}
         <button
           onClick={() => toast.dismiss(t.id)}
           className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-all"
         >
           {lang === "ar" ? "إلغاء" : "Cancel"}
         </button>
-        {/* زر التأكيد النهائي */}
         <button
           onClick={async () => {
-            toast.dismiss(t.id); // إغلاق سؤال التأكيد
-            executeDelete(id);    // تنفيذ الحذف الفعلي
+            toast.dismiss(t.id); 
+            executeDelete(id);   
           }}
           className="px-3 py-1.5 text-xs font-bold bg-red-500 text-white rounded-lg hover:bg-red-600 shadow-sm transition-all"
         >
@@ -67,12 +64,11 @@ export default function OrgKitchenTable({ initialKitchens }) {
       </div>
     </div>
   ), {
-    duration: 5000, // يبقى ظاهراً لـ 5 ثوانٍ
+    duration: 5000, 
     position: "top-center",
   });
 }
 
-// دالة التنفيذ الفعلي للحذف (التي تظهر الـ Toasts السابقة)
 async function executeDelete(id) {
   const loadingToast = toast.loading(lang === "ar" ? "جاري الحذف..." : "Deleting...");
   
@@ -147,7 +143,7 @@ async function executeDelete(id) {
                   <td className="p-6">
                     <div className="flex justify-center">
                       <Link
-                        href={`/organization/${kitchen.id}/edit`}
+                        href={`/dashboard/organization/${kitchen.id}/edit`}
                         title={currentT.actions}
                         className="p-3 bg-white border border-gray-100 text-gray-400 rounded-2xl hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] hover:shadow-sm transition-all active:scale-95"
                       >

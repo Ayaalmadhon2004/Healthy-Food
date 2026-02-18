@@ -66,14 +66,14 @@ model Doctor {
   name           Json
   specialty      Json
   about          Json
-  qualifications Json       // بدل String[]
+  qualifications Json      
   rating         Float
   reviews        Int
-  location       Json      // إذا تحب تدعم en/ar
+  location       Json     
   phone          String
   email          String
   image          String   @db.Text
-  availability   Json      // بدل String لو en/ar
+  availability   Json      
 }
 
 model NutritionGuide {
