@@ -23,14 +23,28 @@ async function getIsAuthorized() {
 }
 
 /**
- * ✅ جلب جميع المطابخ (هذه الدالة التي كانت تنقصك)
+ * ✅ جلب المطابخ مع نظام التقسيم (Pagination)
+ * تم دمج الدالتين هنا لمنع خطأ التكرار
  */
-export async function getKitchensAction() {
+export async function getKitchensAction(page = 1, limit = 5) {
   try {
-    const kitchens = await prisma.kitchen.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
-    return { success: true, kitchens };
+    const skip = (page - 1) * limit;
+
+    const [kitchens, totalCount] = await Promise.all([
+      prisma.kitchen.findMany({
+        orderBy: { createdAt: "desc" },
+        skip: skip,
+        take: limit,
+      }),
+      prisma.kitchen.count()
+    ]);
+
+    return {
+      success: true,
+      kitchens,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+    };
   } catch (error) {
     console.error("Fetch Kitchens Error:", error);
     return { success: false, error: "Failed to load kitchens" };
@@ -52,8 +66,6 @@ export async function addKitchenAction(formData) {
         location: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
         todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
         distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
-        
-        // حقول إجبارية بناءً على Schema.prisma
         contact: formData.get("contact") || "No Contact",
         capacity: { 
             ar: formData.get("capacity") || "0", 
@@ -63,7 +75,7 @@ export async function addKitchenAction(formData) {
       },
     });
 
-    revalidatePath("/organization");
+    revalidatePath("/dashboard/organization");
     return { success: true, kitchen: newKitchen };
   } catch (error) {
     console.error("Prisma Create Error:", error);
@@ -71,6 +83,9 @@ export async function addKitchenAction(formData) {
   }
 }
 
+/**
+ * تحديث بيانات مطبخ
+ */
 export async function updateKitchenAction(kitchenId, formData) {
   try {
     const isAuthorized = await getIsAuthorized();
@@ -92,9 +107,7 @@ export async function updateKitchenAction(kitchenId, formData) {
         },
       }
     });
-    revalidatePath("/organization");
-    revalidatePath(`/organization/${kitchenId}/edit`);
-    
+    revalidatePath("/dashboard/organization");
     return { success: true, kitchen: updatedKitchen };
   } catch (error) {
     console.error("Update Kitchen Error:", error);
@@ -102,40 +115,21 @@ export async function updateKitchenAction(kitchenId, formData) {
   }
 }
 
-export async function deleteKitchenAction(kitchenId){
-      try{
-        const isAuthorized = await getIsAuthorized();
-        if(!isAuthorized) return {success:false,error:"Unauthorized"};
+/**
+ * حذف مطبخ
+ */
+export async function deleteKitchenAction(kitchenId) {
+  try {
+    const isAuthorized = await getIsAuthorized();
+    if (!isAuthorized) return { success: false, error: "Unauthorized" };
 
-        await prisma.kitchen.delete({
-          where:{id:Number(kitchenId)}
-        });
-        revalidatePath("/organization");
-        return {success:true};
-      } catch(error){
-        return {success:false,error:"Failed to delete kitchen"};
-      }
-  }
-
-export async function getKitchensAction(page=1,limit=5){
-  try{
-    const skip=(page-1)*limit;
-
-    const [kitchens,totalCount] = await Promise.all([
-      prisma.kitchen.findMany({
-        orderBy:{createdAt:"desc"},
-        skip:skip,
-        take:limit,
-      }),
-      prisma.kitchen.count()
-    ]);
-    return{
-      success:true,
-      kitchens,
-      totalPages:Math.ceil(totalCount/limit),
-      currentPage:page,
-    };
-  } catch(error){
-    return {success:false,error:"Failed to load kitchens"};
+    await prisma.kitchen.delete({
+      where: { id: Number(kitchenId) }
+    });
+    revalidatePath("/dashboard/organization");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return { success: false, error: "Failed to delete kitchen" };
   }
 }
