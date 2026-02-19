@@ -20,7 +20,7 @@ export default function Sidebar() {
   const menuItems = [
     { id: "overview", label: { en: "Overview", ar: "الرئيسية" }, icon: <LayoutDashboard size={20} />, href: "/dashboard" },
     { id: "tracker", label: { en: "Daily Tracker", ar: "المتتبع اليومي" }, icon: <Utensils size={20} />, href: "/dashboard/tracker" },
-    { id: "calendar", label: { en: "Monthly View", ar: "الرؤية الشهرية" }, icon: <Calendar size={20} />, href: "/dashboard/calendar" },
+    { id: "calendar", label: { en: "Monthly View", ar: "الرؤية الشهرية" }, icon: <Calendar size={20} />, href: "/dashboard/tracker/monthly" },
     { id: "org", label: { en: "Organization", ar: "التنظيم" }, icon: <ClipboardList size={20} />, href: "/dashboard/organization" },
     { id: "medical", label: { en: "Medical Section", ar: "قسم الأطباء" }, icon: <Stethoscope size={20} />, href: "/dashboard/medical" },
   ];
