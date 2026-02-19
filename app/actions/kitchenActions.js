@@ -22,9 +22,7 @@ async function getIsAuthorized() {
   return dbUser?.role === "ORG" || dbUser?.role === "ADMIN";
 }
 
-/**
- * ✅ جلب جميع المطابخ (هذه الدالة التي كانت تنقصك)
- */
+
 export async function getKitchensAction() {
   try {
     const kitchens = await prisma.kitchen.findMany({
