@@ -94,3 +94,13 @@ model Meal {
 
   @@map("meals") 
 }
+
+model FoodLog {
+  id          String   @id @default(cuid())
+  userId      String   
+  mealName    String   
+  calories    Int      
+  mealType    String   
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
