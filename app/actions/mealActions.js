@@ -76,3 +76,30 @@ export async function deleteMealAction(mealId) {
     return { success: false, error: error.message };
   }
 }
+export async function getMonthlyGridDataAction(userId, year, month) {
+  try {
+    // تحديد بداية ونهاية الشهر
+    const startDate = new Date(Date.UTC(year, month - 1, 1));
+    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+
+    const meals = await prisma.meal.findMany({
+      where: {
+        userId: userId,
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      select: { calories: true, createdAt: true }
+    });
+
+    const dailyTotals = {};
+    
+    meals.forEach(meal => {
+      const day = new Date(meal.createdAt).getUTCDate(); 
+      dailyTotals[day] = (dailyTotals[day] || 0) + meal.calories;
+    });
+
+    return { success: true, dailyTotals };
+  } catch (error) {
+    console.error("Grid Data Error:", error);
+    return { success: false, dailyTotals: {} };
+  }
+}

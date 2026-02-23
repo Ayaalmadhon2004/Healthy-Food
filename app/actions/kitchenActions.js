@@ -4,9 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-/**
- * دالة داخلية للتحقق من صلاحية المستخدم
- */
 async function getIsAuthorized() {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return false;
@@ -22,10 +19,7 @@ async function getIsAuthorized() {
   return dbUser?.role === "ORG" || dbUser?.role === "ADMIN";
 }
 
-/**
- * ✅ جلب المطابخ مع نظام التقسيم (Pagination)
- * تم دمج الدالتين هنا لمنع خطأ التكرار
- */
+
 export async function getKitchensAction(page = 1, limit = 5) {
   try {
     const skip = (page - 1) * limit;
@@ -59,8 +53,6 @@ export async function addKitchenAction(formData) {
     const nameAr = formData.get("nameAr");
     const nameEn = formData.get("nameEn");
 
-    // 1. البحث عن المطابخ التي تبدأ بنفس الاسم العربي
-    // نستخدم "startsWith" لنتأكد من عدّ النسخ القديمة والجديدة
     const existingKitchens = await prisma.kitchen.findMany({
       where: {
         name: {
@@ -73,7 +65,6 @@ export async function addKitchenAction(formData) {
     let finalNameAr = nameAr;
     let finalNameEn = nameEn;
 
-    // 2. إذا وجدنا تكرار، نحسب الرقم الجديد
     if (existingKitchens.length > 0) {
       const nextNumber = existingKitchens.length + 1;
       finalNameAr = `${nameAr} ${nextNumber}`;
@@ -133,9 +124,6 @@ export async function updateKitchenAction(kitchenId, formData) {
   }
 }
 
-/**
- * حذف مطبخ
- */
 export async function deleteKitchenAction(kitchenId) {
   try {
     const isAuthorized = await getIsAuthorized();
@@ -150,4 +138,27 @@ export async function deleteKitchenAction(kitchenId) {
     console.error("Delete Error:", error);
     return { success: false, error: "Failed to delete kitchen" };
   }
+}
+
+export async function getKitchenByIdAction(userId, year,month) {
+    try{
+      const startDate = new Date(year,month-1,1);
+      const endDate = new Date(year,month,0,23,59,59);
+
+      const logs = await prisma.foodLog.findMany({
+        where:{
+          userId:userId,
+          createdAt:{
+            gte:startDate,
+            lte:endDate,
+          },
+        },
+        orderBy:{
+          createdAt:"asc",
+        },
+      });
+      return { success:true , logs};
+    } catch(error){
+      return {success:false,error:"Failed to fetch logs"};
+    }
 }
