@@ -1,63 +1,77 @@
 "use client";
-import MonthlyGrid from "@/components/mealTracker/MonthlyGrid";
 
-export default function MonthlyDashboard({ data, stats, lang }) {
-  const isRtl = lang === "ar";
+import { useEffect, useState, useCallback } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import MonthlyDashboard from "@/components/mealTracker/MonthlyDashboard";
+import { 
+  getMonthlyGridDataAction, 
+  getMonthlyStatsAction 
+} from "@/app/actions/mealActions";
+import { useLanguage } from "@/context/LanguageContext";
 
-  const avg = stats?.avgCalories || 0;
-  const commitment = stats?.commitmentDays || 0;
-  const total = stats?.totalMeals || 0;
-  
-  return (
-    <section className="mt-12 w-full animate-in fade-in duration-700">
-      <h2 className="text-2xl font-black text-gray-800 mb-6 px-2">
-        {isRtl ? "تحليلات الشهر" : "Monthly Analytics"}
-      </h2>
+export default function MonthlyAnalyticsPage() {
+  const { lang } = useLanguage();
+  const [monthlyData, setMonthlyData] = useState({});
+  const [stats, setStats] = useState({ avgCalories: 0, commitmentDays: 0, totalMeals: 0 });
+  const [loading, setLoading] = useState(true);
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard 
-          label={isRtl ? "متوسط الاستهلاك" : "Avg Calories"} 
-          value={avg} 
-          unit="cal" 
-          color="blue"
-        />
-        <StatCard 
-          label={isRtl ? "أيام الالتزام" : "Commitment Days"} 
-          value={commitment} 
-          unit={isRtl ? "يوم" : "days"} 
-          color="green"
-        />
-        <StatCard 
-          label={isRtl ? "إجمالي الوجبات" : "Total Meals"} 
-          value={total} 
-          unit={isRtl ? "وجبة" : "meals"} 
-          color="orange"
-        />
-      </div>
-
-      <MonthlyGrid 
-        dailyTotals={data || {}}
-        year={new Date().getFullYear()} 
-        month={new Date().getMonth() + 1} 
-        lang={lang} 
-      />
-    </section>
+  const [supabase] = useState(() => 
+    createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
   );
-}
 
-function StatCard({ label, value, unit, color }) {
-  const colors = {
-    blue: "bg-blue-50 text-blue-700 border-blue-100",
-    green: "bg-green-50 text-green-700 border-green-100",
-    orange: "bg-orange-50 text-orange-700 border-orange-100",
-  };
-  return (
-    <div className={`p-5 rounded-[1.5rem] border ${colors[color]} shadow-sm`}>
-      <p className="text-[10px] font-bold uppercase opacity-60 mb-1">{label}</p>
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-black">{value}</span>
-        <span className="text-xs opacity-80">{unit}</span>
+  const fetchMonthlyData = useCallback(async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+
+      const [gridRes, statsRes] = await Promise.all([
+        getMonthlyGridDataAction(user.id, currentYear, currentMonth),
+        getMonthlyStatsAction(user.id, currentYear, currentMonth)
+      ]);
+
+      if (gridRes.success) {
+        setMonthlyData(gridRes.dailyTotals);
+      }
+      if (statsRes.success) {
+        setStats(statsRes.stats);
+      }
+    }
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchMonthlyData();
+  }, [fetchMonthlyData]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-primary-light)]">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-500 font-bold">
+            {lang === 'ar' ? "جاري تحميل الإحصائيات..." : "Loading Analytics..."}
+          </p>
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen p-4 md:p-10 bg-[var(--color-primary-light)]">
+      <div className="max-w-6xl mx-auto">
+        <MonthlyDashboard 
+          data={monthlyData} 
+          stats={stats} 
+          lang={lang} 
+        />
+      </div>
+    </main>
   );
 }
