@@ -78,7 +78,6 @@ export async function deleteMealAction(mealId) {
 }
 export async function getMonthlyGridDataAction(userId, year, month) {
   try {
-    // تحديد بداية ونهاية الشهر
     const startDate = new Date(Date.UTC(year, month - 1, 1));
     const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
@@ -101,5 +100,34 @@ export async function getMonthlyGridDataAction(userId, year, month) {
   } catch (error) {
     console.error("Grid Data Error:", error);
     return { success: false, dailyTotals: {} };
+  }
+}
+
+// app/actions/mealActions.js
+
+export async function getMonthlyStatsAction(userId, year, month) {
+  try {
+    const startDate = new Date(Date.UTC(year, month - 1, 1));
+    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+
+    const meals = await prisma.meal.findMany({
+      where: { userId, createdAt: { gte: startDate, lte: endDate } },
+    });
+
+    const dailyTotals = {};
+    meals.forEach(meal => {
+      const day = new Date(meal.createdAt).getUTCDate();
+      dailyTotals[day] = (dailyTotals[day] || 0) + meal.calories;
+    });
+
+    const totalsArray = Object.values(dailyTotals);
+    const avgCalories = totalsArray.length > 0 
+      ? Math.round(totalsArray.reduce((a, b) => a + b, 0) / totalsArray.length) 
+      : 0;
+    const commitmentDays = totalsArray.filter(v => v <= 2000 && v > 0).length;
+
+    return { success: true, dailyTotals, stats: { avgCalories, commitmentDays, totalMeals: meals.length } };
+  } catch (error) {
+    return { success: false, error: error.message };
   }
 }

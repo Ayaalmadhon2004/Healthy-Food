@@ -1,69 +1,63 @@
-import { cookies } from "next/headers";
-import * as trackerActions from "@/app/actions/trackerActions";
+"use client";
+import MonthlyGrid from "@/components/mealTracker/MonthlyGrid";
 
-export default async function MonthlyTrackerPage() {
-  // 1. إدارة اللغة من الكوكيز
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
-  const isAr = lang === "ar";
+export default function MonthlyDashboard({ data, stats, lang }) {
+  const isRtl = lang === "ar";
+
+  const avg = stats?.avgCalories || 0;
+  const commitment = stats?.commitmentDays || 0;
+  const total = stats?.totalMeals || 0;
   
-  // 2. إعداد التاريخ الحالي
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth() + 1; 
-
-  // 3. جلب البيانات باستخدام الـ Alias (trackerActions)
-  // هذا السطر يجب أن يكون داخل الدالة (Function Body)
-  const result = await trackerActions.getUserMonthlyLogsAction("user-test-123", year, month);
-  const logs = result?.logs || [];
-  const success = result?.success || false;
-
-  const t = {
-    ar: {
-      title: "المتتبع الشهري",
-      desc: "نظرة شاملة على استهلاكك للسعرات هذا الشهر",
-      empty: "لم تقم بتسجيل أي وجبات بعد لهذا الشهر.",
-      calories: "سعرة"
-    },
-    en: {
-      title: "Monthly Tracker",
-      desc: "A comprehensive look at your calories this month",
-      empty: "You haven't recorded any meals for this month yet.",
-      calories: "Cal"
-    }
-  }[lang];
-
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8" dir={isAr ? "rtl" : "ltr"}>
-      <header className="border-b pb-6">
-        <h1 className="text-3xl font-black text-gray-900">{t.title}</h1>
-        <p className="text-gray-500 mt-2">{t.desc}</p>
-      </header>
+    <section className="mt-12 w-full animate-in fade-in duration-700">
+      <h2 className="text-2xl font-black text-gray-800 mb-6 px-2">
+        {isRtl ? "تحليلات الشهر" : "Monthly Analytics"}
+      </h2>
 
-      <main className="grid gap-4">
-        {success && logs.length > 0 ? (
-          logs.map((log) => (
-            <div 
-              key={log.id} 
-              className="flex justify-between items-center p-5 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-gray-800">{log.mealName}</span>
-                <span className="text-sm text-gray-400 capitalize">{log.mealType || "Meal"}</span>
-              </div>
-              <div className="text-right">
-                <span className="text-xl font-black text-orange-500">{log.calories}</span>
-                <span className="text-xs text-gray-400 block">{t.calories}</span>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-2xl">🍽️</div>
-            <p className="text-gray-400 font-medium">{t.empty}</p>
-          </div>
-        )}
-      </main>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <StatCard 
+          label={isRtl ? "متوسط الاستهلاك" : "Avg Calories"} 
+          value={avg} 
+          unit="cal" 
+          color="blue"
+        />
+        <StatCard 
+          label={isRtl ? "أيام الالتزام" : "Commitment Days"} 
+          value={commitment} 
+          unit={isRtl ? "يوم" : "days"} 
+          color="green"
+        />
+        <StatCard 
+          label={isRtl ? "إجمالي الوجبات" : "Total Meals"} 
+          value={total} 
+          unit={isRtl ? "وجبة" : "meals"} 
+          color="orange"
+        />
+      </div>
+
+      <MonthlyGrid 
+        dailyTotals={data || {}}
+        year={new Date().getFullYear()} 
+        month={new Date().getMonth() + 1} 
+        lang={lang} 
+      />
+    </section>
+  );
+}
+
+function StatCard({ label, value, unit, color }) {
+  const colors = {
+    blue: "bg-blue-50 text-blue-700 border-blue-100",
+    green: "bg-green-50 text-green-700 border-green-100",
+    orange: "bg-orange-50 text-orange-700 border-orange-100",
+  };
+  return (
+    <div className={`p-5 rounded-[1.5rem] border ${colors[color]} shadow-sm`}>
+      <p className="text-[10px] font-bold uppercase opacity-60 mb-1">{label}</p>
+      <div className="flex items-baseline gap-1">
+        <span className="text-2xl font-black">{value}</span>
+        <span className="text-xs opacity-80">{unit}</span>
+      </div>
     </div>
   );
 }
