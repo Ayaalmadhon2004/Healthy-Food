@@ -14,7 +14,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
-  const lang = cookieStore.get('lang')?.value || 'ar';
+  const lang = cookieStore.get('lang')?.value || 'en';
   const role = await getCurrentUserRole();
 
   return (

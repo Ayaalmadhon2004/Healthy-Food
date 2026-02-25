@@ -13,9 +13,9 @@ export async function POST(req: Request) {
       const errors = validation.error.flatten().fieldErrors;
       
       const fieldErrors: Record<string, string> = {};
-      for (const key in errors) {
-        if (errors[key]) {
-          fieldErrors[key] = errors[key]![0]; // نأخذ أول رسالة خطأ لكل حقل
+      for (const [key, messages] of Object.entries(errors)) {
+        if (messages?.[0]) {
+          fieldErrors[key] = messages[0];
         }
       }
 

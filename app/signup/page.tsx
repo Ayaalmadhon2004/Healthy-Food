@@ -8,7 +8,7 @@ import { AlertCircle, Loader2, UserPlus, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function SignupPage() {
-  const { lang } = useLanguage();
+  const { lang } = useLanguage() as { lang: "en" | "ar" };
   const isRtl = lang === "ar";
   const router = useRouter();
 
