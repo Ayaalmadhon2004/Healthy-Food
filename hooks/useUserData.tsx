@@ -1,15 +1,16 @@
-
 "use client"
 
 import { create } from "zustand"
 import { useEffect } from "react"
 
+let isFetched = false;
+
 export const useUserData = create((set, get) => ({
   user: null,
-  loading: true,
+  loading: !isFetched, 
   error: null,
 
-  setUser: (user: any) => set({ user }),
+  setUser: (user: any) => set({ user, loading: false }),
 
   clearUser: () =>
     set({
@@ -19,9 +20,7 @@ export const useUserData = create((set, get) => ({
     }),
 
   fetchUser: async () => {
-    const { user, loading }: any = get()
-
-    if (user || !loading) return
+    if (isFetched) return;
 
     try {
       const res = await fetch("/api/auth/me")
@@ -32,12 +31,14 @@ export const useUserData = create((set, get) => ({
 
       const data = await res.json()
 
+      isFetched = true;
       set({
         user: data.user,
         loading: false,
         error: null,
       })
     } catch (err: any) {
+      isFetched = true;
       set({
         user: null,
         loading: false,
@@ -47,12 +48,8 @@ export const useUserData = create((set, get) => ({
   },
 }))
 
-/* ----------------------------------
-   Hook للتهيئة مرة واحدة
------------------------------------ */
-
 export function useInitUser() {
-  const fetchUser = useUserData((state: any) => state.fetchUser)
+  const fetchUser: any = useUserData((state) => state.fetchUser)
 
   useEffect(() => {
     fetchUser()

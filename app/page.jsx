@@ -32,7 +32,6 @@ export default function Home() {
     }
   };
 
-  if (loading) return null;
 
   return (
     <div 
