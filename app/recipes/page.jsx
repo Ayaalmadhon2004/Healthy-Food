@@ -1,17 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import FilterButtons from "../../components/FilterButtons";
+import FilterButtons from "../../components/recipes/FilterButtons";
 import { cookies } from "next/headers";
 
 export default async function RecipesPage() {
-  // 1. جلب اللغة من الكوكيز في السيرفر
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";
   const isRtl = lang === "ar";
 
-  // 2. جلب الوصفات من قاعدة البيانات
   const recipes = await prisma.foodRecipe.findMany();
 
-  // نصوص العناوين المترجمة
   const translations = {
     title: { en: "Browse Recipes", ar: "تصفح الوصفات" },
   };

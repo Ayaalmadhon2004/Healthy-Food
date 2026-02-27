@@ -3,14 +3,11 @@
 import { create } from "zustand"
 import { useEffect } from "react"
 
-// 1. تعريف واجهة المستخدم (User Interface)
 interface User {
   id: string;
   email: string;
-  // أضيفي أي حقول إضافية تستخدمينها هنا
 }
 
-// 2. تعريف واجهة الحالة (Store Interface)
 interface UserState {
   user: User | null;
   loading: boolean;
@@ -22,7 +19,6 @@ interface UserState {
 
 let isFetched = false;
 
-// 3. تمرير الواجهة لـ create لضمان النوع الصحيح لـ set و get
 export const useUserData = create<UserState>((set) => ({
   user: null,
   loading: !isFetched, 
@@ -55,7 +51,7 @@ export const useUserData = create<UserState>((set) => ({
         loading: false,
         error: null,
       })
-    } catch (err: unknown) { // استخدام unknown بدلاً من any كأفضل ممارسة
+    } catch (err: unknown) { 
       isFetched = true;
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch user";
       set({
@@ -67,12 +63,8 @@ export const useUserData = create<UserState>((set) => ({
   },
 }))
 
-/* ----------------------------------
-    Hook للتهيئة مرة واحدة
------------------------------------ */
 
 export function useInitUser() {
-  // تحديد نوع الـ state هنا بدقة ليختفي خطأ Unexpected any
   const fetchUser = useUserData((state: UserState) => state.fetchUser)
 
   useEffect(() => {

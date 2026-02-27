@@ -28,7 +28,7 @@ export default async function RootLayout({ children }) {
           <Toaster position="top-center" reverseOrder={false}/>
           <ErrorProvider>
             <Navbar userRole={role}/>
-            <main className="pt-20">{children}</main>
+            <main>{children}</main>
             <Footer />
           </ErrorProvider>
         </LanguageProvider>
