@@ -1,84 +1,92 @@
 "use client";
 
+import { useState, memo } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 
-export default function AddMealForm({ state, dispatch, onAdd }) {
+const AddMealForm = memo(({ onAdd }) => {
   const { lang } = useLanguage();
-  const isRtl = lang === "ar";
+  const [mealName, setMealName] = useState("");
+  const [calories, setCalories] = useState("");
+  const [option, setOption] = useState("Lunch");
 
-  // نصوص الترجمة
-  const content = {
-    title: { en: "Log New Meal", ar: "تسجيل وجبة جديدة" },
-    label: { en: "Type of meals", ar: "نوع الوجبة" },
-    placeholderName: { en: "Meal Name", ar: "اسم الوجبة" },
-    placeholderCal: { en: "Calories", ar: "السعرات الحرارية" },
-    button: { en: "+ Add Meal", ar: "+ إضافة الوجبة" },
-    options: {
-      lunch: { en: "Lunch", ar: "غداء" },
-      breakfast: { en: "Breakfast", ar: "فطور" },
-      dinner: { en: "Dinner", ar: "عشاء" },
-      snack: { en: "Snack", ar: "سناك" },
-    },
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!mealName || !calories || Number(calories) <= 0) return;
+
+    onAdd({ name: mealName, calories: Number(calories), option: option });
+    setMealName("");
+    setCalories("");
   };
 
   return (
-    <div 
-      className="w-full rounded-xl bg-white my-4 p-6 shadow-lg transition-all"
-      dir={isRtl ? "rtl" : "ltr"}
-    >
-      <h3 className="font-bold text-xl mb-4 text-gray-800 border-b pb-2">
-        {content.title[lang]}
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]"> 
+      {/* أضفنا min-h لتقليل الـ Layout Shift (CLS) المذكور في تقريرك */}
+      
+      <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">
+        {lang === 'ar' ? "إضافة وجبة" : "Add Meal"}
       </h3>
       
-      <label htmlFor="meal-option" className="block mb-2 text-sm font-medium text-gray-700">
-        {content.label[lang]}
-      </label>
-      <select
-        id="meal-option"
-        className="border p-2 rounded-lg mb-4 block w-full 
-        bg-gray-50 border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
-        value={state.option}
-        onChange={(e) =>
-          dispatch({ type: "SET_OPTION", payload: e.target.value })
-        }
-      >
-        <option value="Lunch">{content.options.lunch[lang]}</option>
-        <option value="Breakfast">{content.options.breakfast[lang]}</option>
-        <option value="Dinner">{content.options.dinner[lang]}</option>
-        <option value="Snack">{content.options.snack[lang]}</option>
-      </select>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* حقل اسم الطعام مع Label مخفي للمكفوفين (Accessibility) */}
+        <div>
+          <label htmlFor="foodName" className="sr-only">
+            {lang === 'ar' ? "اسم الطعام" : "Food Name"}
+          </label>
+          <input
+            id="foodName"
+            type="text"
+            value={mealName}
+            onChange={(e) => setMealName(e.target.value)}
+            placeholder={lang === 'ar' ? "اسم الطعام (مثلاً: سلطة)" : "Food Name (e.g. Salad)"}
+            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none transition-all text-gray-900"
+          />
+        </div>
 
-      <input
-        type="text"
-        placeholder={content.placeholderName[lang]}
-        value={state.mealName}
-        onChange={(e) =>
-          dispatch({ type: "SET_MEAL_NAME", payload: e.target.value })
-        }
-        className="border p-2 rounded-lg mb-4 w-full 
-        bg-gray-50 border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
-      />
+        <div className="flex gap-4">
+          {/* حقل السعرات مع Label */}
+          <div className="flex-1">
+            <label htmlFor="calInput" className="block text-xs font-bold text-gray-600 mb-1 ml-1">
+              {lang === 'ar' ? "السعرات" : "Calories"}
+            </label>
+            <input
+              id="calInput"
+              type="number"
+              value={calories}
+              onChange={(e) => setCalories(e.target.value)}
+              placeholder="0"
+              className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none text-gray-900"
+            />
+          </div>
 
-      <input
-        type="number"
-        placeholder={content.placeholderCal[lang]}
-        value={state.inputCalories}
-        onChange={(e) =>
-          dispatch({
-            type: "SET_INPUT_CALORIES",
-            payload: Number(e.target.value),
-          })
-        }
-        className="border p-2 rounded-lg mb-6 w-full 
-        bg-gray-50 border-gray-200 focus:ring-2 focus:ring-green-500 outline-none"
-      />
+          {/* قائمة النوع مع Label (لحل خطأ Accessibility في تقريرك) */}
+          <div className="flex-1">
+            <label htmlFor="mealType" className="block text-xs font-bold text-gray-600 mb-1 ml-1">
+              {lang === 'ar' ? "النوع" : "Type"}
+            </label>
+            <select
+              id="mealType"
+              value={option}
+              onChange={(e) => setOption(e.target.value)}
+              className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none text-gray-900 appearance-none"
+            >
+              <option value="Breakfast">{lang === 'ar' ? "فطور" : "Breakfast"}</option>
+              <option value="Lunch">{lang === 'ar' ? "غداء" : "Lunch"}</option>
+              <option value="Dinner">{lang === 'ar' ? "عشاء" : "Dinner"}</option>
+              <option value="Snack">{lang === 'ar' ? "سناك" : "Snack"}</option>
+            </select>
+          </div>
+        </div>
 
-      <button
-        onClick={onAdd}
-        className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-3 rounded-lg w-full transition-colors shadow-md active:scale-95"
-      >
-        {content.button[lang]}
-      </button>
+        <button 
+          type="submit" 
+          className="w-full bg-green-700 hover:bg-green-800 text-white font-black py-4 rounded-xl shadow-md transition-all active:scale-95 mt-2"
+        >
+          {lang === 'ar' ? "+ إضافة الآن" : "+ Add Now"}
+        </button>
+      </form>
     </div>
   );
-}
+});
+
+AddMealForm.displayName = "AddMealForm";
+export default AddMealForm;

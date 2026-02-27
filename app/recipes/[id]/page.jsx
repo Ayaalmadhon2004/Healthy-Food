@@ -1,7 +1,7 @@
 import Image from "next/image";
 import BackButton from "../../../components/BackButton";
 import LogMealButton from "../../../components/LogMealButton";
-import AddToCartButton from "../../../components/AddToCartButton";
+import AddToCartButton from "../../../components/recipes/AddToFavButton";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 

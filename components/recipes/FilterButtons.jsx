@@ -7,7 +7,6 @@ export default function FilterButtons({ initialRecipes, loading = false }) {
   const { lang } = useLanguage();
   const [filter, setFilter] = useState("All");
 
-  // الترجمة للأزرار
   const categories = [
     { id: "All", en: "All", ar: "الكل" },
     { id: "Breakfast", en: "Breakfast", ar: "فطور" },
@@ -16,17 +15,15 @@ export default function FilterButtons({ initialRecipes, loading = false }) {
     { id: "Snacks", en: "Snacks", ar: "سناك" },
   ];
 
-  // منطق الفلترة: نقارن الـ id مع حقل type.en الموجود في قاعدة البيانات
   const filtered =
     filter === "All"
       ? initialRecipes
-      : initialRecipes.filter((r) => r.type.en === filter);
+      : initialRecipes.filter((r) => r.type[lang] === cat.id);
 
   const skeletonCount = 8;
 
   return (
     <>
-      {/* Filter Buttons */}
       <div 
         className="flex flex-wrap gap-2 mb-6 justify-center sm:justify-start"
         dir={lang === "ar" ? "rtl" : "ltr"}
@@ -46,7 +43,6 @@ export default function FilterButtons({ initialRecipes, loading = false }) {
         ))}
       </div>
 
-      {/* Recipes Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {loading
           ? Array.from({ length: skeletonCount }).map((_, i) => (
@@ -55,12 +51,11 @@ export default function FilterButtons({ initialRecipes, loading = false }) {
                 className="h-64 bg-gray-200 rounded-2xl animate-pulse"
               ></div>
             ))
-          : filtered.map((meal) => (
-              <RecipeCard key={meal.id} meal={meal} />
+          : filtered.map((meal, index) => (
+              <RecipeCard key={meal.id} meal={meal} lang={lang} index={index} />
             ))}
       </div>
 
-      {/* No Results Message */}
       {!loading && filtered.length === 0 && (
         <div className="text-center py-20 text-gray-500">
           {lang === "ar" ? "لا توجد وصفات في هذا القسم حالياً." : "No recipes found in this category."}

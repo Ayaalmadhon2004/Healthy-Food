@@ -1,11 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl
 
-  // 1. القائمة البيضاء (White List): استثناء فوري وصارم
-  // نضع هنا كل ما لا نريد للميدل وير أن يلمسه (API, Auth Pages, Static Files)
+  
   if (
     pathname.startsWith('/api/auth') || 
     pathname.startsWith('/_next') || 
@@ -16,12 +15,10 @@ export async function middleware(request) {
     return NextResponse.next()
   }
 
-  // 2. إعداد الاستجابة (مرة واحدة فقط)
   let response = NextResponse.next({
     request: { headers: request.headers },
   })
 
-  // 3. إعداد Supabase (للمسارات التي تحتاج حماية فقط)
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -48,11 +45,8 @@ export async function middleware(request) {
     }
   )
 
-  // 4. جلب بيانات المستخدم
-  // ملاحظة: getUser() تتحقق من التوكن، وبما أننا استثنينا /api/auth فلن تسبب مشاكل هناك
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 5. منطق الحماية (Protected Routes)
   const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/doctors')
   
   if (!user && isProtectedRoute) {
