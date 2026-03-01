@@ -3,17 +3,22 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
-import { Building2, Languages } from "lucide-react";
+import { Building2, Languages, LayoutDashboard, HeartPulse, Stethoscope } from "lucide-react";
 
 export default function NavbarLinks({ className, userRole }) {
   const router = useRouter();
   const { lang, changeLanguage } = useLanguage();
 
   const isOrg = userRole === "ADMIN" || userRole === "ORG";
+  const isDoctor = userRole === "DOCTOR";
 
   const content = {
     ar: {
-      dashboard: "لوحة التحكم",
+      // الأسماء الديناميكية الجديدة
+      userDashboard: "المفكرة الصحية",
+      orgDashboard: "إدارة المطبخ",
+      doctorDashboard: "بوابة الطبيب",
+      
       recipes: "الوصفات",
       tracker: "متبع الوجبات",
       tips: "نصائح صحية",
@@ -24,7 +29,11 @@ export default function NavbarLinks({ className, userRole }) {
       shortLang: "EN"
     },
     en: {
-      dashboard: "Dashboard",
+      // Dynamic Labels
+      userDashboard: "Health Tracker",
+      orgDashboard: "Kitchen Manager",
+      doctorDashboard: "Doctor Portal",
+
       recipes: "Recipes",
       tracker: "Meal Tracker",
       tips: "Health Tips",
@@ -38,25 +47,34 @@ export default function NavbarLinks({ className, userRole }) {
 
   const t = content[lang] || content.ar;
 
+  // دالة لتحديد اسم الرابط والأيقونة بناءً على الدور
+  const getDashboardLinkInfo = () => {
+    if (isOrg) return { label: t.orgDashboard, icon: <Building2 size={16} /> };
+    if (isDoctor) return { label: t.doctorDashboard, icon: <Stethoscope size={16} /> };
+    return { label: t.userDashboard, icon: <HeartPulse size={16} /> };
+  };
+
+  const dashInfo = getDashboardLinkInfo();
+
   return (
     <>
-      <Link href="/dashboard" className={className}>{t.dashboard}</Link>
+      {/* الرابط الأول: ديناميكي حسب الوظيفة */}
+      <Link 
+        href="/dashboard" 
+        className={`${className} flex items-center gap-1.5 font-bold text-[var(--color-primary)]`}
+      >
+        {dashInfo.icon}
+        {dashInfo.label}
+      </Link>
+
       <Link href="/recipes" className={className}>{t.recipes}</Link>
       <Link href="/tracker" className={className}>{t.tracker}</Link>
       <Link href="/tips" className={className}>{t.tips}</Link>
       <Link href="/doctors" className={className}>{t.doctors}</Link>
       <Link href="/gaza-kitchen" className={className}>{t.kitchen}</Link>
 
-      {isOrg && (
-        <Link 
-          href="/organization" 
-          className={`${className} text-[var(--color-primary)] font-bold flex items-center gap-1.5`}
-        >
-          <Building2 size={16} />
-          {t.organization}
-        </Link>
-      )}
-
+      {/* حذفنا رابط "إدارة المنظمة" المكرر لأنه أصبح هو الرابط الأساسي بالأعلى للمنظمات */}
+      
       <div className="flex items-center ml-4 mr-2 border-l border-gray-200 pl-4 h-6 my-auto">
         <button 
           onClick={() => changeLanguage(lang === 'ar' ? 'en' : 'ar')}
@@ -72,7 +90,6 @@ export default function NavbarLinks({ className, userRole }) {
           <span className="text-xs font-bold tracking-wider text-gray-600 group-hover:text-gray-900 uppercase">
             {t.shortLang}
           </span>
-          
           <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full border-2 border-white"></span>
         </button>
       </div>
