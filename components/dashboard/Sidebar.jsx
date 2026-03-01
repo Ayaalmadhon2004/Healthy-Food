@@ -1,81 +1,56 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Utensils, 
-  Calendar, 
-  ClipboardList, 
-  Stethoscope, 
-  ChevronRight
-} from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
+import { LayoutDashboard, Activity, Calendar, Building2, Stethoscope } from "lucide-react";
 
-export default function Sidebar() {
-  const { lang } = useLanguage();
+export default function Sidebar({ userRole, lang }) {
   const pathname = usePathname();
-  const isRtl = lang === "ar";
+
+  const normalizedRole = userRole ? userRole.toUpperCase().trim() : "GUEST";
+
+  const allTranslations = {
+    ar: { menu: "القائمة", overview: "نظرة عامة", daily: "المتتبع اليومي", monthly: "العرض الشهري", organization: "إدارة المطبخ", patients: "قائمة المرضى" },
+    en: { menu: "Menu", overview: "Overview", daily: "Daily Tracker", monthly: "Monthly View", organization: "Organization", patients: "Patients List" }
+  };
+
+  const t = allTranslations[lang] || allTranslations.en;
 
   const menuItems = [
-    { id: "overview", label: { en: "Overview", ar: "الرئيسية" }, icon: <LayoutDashboard size={20} />, href: "/dashboard" },
-    { id: "tracker", label: { en: "Daily Tracker", ar: "المتتبع اليومي" }, icon: <Utensils size={20} />, href: "/dashboard/tracker" },
-    { id: "calendar", label: { en: "Monthly View", ar: "الرؤية الشهرية" }, icon: <Calendar size={20} />, href: "/dashboard/tracker/monthly" },
-    { id: "org", label: { en: "Organization", ar: "التنظيم" }, icon: <ClipboardList size={20} />, href: "/dashboard/organization" },
-    { id: "medical", label: { en: "Medical Section", ar: "قسم الأطباء" }, icon: <Stethoscope size={20} />, href: "/dashboard/medical" },
+    { href: "/dashboard", label: t.overview, icon: <LayoutDashboard size={20} />, roles: ["USER", "ORG", "DOCTOR", "ADMIN", "GUEST"] },
+    { href: "/dashboard/tracker", label: t.daily, icon: <Activity size={20} />, roles: ["USER"] },
+    { href: "/dashboard/tracker/monthly", label: t.monthly, icon: <Calendar size={20} />, roles: ["USER"] },
+    { href: "/dashboard/organization", label: t.organization, icon: <Building2 size={20} />, roles: ["ORG", "ADMIN"] },
+    { href: "/dashboard/patients", label: t.patients, icon: <Stethoscope size={20} />, roles: ["DOCTOR"] }
   ];
 
+  const filteredItems = menuItems.filter(item => item.roles.includes(normalizedRole));
+
   return (
-    <aside 
-      className="w-64 bg-white border-e border-gray-100 flex flex-col h-[calc(100vh-64px)] sticky top-16"
-      dir={isRtl ? "rtl" : "ltr"}
-    >
-      {/* 1. Header (اختياري لأن اللوجو في النافبار، لكن يمكن وضعه كعنوان للأدوات) */}
-      <div className="p-6">
-        <p className="text-xs font-black uppercase tracking-widest text-gray-400">
-          {lang === 'ar' ? 'القائمة' : 'Menu'}
-        </p>
+    <aside className="w-64 h-screen bg-white border-r p-4 flex flex-col gap-2">
+      <div className="mb-4 px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+        {t.menu}
       </div>
-
-      {/* 2. Navigation Links */}
-      <nav className="flex-1 px-4 space-y-1">
-        {menuItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`flex items-center justify-between p-3 rounded-xl font-bold transition-all group ${
-                isActive 
-                  ? "bg-green-600 text-white shadow-lg shadow-green-100" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-green-600"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {item.icon}
-                <span className="text-sm">{item.label[lang]}</span>
-              </div>
-              
-              {/* سهم صغير يظهر عند التمرير أو التنشيط */}
-              <ChevronRight 
-                size={14} 
-                className={`transition-transform ${isRtl ? 'rotate-180' : ''} ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} 
-              />
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* 3. Footer (مساحة للمساعدة أو الإعدادات السريعة) */}
-      <div className="p-4 mt-auto">
-        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-          <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">Status</p>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-xs font-bold text-gray-600">Online Mode</span>
-          </div>
-        </div>
-      </div>
+      
+      {filteredItems.map((item) => {
+        const isActive = pathname === item.href;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium group ${
+              isActive 
+                ? "bg-emerald-50 text-emerald-600 shadow-sm" 
+                : "text-gray-500 hover:bg-gray-50 hover:text-emerald-500"
+            }`}
+          >
+            <span className={isActive ? "text-emerald-600" : "text-gray-400 group-hover:text-emerald-500"}>
+              {item.icon}
+            </span>
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
     </aside>
   );
 }
