@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext"; // سيقرأ اللغة من هنا
 import { LayoutDashboard, Activity, Calendar, Building2, Stethoscope } from "lucide-react";
 
-export default function Sidebar({ userRole, lang }) {
+export default function Sidebar({ userRole }) {
   const pathname = usePathname();
+  const { lang } = useLanguage(); 
   const isAr = lang === "ar";
 
   const normalizedRole = userRole ? userRole.toUpperCase().trim() : "GUEST";
@@ -29,10 +31,7 @@ export default function Sidebar({ userRole, lang }) {
 
   return (
     <aside 
-      className={`w-64 h-screen bg-white p-4 flex flex-col gap-2 transition-all ${
-        isAr ? "border-l text-right" : "border-r text-left"
-      }`} 
-      dir={isAr ? "rtl" : "ltr"}
+      className={`w-64 h-screen bg-white p-4 flex flex-col gap-2 border-gray-100 ${isAr ? "border-l" : "border-r"}`}
     >
       <div className="mb-4 px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
         {t.menu}
@@ -53,7 +52,7 @@ export default function Sidebar({ userRole, lang }) {
             <span className={isActive ? "text-emerald-600" : "text-gray-400 group-hover:text-emerald-500"}>
               {item.icon}
             </span>
-            <span className="text-sm">{item.label}</span>
+            <span>{item.label}</span>
           </Link>
         );
       })}
