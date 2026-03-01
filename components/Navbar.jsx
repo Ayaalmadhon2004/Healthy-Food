@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Menu, Heart, LogOut, User } from "lucide-react"; // استيراد أيقونات أنسب
-import { supabaseClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useFavStore } from "@/store/useFavStore"; // المتجر الجديد
 import { useUserData } from "@/hooks/useUserData";
 import NavbarLinks from "./NavbarLinks";
@@ -17,7 +17,7 @@ export default function Navbar() {
   const favItems = useFavStore((state) => state.favItems);
 
   const logout = async () => {
-    await supabaseClient.auth.signOut();
+    await supabase.auth.signOut();
     setUser(null);
     router.push("/login");
   };
