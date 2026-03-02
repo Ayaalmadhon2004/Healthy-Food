@@ -1,11 +1,29 @@
 "use client";
+import { useEffect } from "react";
 import { useFavStore } from "@/store/useFavStore";
+import { useUserData } from "@/hooks/useUserData";
 import RecipeCard from "@/components/recipes/RecipeCard";
 import { HeartOff } from "lucide-react";
 import Link from "next/link";
 
 export default function FavoritesPage() {
-  const { favItems } = useFavStore();
+  const { favItems, setFavItems } = useFavStore();
+  const { user } = useUserData();
+
+  useEffect(() => {
+    const fetchMyFavorites = async () => {
+      if (user?.id) {
+        const res = await fetch(`/api/favorites?userId=${user.id}`);
+        const data = await res.json();
+        if (data.favorites) {
+          // ملاحظة: تأكدي أن البيانات العائدة من السيرفر تطابق شكل الـ meal object
+          // إذا كان السيرفر يعيد IDs فقط، ستحتاجين لدمجها مع بيانات الوصفات
+          // setFavItems(data.favorites); 
+        }
+      }
+    };
+    fetchMyFavorites();
+  }, [user?.id, setFavItems]);
 
   return (
     <main className="min-h-screen pt-28 pb-12 px-6 bg-gray-50">
@@ -20,10 +38,7 @@ export default function FavoritesPage() {
             <HeartOff size={64} className="text-gray-300 mb-4" />
             <h2 className="text-xl font-bold text-gray-800">Your list is empty</h2>
             <p className="text-gray-500 mt-2 mb-6">Start exploring and save your first recipe!</p>
-            <Link 
-              href="/recipes" 
-              className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all active:scale-95"
-            >
+            <Link href="/recipes" className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all">
               Browse Recipes
             </Link>
           </div>
