@@ -23,6 +23,7 @@ model User {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   meals                Meal[]   
+  favorites            Favorite[] 
 }
 
 model HealthTip {
@@ -103,4 +104,13 @@ model FoodLog {
   mealType    String   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String  
+  recipeId  String   
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, recipeId]) 
 }

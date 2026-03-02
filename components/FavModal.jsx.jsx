@@ -1,23 +1,26 @@
 "use client";
 
 import { X, Heart, Trash2, ArrowRight, ArrowLeft } from "lucide-react";
-import { useFavStore } from "@/store/useFavStore"; // تأكدي من مسمى المتجر الجديد
+import { useFavStore } from "@/store/useFavStore";
 import { useLanguage } from "@/context/LanguageContext";
+import { useUserData } from "@/hooks/useUserData"; // استيراد بيانات المستخدم
 import Image from "next/image";
 import Link from "next/link";
 
 export default function FavModal() {
   const { lang } = useLanguage();
+  const { user } = useUserData(); // جلب المستخدم الحالي
   const isRtl = lang === "ar";
 
-  // جلب البيانات والوظائف من متجر المفضلة
   const favItems = useFavStore((state) => state.favItems);
   const toggleFavorite = useFavStore((state) => state.toggleFavorite);
-  // سنفترض أننا أضفنا دالة لإغلاق المودال في المتجر (أو استخدمي state محلي في Navbar)
   const isFavOpen = useFavStore((state) => state.isFavOpen); 
   const closeFav = useFavStore((state) => state.closeFav);
 
   if (!isFavOpen) return null;
+
+  // معرف المستخدم لربط المفضلات بالسيرفر
+  const userId = user?.id;
 
   const t = {
     title: { en: "My Favorites", ar: "وصفاتي المفضلة" },
@@ -28,7 +31,6 @@ export default function FavModal() {
 
   return (
     <div className="fixed inset-0 w-full h-full bg-black/40 backdrop-blur-sm flex justify-end z-[100] transition-opacity">
-      {/* Drawer Container */}
       <div 
         className="w-full max-w-sm bg-white h-full shadow-2xl flex flex-col animate-slide-in"
         dir={isRtl ? "rtl" : "ltr"}
@@ -63,7 +65,6 @@ export default function FavModal() {
                   key={item.id} 
                   className="flex gap-4 p-3 rounded-2xl border border-gray-50 hover:border-red-100 hover:bg-red-50/30 transition-all group"
                 >
-                  {/* صورة مصغرة للوصفة */}
                   <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
                     <Image 
                       src={item.img} 
@@ -82,7 +83,8 @@ export default function FavModal() {
                     </p>
                     
                     <button 
-                      onClick={() => toggleFavorite(item)} 
+                      {/* نمرر الـ userId هنا ليتم الحذف من السيرفر أيضاً */}
+                      onClick={() => toggleFavorite(item, userId)} 
                       className="text-red-400 hover:text-red-600 text-[11px] font-bold flex items-center gap-1 mt-2 transition-colors"
                     >
                       <Trash2 size={12} />
