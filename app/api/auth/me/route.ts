@@ -13,7 +13,7 @@ export async function GET(request: Request) {
       )
     }
 
-    // 1️⃣ Get currently authenticated user from Supabase
+    // 1️⃣ الحصول على المستخدم الموثق حالياً من Supabase
     const { data: { user }, error: authError } =
       await supabaseServer.auth.getUser()
 
@@ -24,13 +24,14 @@ export async function GET(request: Request) {
       )
     }
 
-    // 2️⃣ Fetch user profile from database using Prisma
+    // 2️⃣ جلب بيانات المستخدم من Prisma مع إضافة حقل الـ role
     const profile = await prismaClient.user.findUnique({
       where: { id: user.id },
       select: {
         id: true,
         name: true,
         email: true,
+        role: true, // ✅ أضفنا هذا الحقل لإصلاح مشكلة الـ Dashboard
         phone: true,
         dietary_preferences: true,
         health_goals: true,
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
       )
     }
 
-    // 3️⃣ Return current user
+    // 3️⃣ إرجاع بيانات المستخدم كاملة للمتصفح
     return NextResponse.json({
       user: profile,
     })
