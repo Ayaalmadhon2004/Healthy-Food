@@ -5,15 +5,20 @@ import { useUserData } from "@/hooks/useUserData";
 
 export default function AddToFavButton({ meal }) {
   const { user } = useUserData();
-  const { favItems, toggleFavorite } = useFavStore();
   
-  // تحقق هل الوجبة في المفضلة؟
+  // استخدام Selector يضمن تحديث الزر فور تغير favItems في المتجر
+  const favItems = useFavStore((state) => state.favItems);
+  const toggleFavorite = useFavStore((state) => state.toggleFavorite);
+  
+  // التحقق المباشر من القائمة المدمجة
   const isFavorite = favItems.some((item) => item.id === meal.id);
 
-  const handleToggle = (e) => {
+  const handleToggle = async (e) => {
     e.preventDefault();
-    e.stopPropagation(); // منع أي تداخل مع الكرت نفسه
-    toggleFavorite(meal, user?.id);
+    e.stopPropagation();
+    
+    // إرسال الوجبة وUserId للمزامنة مع السيرفر
+    await toggleFavorite(meal, user?.id);
   };
 
   return (
@@ -21,11 +26,15 @@ export default function AddToFavButton({ meal }) {
       onClick={handleToggle}
       className={`w-12 h-10 flex items-center justify-center rounded-xl border transition-all active:scale-90 ${
         isFavorite 
-          ? "bg-red-50 border-red-100 text-red-500" 
+          ? "bg-red-50 border-red-100 text-red-500 shadow-sm" 
           : "bg-gray-50 border-gray-100 text-gray-400 hover:text-red-400"
       }`}
     >
-      <Heart size={20} className={isFavorite ? "fill-current" : ""} />
+      <Heart 
+        size={20} 
+        className={isFavorite ? "fill-current" : ""} 
+        strokeWidth={isFavorite ? 2.5 : 2}
+      />
     </button>
   );
 }

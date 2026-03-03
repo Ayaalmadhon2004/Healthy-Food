@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { useEffect } from "react";
 import { useFavStore } from "@/store/useFavStore";
-import { supabase } from "@/lib/supabase/client"; // تأكدي من استيراد كليانيت supabase
+import { supabase } from "@/lib/supabase/client"; 
 
 interface User {
   id: string;
@@ -34,7 +34,6 @@ export const useUserData = create<UserState>((set, get) => ({
     set({ user: null, loading: false, error: null });
   },
 
-  // دالة المراقبة الحية - تمنع اختفاء الجلسة بعد دقيقة
   listenToAuth: () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
@@ -46,9 +45,8 @@ export const useUserData = create<UserState>((set, get) => ({
         };
         set({ user: newUser, loading: false });
         
-        // جلب المفضلات فقط إذا لم تكن موجودة لمنع التكرار المستمر
         if (get().user?.id) {
-           get().fetchUser(); 
+            get().fetchUser(); 
         }
       } else if (event === 'SIGNED_OUT') {
         get().clearUser();
@@ -67,7 +65,6 @@ export const useUserData = create<UserState>((set, get) => ({
       if (data.user) {
         set({ user: data.user, loading: false, error: null });
 
-        // مزامنة المفضلات
         try {
           const favRes = await fetch(`/api/favorites?userId=${data.user.id}`);
           const favData = await favRes.json();

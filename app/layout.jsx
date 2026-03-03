@@ -6,7 +6,6 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { cookies } from "next/headers";
 import { getCurrentUserRole } from "./actions/authActions";
 import { Toaster } from "react-hot-toast";
-// 1. استيراد المكون الذي سيقوم بجلب بيانات المستخدم
 import { UserInitializer } from "@/components/UserInitializer"; 
 
 export const metadata = {

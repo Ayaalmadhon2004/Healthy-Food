@@ -1,55 +1,54 @@
 "use client";
-import { useEffect } from "react";
+
 import { useFavStore } from "@/store/useFavStore";
+import { useLanguage } from "@/context/LanguageContext";
 import { useUserData } from "@/hooks/useUserData";
-import RecipeCard from "@/components/recipes/RecipeCard";
-import { HeartOff } from "lucide-react";
-import Link from "next/link";
+import { Heart, Trash2 } from "lucide-react";
+import Image from "next/image";
 
 export default function FavoritesPage() {
-  const { favItems, setFavItems } = useFavStore();
+  const { lang } = useLanguage();
   const { user } = useUserData();
+  const favItems = useFavStore((state) => state.favItems);
+  const toggleFavorite = useFavStore((state) => state.toggleFavorite);
 
-  useEffect(() => {
-    const fetchMyFavorites = async () => {
-      if (user?.id) {
-        const res = await fetch(`/api/favorites?userId=${user.id}`);
-        const data = await res.json();
-        if (data.favorites) {
-          // ملاحظة: تأكدي أن البيانات العائدة من السيرفر تطابق شكل الـ meal object
-          // إذا كان السيرفر يعيد IDs فقط، ستحتاجين لدمجها مع بيانات الوصفات
-          // setFavItems(data.favorites); 
-        }
-      }
-    };
-    fetchMyFavorites();
-  }, [user?.id, setFavItems]);
+  const isRtl = lang === "ar";
 
   return (
-    <main className="min-h-screen pt-28 pb-12 px-6 bg-gray-50">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-10 text-center">
-          <h1 className="text-4xl font-black text-gray-900 mb-2">My Favorites</h1>
-          <p className="text-gray-500">All the recipes you loved in one place</p>
-        </header>
+    <div className="max-w-7xl mx-auto px-6 py-12" dir={isRtl ? "rtl" : "ltr"}>
+      <h1 className="text-4xl font-black mb-8">
+        {isRtl ? "وصفاتي المفضلة" : "My Favorite Recipes"}
+      </h1>
 
-        {favItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-            <HeartOff size={64} className="text-gray-300 mb-4" />
-            <h2 className="text-xl font-bold text-gray-800">Your list is empty</h2>
-            <p className="text-gray-500 mt-2 mb-6">Start exploring and save your first recipe!</p>
-            <Link href="/recipes" className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all">
-              Browse Recipes
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {favItems.map((meal, index) => (
-              <RecipeCard key={meal.id} meal={meal} index={index} lang="en" />
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
+      {favItems.length === 0 ? (
+        <div className="text-center py-20 text-gray-400">
+          <Heart className="mx-auto mb-4 opacity-20" size={80} />
+          <p className="text-xl">{isRtl ? "لم تقم بإضافة أي وصفات بعد" : "No favorites added yet."}</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {favItems.map((item) => (
+            <div key={item.id} className="group bg-white rounded-3xl border overflow-hidden hover:shadow-xl transition-all">
+              <div className="relative h-64">
+                <Image src={item.img} alt={item.title[lang]} fill className="object-cover transition-transform group-hover:scale-105" />
+                <button 
+                  onClick={() => toggleFavorite(item, user?.id)}
+                  className="absolute top-4 right-4 p-3 bg-white rounded-full text-red-500 shadow-lg"
+                >
+                  <Heart className="fill-current" size={20} />
+                </button>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold mb-2">{item.title[lang]}</h3>
+                <div className="flex gap-4 text-sm text-gray-500">
+                   <span>{item.time?.[lang]}</span>
+                   <span>{item.cal?.[lang]}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
