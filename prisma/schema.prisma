@@ -47,6 +47,7 @@ model FoodRecipe {
   ingredients  Json
   instructions Json
   createdAt    DateTime @default(now())
+  favorites    Favorite[]
 }
 
 model Kitchen {
@@ -107,10 +108,14 @@ model FoodLog {
 }
 
 model Favorite {
-  id        String   @id @default(uuid())
-  userId    String  
-  recipeId  String   
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String     @id @default(uuid())
+  userId     String  
+  recipeId   Int        
+  recipeData Json?    
+  createdAt  DateTime   @default(now())
+  
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe     FoodRecipe @relation(fields: [recipeId], references: [id], onDelete: Cascade) 
+
   @@unique([userId, recipeId]) 
 }

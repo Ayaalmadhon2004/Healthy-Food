@@ -6,6 +6,8 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { cookies } from "next/headers";
 import { getCurrentUserRole } from "./actions/authActions";
 import { Toaster } from "react-hot-toast";
+// 1. استيراد المكون الذي سيقوم بجلب بيانات المستخدم
+import { UserInitializer } from "@/components/UserInitializer"; 
 
 export const metadata = {
   title: { default: "NutriFlow", template: "%s | NutriFlow" },
@@ -25,8 +27,12 @@ export default async function RootLayout({ children }) {
       </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         <LanguageProvider initialLang={lang}>
+          {/* 2. تشغيل عملية التحقق من الجلسة فور تحميل المتصفح */}
+          <UserInitializer /> 
+          
           <Toaster position="top-center" reverseOrder={false}/>
           <ErrorProvider>
+            {/* نمرر الـ role كقيمة مبدئية ولكن الـ UserInitializer سيقوم بالتحديث الكامل */}
             <Navbar userRole={role}/>
             <main>{children}</main>
             <Footer />
