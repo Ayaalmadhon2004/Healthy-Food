@@ -1,7 +1,8 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { prismaClient } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { loginSchema } from "@/lib/validations/auth"; 
+import { loginSchema } from "@/lib/validations/auth";
+import { User as UserData } from "@/hooks/useUserData";
 
 export async function POST(request: Request) {
   try {
@@ -9,51 +10,58 @@ export async function POST(request: Request) {
     const validation = loginSchema.safeParse(body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json({ error: "بيانات غير صالحة" }, { status: 400 });
     }
 
     const { email, password } = validation.data;
     const supabase = await createSupabaseServerClient();
 
-    // 1. تسجيل الدخول في Supabase
+    // فحص الأمان لتجنب خطأ 'possibly null' في Vercel
+    if (!supabase) {
+      return NextResponse.json({ error: "خدمة الاتصال بـ Supabase غير متوفرة" }, { status: 500 });
+    }
+
+    // 1. تسجيل الدخول
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email, password,
+      email,
+      password,
     });
 
     if (authError || !authData.user) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json({ error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" }, { status: 401 });
     }
 
-    // 2. جلب بيانات المستخدم مع المفضلات - باستخدام TRY داخلية لضمان عدم الانهيار
-    let userData = null;
-    let formattedFavorites = [];
+    // 2. جلب البيانات من Prisma باستخدام الواجهة المستوردة
+    let userData: UserData | null = null;
+    let formattedFavorites: object[] = [];
 
     try {
-      const user = await prismaClient.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: authData.user.id },
-        include: { favorites: true } // جلب المفضلات ببساطة
+        include: { favorites: true }
       });
 
       if (user) {
+        // تأكدي أن الحقول هنا تطابق تعريف UserData في الـ hook الخاص بكِ
         userData = {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role as any // استخدام as any هنا فقط إذا كان هناك اختلاف بسيط في تعريف الـ Role
         };
-        // تحويل المفضلات بأمان
-        formattedFavorites = (user.favorites || [])
-          .map((f: any) => f.recipeData)
-          .filter(Boolean);
+        
+        formattedFavorites = user.favorites
+          .map(f => f.recipeData)
+          .filter((data): data is object => data !== null);
       }
     } catch (prismaError) {
-      console.error("Prisma Fetch Error:", prismaError);
-      // إذا فشل Prisma، نكتفي ببيانات Supabase الأساسية لكي لا يتوقف التسجيل
-      userData = { id: authData.user.id, email: authData.user.email };
+      console.error("Prisma Error:", prismaError);
+      // Fallback بسيط إذا فشل Prisma
+      userData = { id: authData.user.id, email: authData.user.email, name: "", role: "USER" } as UserData;
     }
 
     if (!userData) {
-      return NextResponse.json({ error: "User profile not found" }, { status: 404 });
+      return NextResponse.json({ error: "لم يتم العثور على ملف المستخدم" }, { status: 404 });
     }
 
     return NextResponse.json({ 
@@ -62,8 +70,8 @@ export async function POST(request: Request) {
       favorites: formattedFavorites 
     }, { status: 200 });
 
-  } catch (error: any) {
-    console.error("CRITICAL LOGIN ERROR:", error);
-    return NextResponse.json({ error: error.message || "Server Error" }, { status: 500 });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "خطأ غير معروف";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
