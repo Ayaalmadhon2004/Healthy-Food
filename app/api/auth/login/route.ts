@@ -1,7 +1,8 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { prismaClient } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { loginSchema } from "@/lib/validations/auth"; 
+import { loginSchema } from "@/lib/validations/auth";
+import { User as UserData } from "@/hooks/useUserData";
 
 export async function POST(request: Request) {
   try {
@@ -15,41 +16,51 @@ export async function POST(request: Request) {
     const { email, password } = validation.data;
     const supabase = await createSupabaseServerClient();
 
-    // 1. تسجيل الدخول في Supabase
+    if (!supabase) {
+      return NextResponse.json({ error: "Authentication service unavailable" }, { status: 500 });
+    }
+
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email, password,
+      email, 
+      password,
     });
 
     if (authError || !authData.user) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    // 2. جلب بيانات المستخدم مع المفضلات - باستخدام TRY داخلية لضمان عدم الانهيار
-    let userData = null;
-    let formattedFavorites = [];
+    let userData: UserData | null = null;
+    let formattedFavorites: Record<string, unknown>[] = [];
 
     try {
-      const user = await prismaClient.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: authData.user.id },
-        include: { favorites: true } // جلب المفضلات ببساطة
+        include: { favorites: true }
       });
 
       if (user) {
         userData = {
           id: user.id,
-          name: user.name,
+          name: user.name ?? "",
           email: user.email,
-          role: user.role
+          role: user.role as UserData["role"]
         };
-        // تحويل المفضلات بأمان
-        formattedFavorites = (user.favorites || [])
-          .map((f: any) => f.recipeData)
-          .filter(Boolean);
+        
+        // ✅ تم إصلاح تعريف data هنا بإضافة : unknown
+        formattedFavorites = user.favorites
+          .map((f: { recipeData: unknown }) => f.recipeData)
+          .filter((data: unknown): data is Record<string, unknown> => 
+            data !== null && typeof data === 'object'
+          );
       }
     } catch (prismaError) {
       console.error("Prisma Fetch Error:", prismaError);
-      // إذا فشل Prisma، نكتفي ببيانات Supabase الأساسية لكي لا يتوقف التسجيل
-      userData = { id: authData.user.id, email: authData.user.email };
+      userData = { 
+        id: authData.user.id, 
+        email: authData.user.email ?? "", 
+        name: "", 
+        role: "USER" 
+      };
     }
 
     if (!userData) {
@@ -62,8 +73,8 @@ export async function POST(request: Request) {
       favorites: formattedFavorites 
     }, { status: 200 });
 
-  } catch (error: any) {
-    console.error("CRITICAL LOGIN ERROR:", error);
-    return NextResponse.json({ error: error.message || "Server Error" }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Server Error";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
