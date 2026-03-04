@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useFavStore } from "@/store/useFavStore";
 import { supabase } from "@/lib/supabase/client"; 
 
-interface User {
+export interface User {
   id: string;
   email: string;
   name?: string;
