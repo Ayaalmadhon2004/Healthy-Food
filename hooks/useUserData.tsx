@@ -2,13 +2,14 @@
 
 import { create } from "zustand";
 import { useEffect } from "react";
+import { useFavStore } from "@/store/useFavStore";
+import { supabase } from "@/lib/supabase/client"; 
 
-// 1. تعريف واجهة بيانات المستخدم (تأكدي من مطابقتها لـ Prisma Schema)
 interface User {
   id: string;
   email: string;
   name?: string;
-  role: "USER" | "ORG" | "ADMIN"; // الأدوار المسموحة في نظامك
+  role: "USER" | "ORG" | "ADMIN";
 }
 
 interface UserState {
@@ -18,71 +19,90 @@ interface UserState {
   setUser: (user: User | null) => void;
   clearUser: () => void;
   fetchUser: () => Promise<void>;
+  listenToAuth: () => any; // دالة المراقبة الجديدة
 }
 
-// متغير للتحكم في عدد مرات الطلب (اختياري، يفضل تركه false عند تصحيح الأخطاء)
-let isFetched = false;
-
-export const useUserData = create<UserState>((set) => ({
+export const useUserData = create<UserState>((set, get) => ({
   user: null,
-  loading: true, // نبدأ بـ true لانتظار الـ Fetch الأول
+  loading: true,
   error: null,
 
-  // وظيفة لتحديث المستخدم يدوياً (مثلاً بعد تعديل الملف الشخصي)
   setUser: (user) => set({ user, loading: false }),
 
-  // وظيفة لمسح البيانات عند تسجيل الخروج
   clearUser: () => {
-    isFetched = false; 
+    useFavStore.getState().clearAllFavorites(); 
     set({ user: null, loading: false, error: null });
   },
 
-  // الوظيفة الأساسية لجلب البيانات من السيرفر
-  fetchUser: async () => {
-    // إذا كنتِ تريدين تحديثاً فورياً عند كل دخول للداشبورد، يمكنكِ تعطيل السطر التالي:
-    // if (isFetched) return; 
-
-    try {
-      const res = await fetch("/api/auth/me");
-
-      if (!res.ok) {
-        throw new Error("Session expired or not authenticated");
+  listenToAuth: () => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const newUser: User = {
+          id: session.user.id,
+          email: session.user.email || "",
+          role: (session.user.user_metadata?.role as any) || "USER",
+          name: session.user.user_metadata?.name
+        };
+        set({ user: newUser, loading: false });
+        
+        if (get().user?.id) {
+            get().fetchUser(); 
+        }
+      } else if (event === 'SIGNED_OUT') {
+        get().clearUser();
       }
+    });
+    return subscription;
+  },
+
+  fetchUser: async () => {
+    try {
+      const res = await fetch("/api/auth/me", { cache: 'no-store' });
+      if (!res.ok) throw new Error("Session expired");
 
       const data = await res.json();
 
-      // ملاحظة: تأكدي أن الـ API يعيد كائن يحتوي على { user: { role, ... } }
       if (data.user) {
-        set({
-          user: data.user,
-          loading: false,
-          error: null,
-        });
-        isFetched = true;
-      } else {
-        throw new Error("User data not found in response");
-      }
+        set({ user: data.user, loading: false, error: null });
 
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch user";
-      set({ 
-        user: null, 
-        loading: false, 
-        error: errorMessage 
-      });
-      isFetched = true; // نعتبرها مكتملة حتى لو فشلت لمنع الحلقات اللانهائية
+        try {
+          const favRes = await fetch(`/api/favorites?userId=${data.user.id}`);
+          const favData = await favRes.json();
+          
+          if (favData.favorites) {
+            const localFavs = useFavStore.getState().favItems;
+            const serverFavs = favData.favorites;
+
+            const combinedMap = new Map();
+            [...serverFavs, ...localFavs].forEach(item => combinedMap.set(item.id, item));
+            useFavStore.getState().setFavItems(Array.from(combinedMap.values()));
+          }
+        } catch (favErr) {
+          console.error("Error syncing favorites:", favErr);
+        }
+      }
+    } catch (err: any) {
+      // إذا فشل الـ API، نحاول التأكد من Supabase مباشرة قبل المسح
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        set({ user: null, loading: false });
+      }
     }
   },
 }));
 
-/**
- * هوك مخصص لبدء عملية الجلب عند تحميل التطبيق لأول مرة.
- * يوضع عادة في Layout أو Dashboard Page.
- */
+// تحديث الـ Hook المستخدم في المكونات
 export function useInitUser() {
   const fetchUser = useUserData((state) => state.fetchUser);
+  const listenToAuth = useUserData((state) => state.listenToAuth);
 
   useEffect(() => {
     fetchUser();
-  }, [fetchUser]);
+    const subscription = listenToAuth();
+    
+    // تنظيف المراقبة عند إغلاق الصفحة
+    return () => {
+      if (subscription?.unsubscribe) subscription.unsubscribe();
+    };
+  }, [fetchUser, listenToAuth]);
 }
