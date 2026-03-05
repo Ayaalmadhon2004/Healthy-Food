@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Menu, Heart, LogOut, User } from "lucide-react";
@@ -14,39 +14,8 @@ export default function Navbar() {
   const { user, setUser } = useUserData();
   const router = useRouter();
   
-  // ✅ استدعاء الدوال بشكل ثابت
   const favItems = useFavStore((state) => state.favItems);
-  const setFavItems = useFavStore((state) => state.setFavItems);
   const clearAllFavorites = useFavStore((state) => state.clearAllFavorites);
-
-  // 1. مزامنة المفضلات - مصفوفة الاعتماد الآن ثابتة لن تتغير
-  useEffect(() => {
-    const syncFavorites = async () => {
-      if (user?.id) {
-        try {
-          const res = await fetch(`/api/favorites?userId=${user.id}`);
-          const data = await res.json();
-          
-          if (data && data.favorites) {
-            const serverFavs = data.favorites;
-            const localFavs = useFavStore.getState().favItems;
-            
-            // دمج البيانات لمنع اختفاء ما تمت إضافته للتو
-            const merged = [...serverFavs, ...localFavs.filter(l => 
-              !serverFavs.some(s => s.id === l.id)
-            )];
-            
-            setFavItems(merged);
-          }
-        } catch (error) {
-          console.error("Sync error:", error);
-        }
-      }
-    };
-
-    syncFavorites();
-    // ✅ أضفنا جميع الدوال لضمان ثبات حجم المصفوفة
-  }, [user?.id, setFavItems, clearAllFavorites]); 
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -70,7 +39,6 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <NavbarLinks className="text-sm font-semibold text-gray-600" />
 
-            {/* ❤️ عداد المفضلات - سيظهر فوراً */}
             <Link href="/favorites" className="relative text-gray-700 hover:text-red-500 p-2">
               <Heart className={`w-6 h-6 ${favItems.length > 0 ? "fill-red-500 text-red-500" : ""}`} />
               {favItems.length > 0 && (

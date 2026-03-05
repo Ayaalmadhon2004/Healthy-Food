@@ -119,3 +119,5 @@ model Favorite {
 
   @@unique([userId, recipeId]) 
 }
+
+// what is the difference between meal and foodRecipe ?

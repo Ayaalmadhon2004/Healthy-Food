@@ -14,7 +14,6 @@ export default function NavbarLinks({ className, userRole }) {
 
   const content = {
     ar: {
-      // الأسماء الديناميكية الجديدة
       userDashboard: "المفكرة الصحية",
       orgDashboard: "إدارة المطبخ",
       doctorDashboard: "بوابة الطبيب",
@@ -29,7 +28,6 @@ export default function NavbarLinks({ className, userRole }) {
       shortLang: "EN"
     },
     en: {
-      // Dynamic Labels
       userDashboard: "Health Tracker",
       orgDashboard: "Kitchen Manager",
       doctorDashboard: "Doctor Portal",
@@ -47,7 +45,6 @@ export default function NavbarLinks({ className, userRole }) {
 
   const t = content[lang] || content.ar;
 
-  // دالة لتحديد اسم الرابط والأيقونة بناءً على الدور
   const getDashboardLinkInfo = () => {
     if (isOrg) return { label: t.orgDashboard, icon: <Building2 size={16} /> };
     if (isDoctor) return { label: t.doctorDashboard, icon: <Stethoscope size={16} /> };
@@ -58,7 +55,6 @@ export default function NavbarLinks({ className, userRole }) {
 
   return (
     <>
-      {/* الرابط الأول: ديناميكي حسب الوظيفة */}
       <Link 
         href="/dashboard" 
         className={`${className} flex items-center gap-1.5 font-bold text-[var(--color-primary)]`}
@@ -72,8 +68,6 @@ export default function NavbarLinks({ className, userRole }) {
       <Link href="/tips" className={className}>{t.tips}</Link>
       <Link href="/doctors" className={className}>{t.doctors}</Link>
       <Link href="/gaza-kitchen" className={className}>{t.kitchen}</Link>
-
-      {/* حذفنا رابط "إدارة المنظمة" المكرر لأنه أصبح هو الرابط الأساسي بالأعلى للمنظمات */}
       
       <div className="flex items-center ml-4 mr-2 border-l border-gray-200 pl-4 h-6 my-auto">
         <button 
