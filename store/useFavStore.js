@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export const useFavStore = create()(
+export const useFavStore = create()( 
   persist(
     (set, get) => ({
       favItems: [],
@@ -11,13 +11,11 @@ export const useFavStore = create()(
       closeFav: () => set({ isFavOpen: false }),
       setFavItems: (items) => set({ favItems: items }),
 
-      toggleFavorite: async (meal, userId) => {
+      toggleFavorite: async (meal, userId) => { 
         const currentItems = get().favItems;
-        // نستخدم Number لأن الـ Schema الخاصة بكِ تتوقع Int
         const mealId = Number(meal.id); 
         const isExist = currentItems.find((item) => Number(item.id) === mealId);
 
-        // تحديث محلي سريع
         if (isExist) {
           set({ favItems: currentItems.filter((item) => Number(item.id) !== mealId) });
         } else {
@@ -31,7 +29,7 @@ export const useFavStore = create()(
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 userId: userId,
-                recipeId: mealId, // إرسال كـ Number
+                recipeId: mealId, 
                 mealData: meal, 
               }),
             });
@@ -46,8 +44,8 @@ export const useFavStore = create()(
         }
       },
 
-      clearAllFavorites: () => set({ favItems: [] }),
+      clearAllFavorites: () => set({ favItems: [] }), 
     }),
-    { name: "nutriflow-favs" }
+    { name: "nutriflow-favs" } 
   )
 );
