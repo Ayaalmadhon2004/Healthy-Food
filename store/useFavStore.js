@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export const useFavStore = create()( // why i am using create here ? what it will do ? 
+export const useFavStore = create()( 
   persist(
     (set, get) => ({
       favItems: [],
@@ -11,7 +11,7 @@ export const useFavStore = create()( // why i am using create here ? what it wil
       closeFav: () => set({ isFavOpen: false }),
       setFavItems: (items) => set({ favItems: items }),
 
-      toggleFavorite: async (meal, userId) => {  // meal and userId here from where i have them ? and before using post , post contain them ?
+      toggleFavorite: async (meal, userId) => { 
         const currentItems = get().favItems;
         const mealId = Number(meal.id); 
         const isExist = currentItems.find((item) => Number(item.id) === mealId);
@@ -44,8 +44,8 @@ export const useFavStore = create()( // why i am using create here ? what it wil
         }
       },
 
-      clearAllFavorites: () => set({ favItems: [] }), // why we put this line here , not after !userId ?? to show that when there is no user make it empty?
+      clearAllFavorites: () => set({ favItems: [] }), 
     }),
-    { name: "nutriflow-favs" } // what is this and why i am using it ?
+    { name: "nutriflow-favs" } 
   )
 );

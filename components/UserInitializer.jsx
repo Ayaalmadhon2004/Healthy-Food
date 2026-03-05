@@ -1,5 +1,5 @@
-// components/UserInitializer.jsx
 "use client";
+
 import { useEffect } from "react";
 import { useUserData } from "@/hooks/useUserData";
 
@@ -9,10 +9,14 @@ export function UserInitializer() {
 
   useEffect(() => {
     fetchUser();
-    const { unsubscribe } = listenToAuth(); 
+    const subscription = listenToAuth(); 
     
-    return () => unsubscribe(); 
+    return () => {
+      if (subscription?.unsubscribe) {
+        subscription.unsubscribe();
+      }
+    };
   }, [fetchUser, listenToAuth]);
 
-  return null;
+  return null; 
 }

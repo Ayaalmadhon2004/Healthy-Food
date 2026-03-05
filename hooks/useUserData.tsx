@@ -100,17 +100,3 @@ export const useUserData = create<UserState>((set, get) => ({
 },
 
 }));
-
-export function useInitUser() {
-  const fetchUser = useUserData((state) => state.fetchUser);
-  const listenToAuth = useUserData((state) => state.listenToAuth);
-
-  useEffect(() => { 
-    fetchUser();
-    const subscription = listenToAuth();
-
-      return () => {
-      if (subscription?.unsubscribe) subscription.unsubscribe();
-    };
-  }, [fetchUser, listenToAuth]);
-}

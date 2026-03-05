@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-// what is the difference of use both get and post ? , and where 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -18,7 +17,7 @@ export async function GET(request) {
     const formatted = favorites.map(f => {
       const recipeData = typeof f.recipeData === 'string' 
         ? JSON.parse(f.recipeData) 
-        : (f.recipeData || {}); // what these 3 lines means ?
+        : (f.recipeData || {});
         
       return {
         ...recipeData,
@@ -67,7 +66,7 @@ export async function POST(request) {
           ingredients: mealData.ingredients || {},
           instructions: mealData.instructions || {},
         }
-      }); // why here we add a new recipe , we must just add a recipe already exist in fav , but why this is like this ?
+      }); 
     }
 
     const existingFavorite = await prisma.favorite.findUnique({
