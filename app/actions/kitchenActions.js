@@ -4,9 +4,16 @@ import { prisma } from "@/lib/prisma";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-/**
- * دالة داخلية للتحقق من صلاحية المستخدم
- */
+// 1. مصفوفة المرجعية لتوحيد المناطق لضمان عمل الفلتر
+const REGION_MAP = {
+  "North": { ar: "الشمال", en: "North" },
+  "Gaza": { ar: "غزة", en: "Gaza" },
+  "Middle": { ar: "الوسطى", en: "Middle" },
+  "Khan Younis": { ar: "خانيونس", en: "Khan Younis" },
+  "Rafah": { ar: "رفح", en: "Rafah" },
+};
+
+// 2. التحقق من صلاحيات المستخدم (Helper)
 async function getIsAuthorized() {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return false;
@@ -22,10 +29,7 @@ async function getIsAuthorized() {
   return dbUser?.role === "ORG" || dbUser?.role === "ADMIN";
 }
 
-/**
- * ✅ جلب المطابخ مع نظام التقسيم (Pagination)
- * تم دمج الدالتين هنا لمنع خطأ التكرار
- */
+// 3. جلب المطابخ (مع Pagination)
 export async function getKitchensAction(page = 1, limit = 5) {
   try {
     const skip = (page - 1) * limit;
@@ -51,6 +55,7 @@ export async function getKitchensAction(page = 1, limit = 5) {
   }
 }
 
+// 4. إضافة مطبخ جديد
 export async function addKitchenAction(formData) {
   try {
     const isAuthorized = await getIsAuthorized();
@@ -58,9 +63,11 @@ export async function addKitchenAction(formData) {
 
     const nameAr = formData.get("nameAr");
     const nameEn = formData.get("nameEn");
+    const regionId = formData.get("regionId"); 
+    
+    const regionData = REGION_MAP[regionId] || { ar: "غير محدد", en: "Unspecified" };
 
-    // 1. البحث عن المطابخ التي تبدأ بنفس الاسم العربي
-    // نستخدم "startsWith" لنتأكد من عدّ النسخ القديمة والجديدة
+    // منطق الترقيم التلقائي للأسماء المكررة
     const existingKitchens = await prisma.kitchen.findMany({
       where: {
         name: {
@@ -73,7 +80,6 @@ export async function addKitchenAction(formData) {
     let finalNameAr = nameAr;
     let finalNameEn = nameEn;
 
-    // 2. إذا وجدنا تكرار، نحسب الرقم الجديد
     if (existingKitchens.length > 0) {
       const nextNumber = existingKitchens.length + 1;
       finalNameAr = `${nameAr} ${nextNumber}`;
@@ -83,20 +89,18 @@ export async function addKitchenAction(formData) {
     const newKitchen = await prisma.kitchen.create({
       data: {
         name: { ar: finalNameAr, en: finalNameEn },
-        region: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
-        location: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
+        region: { ar: regionData.ar, en: regionData.en },
+        location: { ar: regionData.ar, en: regionData.en },
         todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
         distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
         contact: formData.get("contact") || "No Contact",
-        capacity: { 
-            ar: formData.get("capacity") || "0", 
-            en: formData.get("capacity") || "0" 
-        },
+        capacity: formData.get("capacity") || "0",
         accessInfo: { ar: "", en: "" },
       },
     });
 
     revalidatePath("/dashboard/organization");
+    revalidatePath("/kitchens");
     return { success: true, kitchen: newKitchen };
   } catch (error) {
     console.error("Prisma Create Error:", error);
@@ -104,28 +108,34 @@ export async function addKitchenAction(formData) {
   }
 }
 
+// 5. تحديث مطبخ موجود
 export async function updateKitchenAction(kitchenId, formData) {
   try {
     const isAuthorized = await getIsAuthorized();
     if (!isAuthorized) return { success: false, error: "Unauthorized" };
 
-    const idAsNumber = Number(kitchenId);
+    const regionId = formData.get("regionId");
+    const regionData = REGION_MAP[regionId];
+
+    const updatedData = {
+      name: { ar: formData.get("nameAr"), en: formData.get("nameEn") },
+      todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
+      distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
+      contact: formData.get("contact") || "No Contact",
+      capacity: formData.get("capacity") || "0",
+    };
+
+    if (regionData) {
+      updatedData.region = { ar: regionData.ar, en: regionData.en };
+    }
 
     const updatedKitchen = await prisma.kitchen.update({
-      where: { id: idAsNumber },
-      data: {
-        name: { ar: formData.get("nameAr"), en: formData.get("nameEn") },
-        region: { ar: formData.get("regionAr"), en: formData.get("regionEn") },
-        todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
-        distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
-        contact: formData.get("contact") || "No Contact",
-        capacity: { 
-            ar: formData.get("capacity") || "0", 
-            en: formData.get("capacity") || "0" 
-        },
-      }
+      where: { id: Number(kitchenId) },
+      data: updatedData
     });
+
     revalidatePath("/dashboard/organization");
+    revalidatePath("/kitchens");
     return { success: true, kitchen: updatedKitchen };
   } catch (error) {
     console.error("Update Kitchen Error:", error);
@@ -133,9 +143,7 @@ export async function updateKitchenAction(kitchenId, formData) {
   }
 }
 
-/**
- * حذف مطبخ
- */
+// 6. حذف مطبخ
 export async function deleteKitchenAction(kitchenId) {
   try {
     const isAuthorized = await getIsAuthorized();
@@ -144,10 +152,37 @@ export async function deleteKitchenAction(kitchenId) {
     await prisma.kitchen.delete({
       where: { id: Number(kitchenId) }
     });
+
     revalidatePath("/dashboard/organization");
+    revalidatePath("/kitchens");
     return { success: true };
   } catch (error) {
     console.error("Delete Error:", error);
     return { success: false, error: "Failed to delete kitchen" };
   }
+}
+
+// 7. جلب السجلات (Food Logs)
+export async function getKitchenByIdAction(userId, year, month) {
+    try {
+      const startDate = new Date(year, month - 1, 1);
+      const endDate = new Date(year, month, 0, 23, 59, 59);
+
+      const logs = await prisma.foodLog.findMany({
+        where: {
+          userId: userId,
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+      return { success: true, logs };
+    } catch (error) {
+      console.error("Fetch Logs Error:", error);
+      return { success: false, error: "Failed to fetch logs" };
+    }
 }

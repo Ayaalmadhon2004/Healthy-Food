@@ -1,60 +1,33 @@
-import { getSupabaseServer } from "@/lib/supabase/server"
-import { prismaClient } from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
-    const supabaseServer = await getSupabaseServer()
+    const { userId, recipeId } = await request.json();
 
-    if (!supabaseServer) {
-      return NextResponse.json(
-        { error: "Internal server configuration error" },
-        { status: 500 }
-      )
+    if (!userId || !recipeId) {
+      return NextResponse.json({ error: "بيانات ناقصة" }, { status: 400 });
     }
 
-    // 1️⃣ Get currently authenticated user from Supabase
-    const { data: { user }, error: authError } =
-      await supabaseServer.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Not authenticated" },
-        { status: 401 }
-      )
-    }
-
-    // 2️⃣ Fetch user profile from database using Prisma
-    const profile = await prismaClient.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        dietary_preferences: true,
-        health_goals: true,
-        createdAt: true,
-        updatedAt: true,
+    const existing = await prisma.favorite.findUnique({
+      where: {
+        userId_recipeId: { userId, recipeId },
       },
-    })
+    });
 
-    if (!profile) {
-      return NextResponse.json(
-        { error: "User profile not found" },
-        { status: 404 }
-      )
+    if (existing) {
+      await prisma.favorite.delete({
+        where: { id: existing.id },
+      });
+      return NextResponse.json({ status: "removed" }); 
+    } else {
+      await prisma.favorite.create({
+        data: { userId, recipeId },
+      });
+      return NextResponse.json({ status: "added" });
     }
-
-    // 3️⃣ Return current user
-    return NextResponse.json({
-      user: profile,
-    })
-  } catch (error) {
-    console.error("Get User Error:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "حدث خطأ في السيرفر";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

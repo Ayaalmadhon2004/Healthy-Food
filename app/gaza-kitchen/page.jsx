@@ -1,43 +1,49 @@
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import KitchensFilterClient from "./KitchensFilterClient";
 import NutritionSectionClient from "@/components/NutritionSection";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import { getKitchensAction } from "@/app/actions/kitchenActions";
 
 export default async function Page() {
-  const allHeaders = await headers(); 
-  const lang = allHeaders.get("x-custom-lang") || "en";
+  const cookieStore = await cookies();
+  const allHeaders = await headers();
+  
+  // جلب اللغة مع أولوية للكوكيز
+  const lang = cookieStore.get("lang")?.value || allHeaders.get("x-custom-lang") || "ar"; 
 
-  const result=await getKitchensAction();
-  const kitchens=result.success ? result.kitchens : [];
+  const result = await getKitchensAction();
+  const kitchens = result.success ? result.kitchens : [];
+
+  const isAr = lang === "ar";
 
   return (
-    <div className="bg-gradient-to-b
-      from-[var(--color-secondary-light)] from-0%
-      to-[var(--color-white)] to-25%
-      flex flex-col items-center min-h-screen p-6"
+    <div 
+      className="bg-gradient-to-b from-emerald-50 from-0% to-white to-25% flex flex-col items-center min-h-screen p-6"
+      dir={isAr ? "rtl" : "ltr"} 
     >
-      <div className="text-center mt-20">
-        <button className="bg-[var(--color-secondary-light)] p-2 rounded-full">
-          {lang === "ar" ? "اعثر على وجبات مجانية بالقرب منك" : "Find Free Meals Near You"}
-        </button>
-        <h1 className="font-bold text-5xl mt-8">
-          {lang === "ar" ? "مطابخ غزة المجتمعية" : "Gaza Community Kitchens"}
+      <header className="text-center mt-20 mb-16 max-w-4xl">
+        <span className="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-bold inline-block mb-6">
+          {isAr ? "اعثر على وجبات مجانية بالقرب منك" : "Find Free Meals Near You"}
+        </span>
+        <h1 className="font-black text-4xl md:text-6xl text-gray-900 leading-tight">
+          {isAr ? "مطابخ غزة المجتمعية" : "Gaza Community Kitchens"}
         </h1>
-        <p className="text-[var(--color-gray-500)] text-xl w-full md:w-2/3 mt-8 mb-20 mx-auto">
-          {lang === "ar"
-            ? "حدد المطابخ المجتمعية النشطة التي تقدم وجبات مجانية في جميع أنحاء غزة."
-            : "Locate active community kitchens providing free meals across Gaza."}
+        <p className="text-gray-600 text-lg md:text-xl mt-6 mx-auto leading-relaxed">
+          {isAr
+            ? "دليل تفاعلي للمطابخ المجتمعية النشطة التي تقدم وجبات مجانية لدعم صمود أهالينا في قطاع غزة."
+            : "Locate active community kitchens providing free meals across Gaza to support our community."}
         </p>
-      </div>
+      </header>
 
-      <ErrorBoundaryWrapper message={lang === "ar" ? "فشل تحميل الفلتر" : "Failed to load Kitchens Filter"}>
+      <ErrorBoundaryWrapper message={isAr ? "فشل تحميل قائمة المطابخ" : "Failed to load Kitchens list"}>
         <KitchensFilterClient lang={lang} kitchens={kitchens} />
       </ErrorBoundaryWrapper>
 
-      <ErrorBoundaryWrapper message={lang === "ar" ? "فشل تحميل قسم التغذية" : "Failed to load Nutrition Section"}>
-        <NutritionSectionClient lang={lang} />
-      </ErrorBoundaryWrapper>
+      <div className="w-full mt-24">
+        <ErrorBoundaryWrapper message={isAr ? "فشل تحميل قسم التغذية" : "Failed to load Nutrition Section"}>
+          <NutritionSectionClient lang={lang} />
+        </ErrorBoundaryWrapper>
+      </div>
     </div>
   );
 }
