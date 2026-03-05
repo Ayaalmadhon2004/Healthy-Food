@@ -1,5 +1,4 @@
 "use client";
-// in this all page i was thinking that in hooks , i put all hooks , but here in this file it seams like use a logic like an actions not hooks ??????
 
 import { create } from "zustand";
 import { useEffect } from "react";
@@ -23,17 +22,17 @@ interface UserState {
   listenToAuth: () => any;
 }
 
-export const useUserData = create<UserState>((set, get) => ({ // why i am using create here 
+export const useUserData = create<UserState>((set, get) => ({ 
   user: null,
   loading: true,
   error: null,
 
-  setUser: (user) => set({ user, loading: false }), // what do we mean by this line 
+  setUser: (user) => set({ user, loading: false }),
 
   clearUser: () => {
     useFavStore.getState().clearAllFavorites(); 
     set({ user: null, loading: false, error: null });
-  }, // setUser and ClearUser where i am using them and how ?
+  },
 
   listenToAuth: () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => { // this is take long time or not , what is take long time ? 
@@ -57,7 +56,6 @@ export const useUserData = create<UserState>((set, get) => ({ // why i am using 
     return subscription;
   },
 
-  // where here i am calling fetch("/api/auth/me here in useUserData not direct in the ui ? , why in hooks section ?
   fetchUser: async () => {
   try {
     const res = await fetch("/api/auth/me", { cache: 'no-store' });
@@ -107,7 +105,7 @@ export function useInitUser() {
   const fetchUser = useUserData((state) => state.fetchUser);
   const listenToAuth = useUserData((state) => state.listenToAuth);
 
-  useEffect(() => { // explain to me with real example what this useEffect do and contain ?
+  useEffect(() => { 
     fetchUser();
     const subscription = listenToAuth();
 

@@ -3,7 +3,7 @@
 import { useFavStore } from "@/store/useFavStore";
 import { useLanguage } from "@/context/LanguageContext";
 import { useUserData } from "@/hooks/useUserData";
-import { Heart, Trash2 } from "lucide-react";
+import { Heart, Trash2 } from "lucide-react"; // استيراد أيقونة السلة
 import Image from "next/image";
 
 export default function FavoritesPage() {
@@ -28,16 +28,26 @@ export default function FavoritesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {favItems.map((item) => (
-            <div key={item.id} className="group bg-white rounded-3xl border overflow-hidden hover:shadow-xl transition-all">
+            <div key={item.id} className="group bg-white rounded-3xl border overflow-hidden hover:shadow-xl transition-all relative">
+              
+              {/* زر الحذف السريع - سلة المهملات */}
+              <button 
+                onClick={() => toggleFavorite(item, user?.id)}
+                className="absolute top-4 right-4 z-10 p-3 bg-white/90 backdrop-blur-sm rounded-full text-red-500 shadow-lg hover:bg-red-50 transition-colors"
+                title={isRtl ? "حذف من المفضلات" : "Remove from favorites"}
+              >
+                <Trash2 size={20} />
+              </button>
+
               <div className="relative h-64">
-                <Image src={item.img} alt={item.title[lang]} fill className="object-cover transition-transform group-hover:scale-105" />
-                <button 
-                  onClick={() => toggleFavorite(item, user?.id)}
-                  className="absolute top-4 right-4 p-3 bg-white rounded-full text-red-500 shadow-lg"
-                >
-                  <Heart className="fill-current" size={20} />
-                </button>
+                <Image 
+                   src={item.img} 
+                   alt={item.title[lang]} 
+                   fill 
+                   className="object-cover transition-transform group-hover:scale-105" 
+                />
               </div>
+
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-2">{item.title[lang]}</h3>
                 <div className="flex gap-4 text-sm text-gray-500">

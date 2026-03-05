@@ -26,12 +26,10 @@ export default async function RootLayout({ children }) {
       </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         <LanguageProvider initialLang={lang}>
-          {/* 2. تشغيل عملية التحقق من الجلسة فور تحميل المتصفح */}
           <UserInitializer /> 
           
           <Toaster position="top-center" reverseOrder={false}/>
           <ErrorProvider>
-            {/* نمرر الـ role كقيمة مبدئية ولكن الـ UserInitializer سيقوم بالتحديث الكامل */}
             <Navbar userRole={role}/>
             <main>{children}</main>
             <Footer />

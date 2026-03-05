@@ -8,10 +8,10 @@ export function UserInitializer() {
   const listenToAuth = useUserData((state) => state.listenToAuth);
 
   useEffect(() => {
-    fetchUser(); // جلب البيانات عند البداية
-    const { unsubscribe } = listenToAuth(); // بدء مراقبة الجلسة
+    fetchUser();
+    const { unsubscribe } = listenToAuth(); 
     
-    return () => unsubscribe(); // تنظيف عند إغلاق المكون
+    return () => unsubscribe(); 
   }, [fetchUser, listenToAuth]);
 
   return null;
