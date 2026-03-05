@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-
-// where i am using this post , in any page , and this is like to have a logic user cant deal with it and have it in ui ?
 export async function POST(request: Request) {
   try {
     const { userId, recipeId } = await request.json();
@@ -21,7 +19,7 @@ export async function POST(request: Request) {
       await prisma.favorite.delete({
         where: { id: existing.id },
       });
-      return NextResponse.json({ status: "removed" }); // where this will appear ? 
+      return NextResponse.json({ status: "removed" }); 
     } else {
       await prisma.favorite.create({
         data: { userId, recipeId },

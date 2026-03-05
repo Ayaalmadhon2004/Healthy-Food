@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useInitUser, useUserData } from "@/hooks/useUserData";
+import { useUserData } from "@/hooks/useUserData";
 import { useLanguage } from "@/context/LanguageContext"; 
 
 export default function Home() {
@@ -10,8 +10,6 @@ export default function Home() {
   
   const { user, loading } = useUserData();
   console.log("User data in layout:", user);
-
-  useInitUser();
 
   const content = {
     title: { 
