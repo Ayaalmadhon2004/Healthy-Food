@@ -127,12 +127,13 @@ model Favorite {
 }
 
 model MealOrder {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   userId      String
+  kitchenId   Int      
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orderDate   DateTime @default(now()) 
-  targetDate  DateTime 
-  status      String   @default("PENDING") // PENDING, CONFIRMED, DELIVERED
+  kitchen     Kitchen  @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+  targetDate  DateTime
+  createdAt   DateTime @default(now())
 }
 
 model SupportTicket {
