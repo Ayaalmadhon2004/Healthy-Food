@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// 1. مصفوفة المرجعية لتوحيد المناطق لضمان عمل الفلتر
 const REGION_MAP = {
   "North": { ar: "الشمال", en: "North" },
   "Gaza": { ar: "غزة", en: "Gaza" },
@@ -13,7 +12,6 @@ const REGION_MAP = {
   "Rafah": { ar: "رفح", en: "Rafah" },
 };
 
-// 2. التحقق من صلاحيات المستخدم (Helper)
 async function getIsAuthorized() {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return false;
