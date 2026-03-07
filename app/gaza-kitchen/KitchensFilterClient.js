@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { MapPin, Clock, PhoneCall, CheckCircle2 } from "lucide-react";
+import MealRegistration from "@/components/kitchen/MealRegistration"; // تأكدي من صحة المسار
 
 const REGIONS = [
   { id: "ALL", en: "ALL", ar: "الكل" },
@@ -16,12 +17,11 @@ export default function KitchensFilterClient({ kitchens, lang }) {
   const [selectedRegion, setSelectedRegion] = useState("ALL");
   const isAr = lang === "ar";
 
-  // تصفية المطابخ - تم تحسين المنطق ليكون غير حساس لحالة الأحرف (Case-insensitive)
+  // تصفية المطابخ - منطق البحث حسب المنطقة
   const filteredKitchens = useMemo(() => {
     if (selectedRegion === "ALL") return kitchens;
     
     return kitchens.filter((k) => {
-      // نستخدم k.region.en للمقارنة لأنه الحقل الثابت للفلترة
       const kitchenRegion = k.region?.en?.toLowerCase() || "";
       const targetRegion = selectedRegion.toLowerCase();
       return kitchenRegion === targetRegion;
@@ -31,7 +31,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
   return (
     <div className="w-full max-w-6xl mx-auto" dir={isAr ? "rtl" : "ltr"}>
       
-      {/* أزرار الفلترة */}
+      {/* 1. أزرار الفلترة */}
       <nav className="flex flex-wrap gap-2 mb-12 justify-center" aria-label="Region filter">
         {REGIONS.map((region) => (
           <button
@@ -48,7 +48,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
         ))}
       </nav>
 
-      {/* عرض النتائج */}
+      {/* 2. عرض النتائج */}
       {filteredKitchens.length === 0 ? (
         <div className="text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
           <p className="text-gray-400 text-lg">
@@ -60,8 +60,9 @@ export default function KitchensFilterClient({ kitchens, lang }) {
           {filteredKitchens.map((kitchen) => (
             <article
               key={kitchen.id}
-              className="bg-white p-7 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 flex flex-col group"
+              className="bg-white p-7 rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col group"
             >
+              {/* ترويسة الكرت */}
               <div className="flex justify-between items-start mb-4">
                 <h2 className="font-black text-2xl text-gray-900 group-hover:text-emerald-600 transition-colors leading-tight">
                   {kitchen.name[lang] || kitchen.name['en']} 
@@ -69,15 +70,16 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                 <CheckCircle2 className="text-emerald-500 shrink-0" size={22} />
               </div>
 
+              {/* المنطقة */}
               <div className="flex items-center text-gray-500 text-sm mb-6 bg-gray-50 w-fit px-3 py-1 rounded-full">
                 <MapPin size={14} className={`${isAr ? 'ml-1' : 'mr-1'} text-emerald-500`} />
                 <span className="font-bold">
-                  {/* عرض المنطقة حسب اللغة المختارة */}
                   {kitchen.region[lang] || kitchen.region['en']}
                 </span>
               </div>
 
-              <div className="space-y-4 flex-grow">
+              {/* تفاصيل المطبخ */}
+              <div className="space-y-4 mb-8">
                 <div className="flex items-start gap-3 text-sm">
                   <Clock size={18} className="text-gray-400 mt-1" />
                   <div>
@@ -96,13 +98,25 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                 </div>
               </div>
 
+              {/* ------------------------------------------------------- */}
+              {/* نظام الحجز (Meal Registration) - مدمج داخل الكرت */}
+              <div className="mt-auto pt-6 border-t border-gray-50">
+                <MealRegistration 
+                  kitchenId={kitchen.id} 
+                  capacity={kitchen.capacity || 500} 
+                  initialCount={kitchen._count?.orders || 0} 
+                  lang={lang} 
+                />
+              </div>
+              {/* ------------------------------------------------------- */}
+
               {/* زر الاتصال */}
               {kitchen.contact && (
                 <a 
                   href={`tel:${kitchen.contact}`}
-                  className="mt-8 flex items-center justify-center gap-2 w-full py-4 bg-gray-900 text-white rounded-[1.25rem] font-black hover:bg-emerald-600 transition-all shadow-xl shadow-gray-200 active:scale-95"
+                  className="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition-all active:scale-95 text-sm"
                 >
-                  <PhoneCall size={18} />
+                  <PhoneCall size={16} />
                   <span dir="ltr">{kitchen.contact}</span>
                 </a>
               )}
