@@ -1,5 +1,5 @@
-// components/UserInitializer.jsx
 "use client";
+
 import { useEffect } from "react";
 import { useUserData } from "@/hooks/useUserData";
 
@@ -8,11 +8,15 @@ export function UserInitializer() {
   const listenToAuth = useUserData((state) => state.listenToAuth);
 
   useEffect(() => {
-    fetchUser(); // جلب البيانات عند البداية
-    const { unsubscribe } = listenToAuth(); // بدء مراقبة الجلسة
+    fetchUser();
+    const subscription = listenToAuth(); 
     
-    return () => unsubscribe(); // تنظيف عند إغلاق المكون
+    return () => {
+      if (subscription?.unsubscribe) {
+        subscription.unsubscribe();
+      }
+    };
   }, [fetchUser, listenToAuth]);
 
-  return null;
+  return null; 
 }

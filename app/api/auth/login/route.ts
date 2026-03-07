@@ -46,7 +46,6 @@ export async function POST(request: Request) {
           role: user.role as UserData["role"]
         };
         
-        // ✅ تم إصلاح تعريف data هنا بإضافة : unknown
         formattedFavorites = user.favorites
           .map((f: { recipeData: unknown }) => f.recipeData)
           .filter((data: unknown): data is Record<string, unknown> => 
