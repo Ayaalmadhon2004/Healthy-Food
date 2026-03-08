@@ -127,23 +127,3 @@ model Favorite {
   @@unique([userId, recipeId]) 
 }
 
-model MealOrder {
-  id          String   @id @default(uuid())
-  userId      String
-  kitchenId   Int      
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kitchen     Kitchen  @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
-  targetDate  DateTime
-  createdAt   DateTime @default(now())
-}
-
-model SupportTicket {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category    String  
-  description String   @db.Text
-  landmark    String?  
-  isResolved  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-}
