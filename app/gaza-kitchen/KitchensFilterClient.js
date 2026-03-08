@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { MapPin, Clock, PhoneCall, CheckCircle2 } from "lucide-react";
-import MealRegistration from "@/components/kitchen/MealRegistration"; // تأكدي من صحة المسار
+import MealRegistration from "@/components/kitchen/MealRegistration"; 
 
 const REGIONS = [
   { id: "ALL", en: "ALL", ar: "الكل" },
@@ -17,7 +17,6 @@ export default function KitchensFilterClient({ kitchens, lang }) {
   const [selectedRegion, setSelectedRegion] = useState("ALL");
   const isAr = lang === "ar";
 
-  // تصفية المطابخ - منطق البحث حسب المنطقة
   const filteredKitchens = useMemo(() => {
     if (selectedRegion === "ALL") return kitchens;
     
@@ -31,7 +30,6 @@ export default function KitchensFilterClient({ kitchens, lang }) {
   return (
     <div className="w-full max-w-6xl mx-auto" dir={isAr ? "rtl" : "ltr"}>
       
-      {/* 1. أزرار الفلترة */}
       <nav className="flex flex-wrap gap-2 mb-12 justify-center" aria-label="Region filter">
         {REGIONS.map((region) => (
           <button
@@ -48,7 +46,6 @@ export default function KitchensFilterClient({ kitchens, lang }) {
         ))}
       </nav>
 
-      {/* 2. عرض النتائج */}
       {filteredKitchens.length === 0 ? (
         <div className="text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
           <p className="text-gray-400 text-lg">
@@ -62,7 +59,6 @@ export default function KitchensFilterClient({ kitchens, lang }) {
               key={kitchen.id}
               className="bg-white p-7 rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col group"
             >
-              {/* ترويسة الكرت */}
               <div className="flex justify-between items-start mb-4">
                 <h2 className="font-black text-2xl text-gray-900 group-hover:text-emerald-600 transition-colors leading-tight">
                   {kitchen.name[lang] || kitchen.name['en']} 
@@ -70,7 +66,6 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                 <CheckCircle2 className="text-emerald-500 shrink-0" size={22} />
               </div>
 
-              {/* المنطقة */}
               <div className="flex items-center text-gray-500 text-sm mb-6 bg-gray-50 w-fit px-3 py-1 rounded-full">
                 <MapPin size={14} className={`${isAr ? 'ml-1' : 'mr-1'} text-emerald-500`} />
                 <span className="font-bold">
@@ -78,7 +73,6 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                 </span>
               </div>
 
-              {/* تفاصيل المطبخ */}
               <div className="space-y-4 mb-8">
                 <div className="flex items-start gap-3 text-sm">
                   <Clock size={18} className="text-gray-400 mt-1" />
@@ -98,8 +92,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                 </div>
               </div>
 
-              {/* ------------------------------------------------------- */}
-              {/* نظام الحجز (Meal Registration) - مدمج داخل الكرت */}
+              
               <div className="mt-auto pt-6 border-t border-gray-50">
                 <MealRegistration 
                   kitchenId={kitchen.id} 
@@ -108,9 +101,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                   lang={lang} 
                 />
               </div>
-              {/* ------------------------------------------------------- */}
 
-              {/* زر الاتصال */}
               {kitchen.contact && (
                 <a 
                   href={`tel:${kitchen.contact}`}

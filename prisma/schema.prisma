@@ -67,6 +67,7 @@ model Kitchen {
   accessInfo       Json
   contact          String
   createdAt        DateTime @default(now())
+  orders           MealOrder[]
 }
 
 model Doctor {
