@@ -13,18 +13,24 @@ enum Role {
 }
 
 model User {
-  id                   String   @id
-  name                 String
-  email                String   @unique
-  phone                String?
-  role                 Role     @default(USER)
-  dietary_preferences  Json?    @default("[]")
-  health_goals         Json?    @default("[]")
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  meals                Meal[]   
-  favorites            Favorite[] 
+  id                  String   @id
+  name                String
+  email               String   @unique
+  phone               String?
+  role                Role     @default(USER)
+  neighborhood        String?  
+  landmark            String?  
+  addressDetails      String?  
+  dietary_preferences Json?    @default("[]")
+  health_goals        Json?    @default("[]")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  meals               Meal[]   
+  favorites           Favorite[] 
+  orders              MealOrder[]
+  tickets             SupportTicket[] 
 }
+
 
 model HealthTip {
   id          Int      @id @default(autoincrement())
@@ -61,6 +67,7 @@ model Kitchen {
   accessInfo       Json
   contact          String
   createdAt        DateTime @default(now())
+  orders           MealOrder[]
 }
 
 model Doctor {

@@ -123,3 +123,45 @@ export async function getMonthlyStatsAction(userId, year, month) {
     return { success: false, error: error.message };
   }
 }
+
+export async function reserveMealAction(userId, kitchenId) {
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    const kitchen = await prisma.kitchen.findUnique({
+      where: { id: kitchenId }
+    });
+
+    if (!kitchen) return { error: "المطبخ غير موجود" };
+    const capacityLimit = parseInt(kitchen.capacity) || 0;
+
+    const existingOrder = await prisma.mealOrder.findFirst({
+      where: { userId, targetDate: tomorrow, kitchenId } 
+    });
+
+    if (existingOrder) return { error: "لقد قمت بالحجز في هذا المطبخ لغدًا مسبقاً" };
+
+    const totalOrders = await prisma.mealOrder.count({
+      where: { targetDate: tomorrow, kitchenId }
+    });
+
+    if (totalOrders >= capacityLimit) {
+      return { error: "عذراً، اكتمل عدد الوجبات المتاحة في هذا المطبخ" };
+    }
+
+    await prisma.mealOrder.create({
+      data: {
+        userId,
+        kitchenId, 
+        targetDate: tomorrow,
+      },
+    });
+
+    revalidatePath("/"); 
+    return { success: "تم حجز وجبتك بنجاح!" };
+  } catch (error) {
+    return { error: "حدث خطأ أثناء الحجز" };
+  }
+}
