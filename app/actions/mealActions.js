@@ -124,57 +124,66 @@ export async function getMonthlyStatsAction(userId, year, month) {
   }
 }
 
-export async function reserveMealAction(userId, kitchenId) {
+export async function reserveMealAction(userId, kitchenId, quantity = 1) {
   try {
     const kId = Number(kitchenId);
-    
-    // 1. التأكد من أن userId ليس فارغاً
-    if (!userId) {
-      return { error: "يرجى تسجيل الدخول أولاً للقيام بالحجز." };
-    }
+    const qty = Number(quantity);
 
-    // 2. 🔥 التأكد من أن المستخدم موجود فعلاً في قاعدة البيانات (لتجنب Foreign Key Error)
-    const userInDb = await prisma.user.findUnique({
-      where: { id: userId }
+    // 1. التأكد من صحة البيانات الأساسية
+    if (!userId) return { error: "يرجى تسجيل الدخول أولاً." };
+    if (qty < 1) return { error: "يجب اختيار وجبة واحدة على الأقل." };
+
+    // 2. جلب بيانات المطبخ للتحقق من السعة
+    const kitchen = await prisma.kitchen.findUnique({
+      where: { id: kId }
     });
+    if (!kitchen) return { error: "المطبخ غير موجود." };
 
-    if (!userInDb) {
-      return { error: "لم يتم العثور على حسابك في قاعدة البيانات. يرجى تسجيل الخروج والدخول مجدداً." };
-    }
+    // استخراج السعة من JSON (بناءً على السكيما الخاصة بكِ)
+    const capValue = kitchen.capacity?.en || "500";
+    const capacityLimit = parseInt(capValue.split('-').pop()) || 500;
 
+    // 3. تحديد تاريخ "غدًا" بدقة
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    // 3. التحقق من وجود حجز مسبق (لتجنب Duplicate Error)
-    const existing = await prisma.mealOrder.findUnique({
-      where: {
-        userId_kitchenId_targetDate: {
-          userId: userId,
-          kitchenId: kId,
-          targetDate: tomorrow
-        }
-      }
+    // 4. حساب مجموع الوجبات المحجوزة فعلياً لغدًا في هذا المطبخ
+    const aggregation = await prisma.mealOrder.aggregate({
+      where: { kitchenId: kId, targetDate: tomorrow },
+      _sum: { quantity: true }
     });
 
-    if (existing) {
-      return { error: "لقد قمت بحجز وجبة في هذا المطبخ لغدًا بالفعل." };
+    const currentTotal = aggregation._sum.quantity || 0;
+
+    // 5. التحقق من السعة المتبقية
+    if (currentTotal + qty > capacityLimit) {
+      const remaining = capacityLimit - currentTotal;
+      return { error: `عذراً، المتبقي فقط ${remaining} وجبة.` };
     }
 
-    // 4. تنفيذ الحجز
+    // 6. التحقق من وجود حجز مسبق لنفس المستخدم في نفس اليوم
+    const existingOrder = await prisma.mealOrder.findFirst({
+      where: { userId, kitchenId: kId, targetDate: tomorrow }
+    });
+    if (existingOrder) return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
+
+    // 7. تنفيذ عملية الحجز (أهم خطوة)
     const newOrder = await prisma.mealOrder.create({
       data: {
         userId: userId,
         kitchenId: kId,
         targetDate: tomorrow,
-      },
+        quantity: qty // هذا الحقل يجب أن يكون موجوداً في السكيما
+      }
     });
 
-    revalidatePath("/");
-    return { success: "تم حجز وجبتك لغداً بنجاح! 🥘" };
+    revalidatePath("/"); // تحديث البيانات في الصفحة
+    return { success: `تم حجز ${qty} وجبات بنجاح لغدًا.` };
 
   } catch (error) {
-    console.error("❌ Prisma Action Error:", error.message);
-    return { error: `خطأ في العملية: ${error.message}` };
+    console.error("Meal Order Error:", error);
+    // إذا ظهر خطأ "Unknown argument quantity"، فالمشكلة في الـ Generate
+    return { error: `خطأ تقني: ${error.message}` };
   }
 }

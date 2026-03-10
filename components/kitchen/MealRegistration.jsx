@@ -10,8 +10,11 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
     const [status, setStatus] = useState(null); // 'success' | 'error' | null
     const [message, setMessage] = useState("");
     const [currentCount, setCurrentCount] = useState(Number(initialCount) || 0);
+    
+    // الحالة الجديدة لعدد أفراد الأسرة
+    const [quantity, setQuantity] = useState(1);
 
-    // تحديث العدد إذا تغير من السيرفر
+    // تحديث العدد الكلي إذا تغير من السيرفر
     useEffect(() => {
         setCurrentCount(Number(initialCount) || 0);
     }, [initialCount]);
@@ -27,7 +30,6 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
         }
     }, [message]);
 
-    // استخدام useMemo لتحسين الأداء في الترجمة
     const t = useMemo(() => {
         const translations = {
             ar: {
@@ -35,21 +37,23 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 subtitle: "نظام الحجز المسبق",
                 remaining: "متبقي",
                 meal: "وجبة",
+                familySize: "عدد أفراد الأسرة:",
                 description: "يساعدنا الحجز المسبق على توزيع الوجبات بعدالة وضمان عدم إهدار أي طعام.",
-                reserveBtn: "احجز وجبتي لغدًا",
+                reserveBtn: "احجز الوجبات لغدًا",
                 loading: "جاري الحجز...",
                 full: "عذراً، اكتمل العدد",
                 loginAlert: "يرجى تسجيل الدخول أولاً",
                 errorDefault: "حدث خطأ غير متوقع",
-                success: "تم الحجز بنجاح"
+                success: "تم حجز الوجبات بنجاح"
             },
             en: {
                 title: "📅 Tomorrow's Meal",
                 subtitle: "Pre-order System",
                 remaining: "Remaining",
                 meal: "meals",
+                familySize: "Family members:",
                 description: "Pre-ordering helps us distribute meals fairly and ensure no food is wasted.",
-                reserveBtn: "Reserve my meal for tomorrow",
+                reserveBtn: "Reserve meals for tomorrow",
                 loading: "Reserving...",
                 full: "Sorry, fully booked",
                 loginAlert: "Please login first",
@@ -74,12 +78,13 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
         setStatus(null);
 
         try {
-            const result = await reserveMealAction(user.id, kitchenId);
+            // نرسل quantity كباراميتر ثالث للأكشن
+            const result = await reserveMealAction(user.id, kitchenId, quantity);
             
             if (result?.success) {
                 setStatus("success");
-                setMessage(t.success);
-                setCurrentCount(prev => prev + 1);
+                setMessage(result.success || t.success);
+                setCurrentCount(prev => prev + quantity);
             } else {
                 setStatus("error");
                 setMessage(result?.error || t.errorDefault);
@@ -125,6 +130,28 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 />
             </div>
 
+            {/* العداد (Quantity Selector) */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <span className="text-sm font-bold text-gray-700">{t.familySize}</span>
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                        className="w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center text-xl font-bold hover:bg-gray-100 active:scale-90 transition-all"
+                    >
+                        -
+                    </button>
+                    <span className="text-xl font-black text-emerald-600 min-w-[20px] text-center">
+                        {quantity}
+                    </span>
+                    <button 
+                        onClick={() => setQuantity(prev => Math.min(10, prev + 1))} // حد أقصى 10 أفراد
+                        className="w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center text-xl font-bold hover:bg-gray-100 active:scale-90 transition-all"
+                    >
+                        +
+                    </button>
+                </div>
+            </div>
+
             <p className="text-gray-500 text-[13px] leading-relaxed italic">
                 {t.description}
             </p>
@@ -154,7 +181,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 ) : currentCount >= limit ? (
                     t.full
                 ) : (
-                    t.reserveBtn
+                    `${t.reserveBtn} (${quantity})`
                 )}
             </button>
         </div>
