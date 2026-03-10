@@ -13,24 +13,25 @@ enum Role {
 }
 
 model User {
-  id                  String   @id
-  name                String
-  email               String   @unique
-  phone               String?
-  role                Role     @default(USER)
-  neighborhood        String?  
-  landmark            String?  
-  addressDetails      String?  
-  dietary_preferences Json?    @default("[]")
-  health_goals        Json?    @default("[]")
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  meals               Meal[]   
-  favorites           Favorite[] 
-  orders              MealOrder[]
-  tickets             SupportTicket[] 
+  id                 String          @id
+  name               String
+  email              String          @unique
+  phone              String?
+  role               Role            @default(USER)
+  neighborhood       String?  
+  landmark           String?  
+  addressDetails     String?  
+  dietary_preferences Json?           @default("[]")
+  health_goals        Json?           @default("[]")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  
+  // العلاقات (Relationships)
+  meals              Meal[]   
+  favorites          Favorite[] 
+  orders             MealOrder[]     
+  tickets            SupportTicket[]
 }
-
 
 model HealthTip {
   id          Int      @id @default(autoincrement())
@@ -43,7 +44,7 @@ model HealthTip {
 }
 
 model FoodRecipe {
-  id           Int      @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   img          String
   type         Json
   title        Json
@@ -52,12 +53,12 @@ model FoodRecipe {
   nutrition    Json
   ingredients  Json
   instructions Json
-  createdAt    DateTime @default(now())
+  createdAt    DateTime   @default(now())
   favorites    Favorite[]
 }
 
 model Kitchen {
-  id               Int      @id @default(autoincrement())
+  id               Int         @id @default(autoincrement())
   name             Json
   location         Json
   region           Json
@@ -66,8 +67,8 @@ model Kitchen {
   todaysMeal       Json
   accessInfo       Json
   contact          String
-  createdAt        DateTime @default(now())
-  orders           MealOrder[]
+  createdAt        DateTime    @default(now())
+  orders           MealOrder[] 
 }
 
 model Doctor {
@@ -92,26 +93,26 @@ model NutritionGuide {
 }
 
 model Meal {
-  id         String   @id @default(uuid())
-  userId     String   
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  userId    String   
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  mealType   String   
-  foodName   String
-  calories   Int      @default(0)
-  createdAt  DateTime @default(now())
+  mealType  String   
+  foodName  String
+  calories  Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@map("meals") 
 }
 
 model FoodLog {
-  id          String   @id @default(cuid())
-  userId      String   
-  mealName    String   
-  calories    Int      
-  mealType    String   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  userId     String   
+  mealName   String   
+  calories   Int      
+  mealType   String   
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Favorite {
@@ -127,3 +128,32 @@ model Favorite {
   @@unique([userId, recipeId]) 
 }
 
+
+model MealOrder {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  kitchenId  Int
+  quantity   Int      @default(1) 
+  status     String   @default("PENDING")
+  orderDate  DateTime @default(now())    
+  targetDate DateTime                  
+  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kitchen    Kitchen  @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kitchenId, targetDate]) 
+  @@map("meal_orders")
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  userId      String
+  subject     String
+  message     String
+  status      String   @default("OPEN") // OPEN, CLOSED
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("support_tickets")
+}

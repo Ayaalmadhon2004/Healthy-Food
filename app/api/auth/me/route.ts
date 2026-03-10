@@ -31,3 +31,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
+
+// أضيفي هذا تحت دالة POST في نفس الملف
+export async function GET() {
+  return NextResponse.json({ message: "هذا المسار مخصص للمفضلات فقط عبر POST" }, { status: 200 });
+}
