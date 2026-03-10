@@ -18,10 +18,10 @@ const healthTips = [
   }
 ];
 
-// --- 2. بيانات الوصفات (تأكدي من مطابقة الحقول للـ Schema) ---
+// --- 2. بيانات الوصفات ---
 const foodRecipes = [
   {
-    id: 1, // معرف رقمي ثابت للربط مع المفضلات
+    id: 1,
     img: "/assets/Berry.jpg",
     type: { en: "Breakfast", ar: "فطور" },
     title: { en: "Berry Smoothie Bowl", ar: "وعاء سموثي التوت" },
@@ -75,22 +75,60 @@ const doctorsData = [
   }
 ];
 
-// --- 5. دليل التغذية ---
+// --- 5. دليل التغذية (تم التحديث ليتطابق مع الكود البرمجي) ---
 const nutritionGuideData = {
   header: {
     badge: { en: "Nutrition Knowledge", ar: "الثقافة الغذائية" },
-    title: { en: "Family Nutrition Guide", ar: "دليل تغذية العائلة" }
+    title: { en: "Family Nutrition Guide", ar: "دليل تغذية العائلة" },
+    subtitle: { 
+      en: "Essential tips to maintain health during challenging times.", 
+      ar: "نصائح أساسية للحفاظ على الصحة في الأوقات الصعبة." 
+    }
   },
   sections: [
-    { title: { en: "Protein", ar: "البروتين" }, color: "green", items: [{ en: "Rice + Lentils", ar: "أرز + عدس" }] }
-  ]
+    { 
+      title: { en: "Protein Source", ar: "مصادر البروتين" }, 
+      description: { en: "Essential for muscle health.", ar: "ضروري لصحة العضلات." },
+      listTitle: { en: "Examples", ar: "أمثلة" },
+      color: "green", 
+      items: [
+        { en: "Rice + Lentils", ar: "أرز + عدس" },
+        { en: "Canned Beans", ar: "بقوليات معلبة" }
+      ] 
+    },
+    { 
+      title: { en: "Hydration", ar: "الترطيب" }, 
+      description: { en: "Keep your body functioning.", ar: "حافظ على وظائف جسمك." },
+      listTitle: { en: "Daily Goal", ar: "الهدف اليومي" },
+      color: "blue", 
+      items: [
+        { en: "3 Liters of water", ar: "3 لتر ماء" }
+      ] 
+    }
+  ],
+  stretching: {
+    title: { en: "Meal Stretching", ar: "مضاعفة الوجبات" },
+    subtitle: { en: "How to make food last longer.", ar: "كيف تجعل الطعام يدوم لفترة أطول." },
+    steps: [
+      { 
+        number: 1, 
+        title: { en: "Add Bulkers", ar: "إضافة الحجم" }, 
+        text: { en: "Use rice or bread to stretch stew.", ar: "استخدم الأرز أو الخبز لزيادة حجم المرق." } 
+      },
+      { 
+        number: 2, 
+        title: { en: "Save Leftovers", ar: "حفظ البقايا" }, 
+        text: { en: "Reheat safely for next day.", ar: "أعد التسخين بأمان لليوم التالي." } 
+      }
+    ]
+  }
 };
 
 // --- الدالة الأساسية لتنفيذ الـ Seed ---
 async function main() {
   console.log("🌱 بدأت عملية تنظيف البيانات القديمة...");
   
-  // ترتيب الحذف مهم لتجنب مشاكل العلاقات (Relations)
+  // ترتيب الحذف لتجنب مشاكل العلاقات
   await prisma.favorite.deleteMany({});
   await prisma.healthTip.deleteMany({});
   await prisma.foodRecipe.deleteMany({});
@@ -103,7 +141,7 @@ async function main() {
   // إضافة النصائح
   await prisma.healthTip.createMany({ data: healthTips });
 
-  // إضافة الوصفات (نستخدم حلقة لضمان الـ IDs اليدوية)
+  // إضافة الوصفات
   for (const recipe of foodRecipes) {
     await prisma.foodRecipe.create({ data: recipe });
   }
@@ -121,7 +159,7 @@ async function main() {
     data: { content: nutritionGuideData }
   });
 
-  console.log("🏁 تمت العملية بنجاح! قاعدة البيانات جاهزة الآن.");
+  console.log("🏁 تمت العملية بنجاح! قاعدة البيانات جاهزة الآن ببيانات مترجمة.");
 }
 
 main()

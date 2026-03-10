@@ -126,42 +126,55 @@ export async function getMonthlyStatsAction(userId, year, month) {
 
 export async function reserveMealAction(userId, kitchenId) {
   try {
+    const kId = Number(kitchenId);
+    
+    // 1. التأكد من أن userId ليس فارغاً
+    if (!userId) {
+      return { error: "يرجى تسجيل الدخول أولاً للقيام بالحجز." };
+    }
+
+    // 2. 🔥 التأكد من أن المستخدم موجود فعلاً في قاعدة البيانات (لتجنب Foreign Key Error)
+    const userInDb = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!userInDb) {
+      return { error: "لم يتم العثور على حسابك في قاعدة البيانات. يرجى تسجيل الخروج والدخول مجدداً." };
+    }
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    const kitchen = await prisma.kitchen.findUnique({
-      where: { id: kitchenId }
+    // 3. التحقق من وجود حجز مسبق (لتجنب Duplicate Error)
+    const existing = await prisma.mealOrder.findUnique({
+      where: {
+        userId_kitchenId_targetDate: {
+          userId: userId,
+          kitchenId: kId,
+          targetDate: tomorrow
+        }
+      }
     });
 
-    if (!kitchen) return { error: "المطبخ غير موجود" };
-    const capacityLimit = parseInt(kitchen.capacity) || 0;
-
-    const existingOrder = await prisma.mealOrder.findFirst({
-      where: { userId, targetDate: tomorrow, kitchenId } 
-    });
-
-    if (existingOrder) return { error: "لقد قمت بالحجز في هذا المطبخ لغدًا مسبقاً" };
-
-    const totalOrders = await prisma.mealOrder.count({
-      where: { targetDate: tomorrow, kitchenId }
-    });
-
-    if (totalOrders >= capacityLimit) {
-      return { error: "عذراً، اكتمل عدد الوجبات المتاحة في هذا المطبخ" };
+    if (existing) {
+      return { error: "لقد قمت بحجز وجبة في هذا المطبخ لغدًا بالفعل." };
     }
 
-    await prisma.mealOrder.create({
+    // 4. تنفيذ الحجز
+    const newOrder = await prisma.mealOrder.create({
       data: {
-        userId,
-        kitchenId, 
+        userId: userId,
+        kitchenId: kId,
         targetDate: tomorrow,
       },
     });
 
-    revalidatePath("/"); 
-    return { success: "تم حجز وجبتك بنجاح!" };
+    revalidatePath("/");
+    return { success: "تم حجز وجبتك لغداً بنجاح! 🥘" };
+
   } catch (error) {
-    return { error: "حدث خطأ أثناء الحجز" };
+    console.error("❌ Prisma Action Error:", error.message);
+    return { error: `خطأ في العملية: ${error.message}` };
   }
 }

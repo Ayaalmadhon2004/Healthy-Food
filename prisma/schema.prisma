@@ -130,15 +130,17 @@ model Favorite {
 
 
 model MealOrder {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  kitchenId Int
-  status    String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
-  orderDate DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  userId     String
+  kitchenId  Int
+  status     String   @default("PENDING")
+  orderDate  DateTime @default(now())   
+  targetDate DateTime                  
   
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kitchen   Kitchen  @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kitchen    Kitchen  @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, kitchenId, targetDate]) 
   @@map("meal_orders")
 }
 
