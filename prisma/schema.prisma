@@ -133,8 +133,9 @@ model MealOrder {
   id         Int      @id @default(autoincrement())
   userId     String
   kitchenId  Int
+  quantity   Int      @default(1) 
   status     String   @default("PENDING")
-  orderDate  DateTime @default(now())   
+  orderDate  DateTime @default(now())    
   targetDate DateTime                  
   
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
