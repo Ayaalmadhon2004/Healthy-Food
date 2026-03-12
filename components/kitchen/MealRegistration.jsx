@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { reserveMealAction , cancelMealAction } from "@/app/actions/mealActions";
+import { reserveMealAction , cancelMealAction , checkUserReservation } from "@/app/actions/mealActions";
 import { useUserData } from "@/hooks/useUserData";
 
 export default function MealRegistration({ kitchenId, initialCount = 0, capacity = 500, lang = "ar" }) {
@@ -88,6 +88,8 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
             const result = await reserveMealAction(user.id, kitchenId, quantity);
             
             if (result?.success) {
+                setIsReserved(true); 
+                setStatus("success");
                 setStatus("success");
                 setMessage(result.success || t.success);
                 setCurrentCount(prev => prev + quantity);
@@ -110,16 +112,16 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
         try{
             const result = await cancelMealAction(user.id,kitchenId);
             if(result?.success){
+                setIsReserved(false); 
+                setStatus("success");
                 setMessage(isAr ? "تم إلغاء الحجز بنجاح" : "Reservation cancelled");
-                setCurrentCount(prev =>Math.max(0,prev-quantity));
+                setCurrentCount(prev => Math.max(0, prev - quantity));
             }
         } catch(err){
             setMessage(t.errorDefault);
         } finally{
             setLoading(false);
         }
-
-
     }
 
     return (
@@ -190,23 +192,23 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 </div>
             )}
 
-            <button
-                onClick={handleReserve}
-                disabled={loading || currentCount >= limit}
-                className={`w-full py-4 rounded-2xl font-black text-white shadow-lg transition-all active:scale-95 flex justify-center items-center gap-3 ${
-                    currentCount >= limit 
-                    ? "bg-gray-200 cursor-not-allowed text-gray-400" 
-                    : "bg-emerald-600 hover:bg-emerald-700"
-                }`}
-            >
-                {loading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : currentCount >= limit ? (
-                    t.full
+            {isReserved ? (
+                <button 
+                    onClick={handleCancel}
+                    disabled={loading}
+                    className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition"
+                >
+                    {loading ? "..." : (isAr ? "إلغاء الحجز" : "Cancel Reservation")}
+                </button>
                 ) : (
-                    `${t.reserveBtn} (${quantity})`
+                <button 
+                    onClick={handleReserve}
+                    disabled={loading}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition"
+                >
+                    {loading ? "..." : (isAr ? "حجز الآن" : "Reserve Now")}
+                </button>
                 )}
-            </button>
-        </div>
-    );
+                </div>
+            );
 }
