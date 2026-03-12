@@ -12,7 +12,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
     const [currentCount, setCurrentCount] = useState(Number(initialCount) || 0);
     const [quantity, setQuantity] = useState(1);
     const [isReserved, setIsReserved] = useState(false);
-    
+
     useEffect(() => {
         setCurrentCount(Number(initialCount) || 0);
     }, [initialCount]);
@@ -26,6 +26,16 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
             return () => clearTimeout(timer);
         }
     }, [message]);
+
+    useEffect(() => {
+    const verifyReservation = async () => {
+        if (user?.id) {
+            const reserved = await checkUserReservation(user.id, kitchenId);
+            setIsReserved(reserved);
+        }
+    };
+    verifyReservation();
+    }, [user, kitchenId]);
 
     const t = useMemo(() => {
         const translations = {
