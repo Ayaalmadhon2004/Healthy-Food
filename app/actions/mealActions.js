@@ -2,7 +2,6 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-// 1. إضافة وجبة
 export async function addMealAction(data) {
   try {
     const meal = await prisma.meal.create({
@@ -23,7 +22,6 @@ export async function addMealAction(data) {
   }
 }
 
-// 2. 🔥 تعديل دالة getMealsAction لتجلب وجبات اليوم فقط (هذا هو سبب المشكلة)
 export async function getMealsAction(userId) {
   try {
     const today = new Date();
@@ -47,7 +45,6 @@ export async function getMealsAction(userId) {
   }
 }
 
-// 3. حذف وجبة
 export async function deleteMealAction(mealId) {
   try {
     await prisma.meal.delete({
@@ -61,7 +58,6 @@ export async function deleteMealAction(mealId) {
   }
 }
 
-// 4. جلب بيانات الشبكة (المربعات)
 export async function getMonthlyGridDataAction(userId, year, month) {
   try {
     const startDate = new Date(Date.UTC(year, month - 1, 1));
@@ -87,7 +83,6 @@ export async function getMonthlyGridDataAction(userId, year, month) {
   }
 }
 
-// 5. جلب الإحصائيات (الأرقام الثلاثة)
 export async function getMonthlyStatsAction(userId, year, month) {
   try {
     const startDate = new Date(Date.UTC(year, month - 1, 1));
@@ -129,64 +124,68 @@ export async function reserveMealAction(userId, kitchenId, quantity = 1) {
     const kId = Number(kitchenId);
     const qty = Number(quantity);
 
-    // 1. التأكد من صحة البيانات الأساسية
     if (!userId) return { error: "يرجى تسجيل الدخول أولاً." };
     if (qty < 1) return { error: "يجب اختيار وجبة واحدة على الأقل." };
 
-    // 2. جلب بيانات المطبخ للتحقق من السعة
     const kitchen = await prisma.kitchen.findUnique({
       where: { id: kId }
     });
     if (!kitchen) return { error: "المطبخ غير موجود." };
 
-    // استخراج السعة من JSON (بناءً على السكيما الخاصة بكِ)
     const capValue = kitchen.capacity?.en || "500";
     const capacityLimit = parseInt(capValue.split('-').pop()) || 500;
-
-    // 3. تحديد تاريخ "غدًا" بدقة
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
-
-<<<<<<< HEAD
-=======
-    // 4. حساب مجموع الوجبات المحجوزة فعلياً لغدًا في هذا المطبخ
->>>>>>> 5994681b47af0761362e500aa49944d396054365
     const aggregation = await prisma.mealOrder.aggregate({
       where: { kitchenId: kId, targetDate: tomorrow },
       _sum: { quantity: true }
     });
-
     const currentTotal = aggregation._sum.quantity || 0;
 
-    // 5. التحقق من السعة المتبقية
     if (currentTotal + qty > capacityLimit) {
       const remaining = capacityLimit - currentTotal;
       return { error: `عذراً، المتبقي فقط ${remaining} وجبة.` };
     }
-
-    // 6. التحقق من وجود حجز مسبق لنفس المستخدم في نفس اليوم
     const existingOrder = await prisma.mealOrder.findFirst({
       where: { userId, kitchenId: kId, targetDate: tomorrow }
     });
     if (existingOrder) return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
-
-    // 7. تنفيذ عملية الحجز (أهم خطوة)
     const newOrder = await prisma.mealOrder.create({
       data: {
         userId: userId,
         kitchenId: kId,
         targetDate: tomorrow,
-        quantity: qty // هذا الحقل يجب أن يكون موجوداً في السكيما
+        quantity: qty 
       }
     });
-
-    revalidatePath("/"); // تحديث البيانات في الصفحة
+    revalidatePath("/"); 
     return { success: `تم حجز ${qty} وجبات بنجاح لغدًا.` };
-
   } catch (error) {
     console.error("Meal Order Error:", error);
-    // إذا ظهر خطأ "Unknown argument quantity"، فالمشكلة في الـ Generate
     return { error: `خطأ تقني: ${error.message}` };
   }
+}
+
+export async function checkUserReservation(userId, kitchenId) {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  const order = await prisma.mealOrder.findFirst({
+    where: { userId, kitchenId: Number(kitchenId), targetDate: tomorrow }
+  });
+
+  return !!order; // ستعيد true إذا وجد حجز، و false إذا لم يجد
+}
+
+export async function cancelMealAction(userId, kitchenId) {
+  const tomorrow=new Date();
+  tomorrow.setDate(tomorrow.getDate()+1);
+  tomorrow.setHours(0,0,0,0);
+
+  await prisma.mealOrder.deleteMany({
+    where:{userId,kitchenId,targetDate:tomorrow}
+  });
+    return {success:true};
 }
