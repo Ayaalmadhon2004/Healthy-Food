@@ -40,10 +40,8 @@ export default async function Page() {
         </ErrorBoundaryWrapper>
       </div>
 
-      {/* قسم الأدوات السريعة: التبرع والبلاغات */}
       <section className="w-full max-w-6xl mt-24 grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
         
-        {/* بطاقة التبرع وتنسيق الدعم */}
         <div className="bg-emerald-600 p-10 rounded-[3rem] text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group">
           <div className="relative z-10">
             <Heart className="mb-4 opacity-80 group-hover:scale-110 transition-transform" size={40} />

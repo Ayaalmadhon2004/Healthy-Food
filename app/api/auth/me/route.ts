@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function POST(request: Request) { // when i want to send data to the server i use post method
   try {
     const { userId, recipeId } = await request.json();
 
@@ -30,4 +30,13 @@ export async function POST(request: Request) {
     const errorMessage = error instanceof Error ? error.message : "حدث خطأ في السيرفر";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
+<<<<<<< Updated upstream
 }
+=======
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "هذا المسار مخصص للمفضلات فقط عبر POST" }, { status: 200 });
+}
+
+>>>>>>> Stashed changes

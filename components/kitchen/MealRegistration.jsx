@@ -7,49 +7,33 @@ import { useUserData } from "@/hooks/useUserData";
 export default function MealRegistration({ kitchenId, initialCount = 0, capacity = 500, lang = "ar" }) {
     const { user } = useUserData();
     const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState(null); 
     const [message, setMessage] = useState("");
-    
-    // تأمين القيم الرقمية لضمان عدم ظهور NaN في الواجهة
     const [currentCount, setCurrentCount] = useState(Number(initialCount) || 0);
+    const [quantity, setQuantity] = useState(1);
 
-    // تحديث العداد المحلي إذا تغيرت البيانات القادمة من السيرفر
     useEffect(() => {
         setCurrentCount(Number(initialCount) || 0);
     }, [initialCount]);
 
-    const translations = {
-        ar: {
-            title: "📅 وجبة غداً",
-            subtitle: "نظام الحجز المسبق",
-            remaining: "متبقي",
-            meal: "وجبة",
-            description: "يساعدنا الحجز المسبق على توزيع الوجبات بعدالة وضمان عدم إهدار أي طعام.",
-            reserveBtn: "احجز وجبتي لغدًا",
-            loading: "جاري الحجز...",
-            full: "عذراً، اكتمل العدد",
-            loginAlert: "يرجى تسجيل الدخول أولاً",
-            errorDefault: "حدث خطأ غير متوقع",
-            success: "تم الحجز بنجاح"
-        },
-        en: {
-            title: "📅 Tomorrow's Meal",
-            subtitle: "Pre-order System",
-            remaining: "Remaining",
-            meal: "meals",
-            description: "Pre-ordering helps us distribute meals fairly and ensure no food is wasted.",
-            reserveBtn: "Reserve my meal for tomorrow",
-            loading: "Reserving...",
-            full: "Sorry, fully booked",
-            loginAlert: "Please login first",
-            errorDefault: "An unexpected error occurred",
-            success: "Reservation successful"
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => {
+                setMessage("");
+                setStatus(null);
+            }, 5000);
+            return () => clearTimeout(timer);
         }
+    },[message]);
+
+    const translations = {
+    ar: { title: "📅 وجبة غداً", remaining: "متبقي", success: "تم بنجاح", reserveBtn: "احجز الآن", familySize: "الأفراد" },
+    en: { title: "📅 Tomorrow", remaining: "Left", success: "Success", reserveBtn: "Reserve", familySize: "Family" }
     };
 
     const t = translations[lang] || translations.ar;
     const isAr = lang === "ar";
 
-    // حسابات آمنة تعتمد على الأرقام فقط لتجنب أخطاء NaN
     const limit = Math.max(Number(capacity) || 500, 1); 
     const percentage = Math.min((currentCount / limit) * 100, 100);
     const remaining = Math.max(limit - currentCount, 0);
@@ -61,15 +45,13 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
         setMessage("");
 
         try {
-            // استدعاء السيرفر لحفظ الحجز في Supabase
-            const result = await reserveMealAction(user.id, kitchenId);
+            const result = await reserveMealAction(user.id, kitchenId, quantity);
             
             if (result?.error) {
                 setMessage(result.error);
             } else if (result?.success) {
                 setMessage(t.success);
-                // تحديث العداد محلياً فوراً لتحسين تجربة المستخدم (Optimistic UI)
-                setCurrentCount(prev => prev + 1);
+                setCurrentCount(prev => prev + quantity);
             }
         } catch (err) {
             setMessage(t.errorDefault);
@@ -93,14 +75,15 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                         {t.subtitle}
                     </span>
                 </div>
-                <div className="flex flex-col items-end shrink-0">
-                    <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-                       {t.remaining} {remaining} {t.meal}
+                <div className="flex flex-col items-end">
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full border transition-colors ${
+                        remaining === 0 ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                    }`}>
+                    {t.remaining} {remaining} {t.meal}
                     </span>
                 </div>
             </div>
 
-            {/* شريط التقدم التفاعلي */}
             <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden border border-gray-50 p-[2px]">
                 <div 
                     className={`h-full rounded-full transition-all duration-1000 ease-in-out ${
@@ -110,12 +93,31 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 />
             </div>
 
-            {/* الوصف */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <span className="text-sm font-bold text-gray-700">{t.familySize}</span>
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                        className="w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center text-xl font-bold hover:bg-gray-100 active:scale-90 transition-all"
+                    >
+                        -
+                    </button>
+                    <span className="text-xl font-black text-emerald-600 min-w-[20px] text-center">
+                        {quantity}
+                    </span>
+                    <button 
+                        onClick={() => setQuantity(prev => Math.min(10, prev + 1))} 
+                        className="w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center text-xl font-bold hover:bg-gray-100 active:scale-90 transition-all"
+                    >
+                        +
+                    </button>
+                </div>
+            </div>
+
             <p className="text-gray-500 text-[13px] leading-relaxed italic">
                 {t.description}
             </p>
 
-            {/* رسائل التغذية الراجعة (Success/Error) */}
             {message && (
                 <div className={`p-4 rounded-2xl text-sm font-bold animate-in fade-in slide-in-from-top-2 duration-300 ${
                     message.includes("نجاح") || message.toLowerCase().includes("success")
