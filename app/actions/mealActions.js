@@ -148,10 +148,7 @@ export async function reserveMealAction(userId, kitchenId, quantity = 1) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-<<<<<<< HEAD
-=======
     // 4. حساب مجموع الوجبات المحجوزة فعلياً لغدًا في هذا المطبخ
->>>>>>> 5994681b47af0761362e500aa49944d396054365
     const aggregation = await prisma.mealOrder.aggregate({
       where: { kitchenId: kId, targetDate: tomorrow },
       _sum: { quantity: true }
@@ -189,4 +186,15 @@ export async function reserveMealAction(userId, kitchenId, quantity = 1) {
     // إذا ظهر خطأ "Unknown argument quantity"، فالمشكلة في الـ Generate
     return { error: `خطأ تقني: ${error.message}` };
   }
+}
+
+export async function cancelMealAction(userId, kitchenId) {
+  const tomorrow=new Date();
+  tomorrow.setDate(tomorrow.getDate()+1);
+  tomorrow.setHours(0,0,0,0);
+
+  await prisma.mealOrder.deleteMany({
+    where:{userId,kitchenId,targetDate:tomorrow}
+  });
+    return {success:true};
 }
