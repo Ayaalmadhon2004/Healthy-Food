@@ -30,13 +30,9 @@ export async function POST(request: Request) { // when i want to send data to th
     const errorMessage = error instanceof Error ? error.message : "حدث خطأ في السيرفر";
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
-<<<<<<< Updated upstream
-}
-=======
 }
 
+// أضيفي هذا تحت دالة POST في نفس الملف
 export async function GET() {
   return NextResponse.json({ message: "هذا المسار مخصص للمفضلات فقط عبر POST" }, { status: 200 });
 }
-
->>>>>>> Stashed changes
