@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { reserveMealAction } from "@/app/actions/mealActions";
+import { reserveMealAction , cancelMealAction } from "@/app/actions/mealActions";
 import { useUserData } from "@/hooks/useUserData";
 
 export default function MealRegistration({ kitchenId, initialCount = 0, capacity = 500, lang = "ar" }) {
@@ -10,16 +10,13 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
     const [status, setStatus] = useState(null); // 'success' | 'error' | null
     const [message, setMessage] = useState("");
     const [currentCount, setCurrentCount] = useState(Number(initialCount) || 0);
-    
-    // الحالة الجديدة لعدد أفراد الأسرة
     const [quantity, setQuantity] = useState(1);
-
-    // تحديث العدد الكلي إذا تغير من السيرفر
+    const [isReserved, setIsReserved] = useState(false);
+    
     useEffect(() => {
         setCurrentCount(Number(initialCount) || 0);
     }, [initialCount]);
 
-    // إخفاء الرسالة تلقائياً بعد 5 ثوانٍ
     useEffect(() => {
         if (message) {
             const timer = setTimeout(() => {
@@ -78,7 +75,6 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
         setStatus(null);
 
         try {
-            // نرسل quantity كباراميتر ثالث للأكشن
             const result = await reserveMealAction(user.id, kitchenId, quantity);
             
             if (result?.success) {
@@ -96,6 +92,25 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
             setLoading(false);
         }
     };
+
+    const handleCancel = async()=>{
+        if (!user) return alert(t.loginAlert);
+        setLoading(true);
+
+        try{
+            const result = await cancelMealAction(user.id,kitchenId);
+            if(result?.success){
+                setMessage(isAr ? "تم إلغاء الحجز بنجاح" : "Reservation cancelled");
+                setCurrentCount(prev =>Math.max(0,prev-quantity));
+            }
+        } catch(err){
+            setMessage(t.errorDefault);
+        } finally{
+            setLoading(false);
+        }
+
+
+    }
 
     return (
         <div 
@@ -115,7 +130,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                     <span className={`text-sm font-bold px-3 py-1 rounded-full border transition-colors ${
                         remaining === 0 ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
                     }`}>
-                       {t.remaining} {remaining} {t.meal}
+                        {t.remaining} {remaining} {t.meal}
                     </span>
                 </div>
             </div>
@@ -130,7 +145,6 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 />
             </div>
 
-            {/* العداد (Quantity Selector) */}
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <span className="text-sm font-bold text-gray-700">{t.familySize}</span>
                 <div className="flex items-center gap-4">
@@ -156,7 +170,6 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 {t.description}
             </p>
 
-            {/* Feedback Messages */}
             {message && (
                 <div className={`p-4 rounded-2xl text-sm font-bold animate-in slide-in-from-top-2 duration-300 ${
                     status === "success" 
