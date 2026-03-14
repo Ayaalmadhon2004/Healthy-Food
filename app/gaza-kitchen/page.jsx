@@ -55,7 +55,7 @@ export default async function Page() {
             </p>
           </div>
           <a 
-            href="https://wa.me/YOUR_PHONE_NUMBER" 
+            href="https://wa.me/970598509088" 
             target="_blank"
             className="bg-white text-emerald-700 px-8 py-5 rounded-2xl font-black hover:bg-emerald-50 transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 text-lg"
           >
