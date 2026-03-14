@@ -1,5 +1,5 @@
 "use server";
-import { prisma } from "@/lib/prisma"; // تأكدي من المسار
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -8,25 +8,32 @@ export async function submitAreaReportAction(formData) {
   const description = formData.get("description");
   const userId = formData.get("userId");
 
-  // إضافة فحص بسيط للتأكد من وجود بريزما قبل التنفيذ
-  if (!prisma) {
-    throw new Error("Prisma client is not initialized");
-  }
+  console.log("1. Starting Action for user:", userId); // فحص الخطوة الأولى
+
+  if (!prisma) throw new Error("Prisma client is not initialized");
+
+  let success = false;
 
   try {
     await prisma.areaReport.create({
       data: {
-        areaName: areaName,
-        description: description,
-        userId: userId,
+        areaName,
+        description,
+        userId,
         status: "pending", 
       },
     });
+    console.log("2. Database Save Success!"); // فحص نجاح الحفظ
+    success = true;
   } catch (error) {
     console.error("Prisma Error:", error);
     return { error: "Failed to save to database" };
   }
 
-  revalidatePath("/reports");
-  redirect("/reports");
+  // إذا وصلنا هنا والحفظ نجح، نقوم بالتوجيه
+  if (success) {
+    revalidatePath("/dashboard/tracker");
+    console.log("3. Redirecting now..."); // فحص التوجيه
+    redirect("/dashboard/tracker?success=true");
+  }
 }
