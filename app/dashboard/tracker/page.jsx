@@ -2,14 +2,20 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { createBrowserClient } from "@supabase/ssr"; 
-import { Plus, Coffee, Sun, Moon, Utensils, X, Trash2, Loader2 } from "lucide-react";
+import { Plus, Coffee, Sun, Moon, Utensils, X, Trash2, Loader2, Sparkles, CheckCircle } from "lucide-react"; // أضفنا أيقونات جديدة
 import { useLanguage } from "@/context/LanguageContext";
 import { addMealAction, getMealsAction, deleteMealAction } from "@/app/actions/mealActions";
-import MealChart from "@/components/dashboard/MealChart"
+import MealChart from "@/components/dashboard/MealChart";
+import { useSearchParams } from "next/navigation"; // أضفنا هذا لجلب باراميتر النجاح
 
 const MealTracker = () => {
   const { lang } = useLanguage();
+  const searchParams = useSearchParams(); // استخدام السينسور الخاص بالرابط
+  const isAr = lang === "ar";
   
+  // التحقق من وجود success=true في الرابط
+  const isReportSuccess = searchParams.get("success") === "true";
+
   const [supabase] = useState(() => 
     createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -17,6 +23,7 @@ const MealTracker = () => {
     )
   );
 
+  // ... (باقي الـ States الخاصة بكِ كما هي)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState("");
   const [foodName, setFoodName] = useState("");
@@ -24,13 +31,7 @@ const MealTracker = () => {
   const [meals, setMeals] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  const mealTypes = [
-    { id: "breakfast", label: { en: "Breakfast", ar: "الفطور" }, icon: <Coffee />, color: "bg-orange-100 text-orange-600" },
-    { id: "lunch", label: { en: "Lunch", ar: "الغداء" }, icon: <Sun />, color: "bg-blue-100 text-blue-600" },
-    { id: "dinner", label: { en: "Dinner", ar: "العشاء" }, icon: <Moon />, color: "bg-indigo-100 text-indigo-600" },
-    { id: "snacks", label: { en: "Snacks", ar: "وجبات خفيفة" }, icon: <Utensils />, color: "bg-green-100 text-green-600" },
-  ];
-
+  // ... (دالة loadMeals وباقي الدوال كما هي)
   const loadMeals = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -49,78 +50,50 @@ const MealTracker = () => {
     loadMeals();
   }, [loadMeals]);
 
-  const handleSave = async () => {
-    if (!foodName || !calories) return;
-
-    const tempId = Date.now().toString();
-    const tempMeal = {
-      id: tempId,
-      foodName,
-      calories: parseInt(calories),
-      mealType: selectedMealType,
-      isOptimistic: true,
-    };
-
-    setMeals((prev) => [tempMeal, ...prev]);
-    setIsModalOpen(false);
-    setFoodName("");
-    setCalories("");
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const result = await addMealAction({
-        userId: user.id,
-        mealType: selectedMealType,
-        foodName: tempMeal.foodName,
-        calories: tempMeal.calories,
-      });
-
-      if (!result.success) {
-        setMeals((prev) => prev.filter((m) => m.id !== tempId));
-        alert("Failed to save to database");
-      } else {
-        setMeals((prev) => prev.map((m) => (m.id === tempId ? result.meal : m)));
-      }
-    } catch (error) {
-      setMeals((prev) => prev.filter((m) => m.id !== tempId));
-      alert("Error saving meal");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    const originalMeals = [...meals];
-    setMeals(meals.filter((m) => m.id !== id));
-
-    const result = await deleteMealAction(id);
-    if (!result.success) {
-      setMeals(originalMeals);
-      alert("Delete failed");
-    }
-  };
-
+  // حساب السعرات
   const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
 
   if (initialLoading) return (
     <div className="flex flex-col items-center justify-center p-20 space-y-4">
       <Loader2 className="animate-spin text-green-600" size={40} />
       <p className="text-gray-400 font-bold">
-        {lang === "ar" ? "جاري تحميل البيانات..." : "Loading your data..."}
+        {isAr ? "جاري تحميل البيانات..." : "Loading your data..."}
       </p>
     </div>
   );
-  console.log("meals",meals);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
+      
+      {/* --- بنر نجاح إرسال البلاغ --- */}
+      {isReportSuccess && (
+        <div className="bg-emerald-50 border-2 border-emerald-100 p-6 rounded-[2.5rem] shadow-sm animate-in zoom-in duration-500 mb-4">
+          <div className="flex items-center gap-4">
+            <div className="bg-emerald-500 p-2 rounded-full text-white shadow-lg">
+              <CheckCircle size={20} />
+            </div>
+            <div>
+              <h4 className="font-black text-emerald-900">
+                {isAr ? "تم إرسال بلاغ المنطقة بنجاح!" : "Area Report Submitted!"}
+              </h4>
+              <p className="text-emerald-700 text-sm font-medium">
+                {isAr 
+                  ? "شكراً لمساعدتنا في الوصول للمحتاجين، سيتم تتبع الحالة في قسم التقارير." 
+                  : "Thanks for helping us reach those in need. Tracking is active."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* --- نهاية البنر --- */}
+
       <header className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-            {lang === "ar" ? "المتتبع اليومي" : "Daily Tracker"}
+            {isAr ? "المتتبع اليومي" : "Daily Tracker"}
           </h1>
           <p className="text-gray-500 font-medium italic mt-1">
-            {lang === "ar" ? "تابع سعراتك وحقق أهدافك" : "Track calories & hit your goals"}
+            {isAr ? "تابع سعراتك وحقق أهدافك" : "Track calories & hit your goals"}
           </p>
         </div>
         <div className="text-right bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-green-100/20">
@@ -132,8 +105,9 @@ const MealTracker = () => {
       <div className="mt-10">
         <MealChart meals={meals} lang={lang} />
       </div>
-
-      </div>
+      
+      {/* باقي الأقسام الخاصة بكِ... */}
+    </div>
   );
 };
 

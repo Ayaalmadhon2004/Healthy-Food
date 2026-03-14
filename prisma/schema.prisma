@@ -32,6 +32,7 @@ model User {
   favorites Favorite[]
   orders    MealOrder[]
   tickets   SupportTicket[]
+  areaReports   AreaReport[]
 }
 
 model HealthTip {
@@ -152,4 +153,15 @@ model SupportTicket {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("support_tickets")
+}
+
+model AreaReport {
+  id          Int      @id @default(autoincrement())
+  userId      String   
+  areaName    String   
+  description String   
+  status      String   @default("pending") // pending, seen, investigated
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
 }
