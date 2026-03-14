@@ -1,36 +1,32 @@
 "use server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma"; // تأكدي من المسار
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function submitAreaReportAction(formData) {
-    const userId = formData.get("userId");
-    const areaName = formData.get("areaName");
-    const description = formData.get("description");
-    const isAr = formData.get("lang") === "ar"; 
+  const areaName = formData.get("areaName");
+  const description = formData.get("description");
+  const userId = formData.get("userId");
 
-    if (!areaName || !description) {
-    return { error: isAr ? "يرجى ملء جميع الحقول" : "Please fill all fields" };
-    }
+  // إضافة فحص بسيط للتأكد من وجود بريزما قبل التنفيذ
+  if (!prisma) {
+    throw new Error("Prisma client is not initialized");
+  }
 
-    try {
+  try {
     await prisma.areaReport.create({
-        data: {
-        userId: userId,
+      data: {
         areaName: areaName,
         description: description,
+        userId: userId,
         status: "pending", 
-        },
+      },
     });
+  } catch (error) {
+    console.error("Prisma Error:", error);
+    return { error: "Failed to save to database" };
+  }
 
-    revalidatePath("/dashboard/organization");
-    
-    return { 
-        success: isAr ? "تم إرسال البلاغ بنجاح" : "Report submitted successfully" 
-    };
-    } catch (error) {
-    console.error("Report Error:", error);
-    return { 
-        error: isAr ? "حدث خطأ أثناء الإرسال" : "Error while submitting" 
-    };
-    }
+  revalidatePath("/reports");
+  redirect("/reports");
 }

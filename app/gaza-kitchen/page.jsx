@@ -3,7 +3,8 @@ import KitchensFilterClient from "./KitchensFilterClient";
 import NutritionSectionClient from "@/components/NutritionSection";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import { getKitchensAction } from "@/app/actions/kitchenActions";
-import { MessageCircle, AlertTriangle, Heart } from "lucide-react";
+import { MessageCircle, AlertTriangle, Heart} from "lucide-react";
+import Link from "next/link"; 
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -78,9 +79,12 @@ export default async function Page() {
                 : "Know an area with severe shortages and no distribution? Let us know so we can direct our field teams."}
             </p>
           </div>
-          <button className="w-full bg-gray-900 text-white px-8 py-5 rounded-2xl font-black hover:bg-black transition-all shadow-lg active:scale-95 text-lg">
-            {isAr ? "تقديم طلب وصول" : "Request Access Support"}
-          </button>
+            <Link 
+              href="/report-area" 
+              className="w-full bg-gray-900 text-white px-8 py-5 rounded-2xl font-black hover:bg-black transition-all shadow-lg active:scale-95 text-lg block text-center"
+            >
+              {isAr ? "تقديم طلب وصول" : "Request Access Support"}
+            </Link>
         </div>
       </section>
 
