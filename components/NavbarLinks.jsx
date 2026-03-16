@@ -1,43 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
-import { Building2, Languages, LayoutDashboard, HeartPulse, Stethoscope } from "lucide-react";
+import { LayoutDashboard, HeartPulse, Stethoscope, ClipboardList, Languages, Loader2 } from "lucide-react";
 
-export default function NavbarLinks({ className, userRole }) {
-  const router = useRouter();
+export default function NavbarLinks({ className, userRole, loading }) { // أضيفي loading هنا
   const { lang, changeLanguage } = useLanguage();
 
-  const isOrg = userRole === "ADMIN" || userRole === "ORG";
-  const isDoctor = userRole === "DOCTOR";
+  // 1. إذا كان النظام لا يزال يحمل، لا تعرضي الروابط المتغيرة (Dashboard)
+  // لمنع الوميض والقفز بين "المفكرة" و "لوحة التحكم"
+  if (loading) {
+    return (
+      <div className="flex items-center px-4">
+        <Loader2 size={16} className="animate-spin text-gray-300" />
+      </div>
+    );
+  }
+
+  const normalizedRole = userRole?.toUpperCase().trim();
+  const isOrg = normalizedRole === "ADMIN" || normalizedRole === "ORG";
+  const isDoctor = normalizedRole === "DOCTOR";
 
   const content = {
     ar: {
       userDashboard: "المفكرة الصحية",
-      orgDashboard: "إدارة المطبخ",
+      orgDashboard: "لوحة التحكم",
       doctorDashboard: "بوابة الطبيب",
-      
       recipes: "الوصفات",
       tracker: "متبع الوجبات",
       tips: "نصائح صحية",
       doctors: "الأطباء",
       kitchen: "مطبخ غزة",
-      organization: "إدارة المنظمة",
+      reports: "بلاغات المناطق",
       langName: "English",
       shortLang: "EN"
     },
     en: {
       userDashboard: "Health Tracker",
-      orgDashboard: "Kitchen Manager",
+      orgDashboard: "Dashboard",
       doctorDashboard: "Doctor Portal",
-
       recipes: "Recipes",
       tracker: "Meal Tracker",
       tips: "Health Tips",
       doctors: "Doctors",
       kitchen: "Gaza Kitchen",
-      organization: "Organization",
+      reports: "Area Reports", 
       langName: "العربية",
       shortLang: "AR"
     }
@@ -46,7 +53,7 @@ export default function NavbarLinks({ className, userRole }) {
   const t = content[lang] || content.ar;
 
   const getDashboardLinkInfo = () => {
-    if (isOrg) return { label: t.orgDashboard, icon: <Building2 size={16} /> };
+    if (isOrg) return { label: t.orgDashboard, icon: <LayoutDashboard size={16} /> };
     if (isDoctor) return { label: t.doctorDashboard, icon: <Stethoscope size={16} /> };
     return { label: t.userDashboard, icon: <HeartPulse size={16} /> };
   };
@@ -55,6 +62,7 @@ export default function NavbarLinks({ className, userRole }) {
 
   return (
     <>
+      {/* رابط الداشبورد أصبح الآن مستقراً لأنه يعتمد على تحميل البيانات */}
       <Link 
         href="/dashboard" 
         className={`${className} flex items-center gap-1.5 font-bold text-[var(--color-primary)]`}
@@ -63,28 +71,28 @@ export default function NavbarLinks({ className, userRole }) {
         {dashInfo.label}
       </Link>
 
+      {isOrg && (
+        <Link href="/dashboard/reports" className={`${className} flex items-center gap-1`}>
+          <ClipboardList size={16} className="text-gray-400" />
+          {t.reports}
+        </Link>
+      )}
+
+      {/* بقية الروابط الثابتة */}
       <Link href="/recipes" className={className}>{t.recipes}</Link>
       <Link href="/tracker" className={className}>{t.tracker}</Link>
       <Link href="/tips" className={className}>{t.tips}</Link>
       <Link href="/doctors" className={className}>{t.doctors}</Link>
       <Link href="/gaza-kitchen" className={className}>{t.kitchen}</Link>
       
-      <div className="flex items-center ml-4 mr-2 border-l border-gray-200 pl-4 h-6 my-auto">
+      {/* زر اللغة */}
+      <div className="flex items-center ml-4 mr-2 border-l border-gray-100 pl-4 h-6 my-auto">
         <button 
           onClick={() => changeLanguage(lang === 'ar' ? 'en' : 'ar')}
-          className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full 
-            bg-white border border-gray-200 hover:border-[var(--color-primary)] 
-            hover:bg-green-50/50 transition-all duration-300 shadow-sm active:scale-95"
-          title={t.langName}
+          className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 hover:border-[var(--color-primary)] transition-all shadow-sm"
         >
-          <Languages 
-            size={16} 
-            className="text-gray-400 group-hover:text-[var(--color-primary)] transition-colors" 
-          />
-          <span className="text-xs font-bold tracking-wider text-gray-600 group-hover:text-gray-900 uppercase">
-            {t.shortLang}
-          </span>
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full border-2 border-white"></span>
+          <Languages size={16} className="text-gray-400 group-hover:text-[var(--color-primary)]" />
+          <span className="text-xs font-bold text-gray-600 uppercase">{t.shortLang}</span>
         </button>
       </div>
     </>
