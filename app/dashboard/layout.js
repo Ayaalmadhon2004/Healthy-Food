@@ -14,15 +14,13 @@ export default function DashboardLayout({ children }) {
     fetchUser();
   }, [fetchUser]);
 
-  // استخراج الدور الحقيقي من بيانات المستخدم، وإذا لم يوجد نضع USER كافتراض مؤقت
-  const realRole = user?.role || "USER";
+  const realRole = user?.role || null;
 
   return (
     <div 
       className="flex h-screen bg-gray-50" 
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
-      {/* الآن نمرر الدور الحقيقي القادم من قاعدة البيانات */}
       <Sidebar userRole={realRole} />
       
       <main className="flex-1 overflow-y-auto">

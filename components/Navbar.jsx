@@ -12,7 +12,7 @@ import NavbarLinks from "./NavbarLinks";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   // نستخدم user و loading من الـ store الذي يستخدم persist
-  const { user, setUser, loading, clearUser } = useUserData(); 
+  const { user, loading, clearUser } = useUserData(); 
   const router = useRouter();
   
   const favItems = useFavStore((state) => state.favItems);

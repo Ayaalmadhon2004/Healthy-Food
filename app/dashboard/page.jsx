@@ -6,7 +6,7 @@ import { useUserData } from "@/hooks/useUserData";
 import Link from "next/link";
 import { 
   PlusCircle, CalendarDays, ArrowRight, UtensilsCrossed,
-  LineChart, Activity, Users, Building2, TrendingUp,
+  LineChart, Activity, Users, TrendingUp,
   CheckCircle, Loader2, ClipboardList, MapPin
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";

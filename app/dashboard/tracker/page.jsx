@@ -5,8 +5,8 @@ import { useUserData } from "@/hooks/useUserData";
 import Link from "next/link";
 import { 
   PlusCircle, CalendarDays, ArrowRight, UtensilsCrossed,
-  LineChart, Activity, Users, Building2, TrendingUp,
-  CheckCircle, Loader2, ClipboardList, MapPin, Clock
+  LineChart, Activity, Users, TrendingUp,
+  CheckCircle, Loader2, ClipboardList, MapPin
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { getAllReportsAction } from "@/app/actions/reportActions";
@@ -34,7 +34,7 @@ export default function DashboardHome() {
   const [reports, setReports] = useState([]);
   const [reportsLoading, setReportsLoading] = useState(false);
 
-  const userRole = user?.role || "USER"; 
+  const userRole = user?.role?.toUpperCase()?.trim() || null;
   const userName = user?.name || user?.full_name || (isAr ? "مستخدم" : "User");
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function DashboardHome() {
     }
   }, [userRole]);
 
-  if (loading) {
+  if (loading || !userRole) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <Loader2 className="animate-spin text-emerald-500" size={40} />

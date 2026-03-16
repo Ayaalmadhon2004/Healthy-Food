@@ -1,38 +1,44 @@
 import { prisma } from "@/lib/prisma";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) { // when i want to send data to the server i use post method
+export async function GET() {
   try {
-    const { userId, recipeId } = await request.json();
+    const supabase = await createSupabaseServerClient();
+    if (!supabase) {
+      return NextResponse.json({ user: null }, { status: 500 });
+    }
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId || !recipeId) {
-      return NextResponse.json({ error: "بيانات ناقصة" }, { status: 400 });
+    if (error || !user) {
+      return NextResponse.json({ user: null }, { status: 200 });
     }
 
-    const existing = await prisma.favorite.findUnique({
-      where: {
-        userId_recipeId: { userId, recipeId },
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
       },
     });
 
-    if (existing) {
-      await prisma.favorite.delete({
-        where: { id: existing.id },
-      });
-      return NextResponse.json({ status: "removed" }); 
-    } else {
-      await prisma.favorite.create({
-        data: { userId, recipeId },
-      });
-      return NextResponse.json({ status: "added" });
+    if (!dbUser) {
+      return NextResponse.json({ user: null }, { status: 200 });
     }
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "حدث خطأ في السيرفر";
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
-  }
-}
 
-// أضيفي هذا تحت دالة POST في نفس الملف
-export async function GET() {
-  return NextResponse.json({ message: "هذا المسار مخصص للمفضلات فقط عبر POST" }, { status: 200 });
+    return NextResponse.json({ user: {
+      id: dbUser.id,
+      email: dbUser.email,
+      name: dbUser.name || user.email?.split('@')[0] || "User",
+      role: dbUser.role || "USER",
+    } }, { status: 200 });
+  } catch (error) {
+    console.error("GET /api/auth/me error:", error);
+    return NextResponse.json({ user: null }, { status: 500 });
+  }
 }
