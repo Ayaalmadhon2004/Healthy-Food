@@ -1,6 +1,6 @@
 "use client";
 import { useLanguage } from "@/context/LanguageContext";
-import { useUserData } from "@/hooks/useUserData"; // استيراد الهوك لجلب البيانات
+import { useUserData } from "@/hooks/useUserData"; // تأكدي أن هذا الـ Hook يجلب البيانات من Supabase/Prisma
 import Link from "next/link";
 import { 
   PlusCircle, 
@@ -11,10 +11,12 @@ import {
   Activity,
   Users,
   Building2,
-  TrendingUp
+  TrendingUp,
+  CheckCircle,
+  Loader2
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
-// مكون البطاقة الإحصائية للأدوار الإدارية
 const StatCard = ({ title, value, icon: Icon, color, isAr }) => (
   <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow" dir={isAr ? "rtl" : "ltr"}>
     <div className="flex items-center justify-between mb-4">
@@ -30,14 +32,27 @@ const StatCard = ({ title, value, icon: Icon, color, isAr }) => (
 
 export default function DashboardHome() {
   const { lang } = useLanguage();
-  const { user } = useUserData(); // جلب بيانات المستخدم من الهوك مباشرة
+  const { user, loading } = useUserData(); // أضفنا loading للتأكد من اكتمال جلب البيانات
   const isAr = lang === "ar";
+  const searchParams = useSearchParams();
+  const isReportSuccess = searchParams.get("success") === "true";
 
-  // استخراج القيم مع وضع قيم افتراضية لمنع الأخطاء
+  // استخراج الاسم الحقيقي أو استخدام "مستخدم" كبديل مؤقت
+  // قمت بتغيير الترتيب هنا ليعطي الأولوية للاسم القادم من قاعدة البيانات
+  const userName = user?.name || user?.full_name || (isAr ? "مستخدم" : "User");
   const userRole = user?.role || "USER"; 
-  const userName = user?.name || (isAr ? "مستخدم" : "User");
 
-  // --- 1. واجهة المستخدم العادي ---
+  // حالة التحميل لمنع ظهور "User" قبل جلب الاسم الحقيقي
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-emerald-500" size={40} />
+        <p className="text-gray-400 font-bold">{isAr ? "جاري تحميل بياناتك..." : "Loading your data..."}</p>
+      </div>
+    );
+  }
+
+  // --- 1. واجهة المستخدم العادي (USER) ---
   if (userRole === "USER") {
     return (
       <div className="p-4 md:p-8 max-w-6xl mx-auto" dir={isAr ? "rtl" : "ltr"}>
@@ -47,7 +62,29 @@ export default function DashboardHome() {
           </h1>
         </header>
 
+        {/* بنر نجاح إرسال البلاغ */}
+        {isReportSuccess && (
+          <div className="bg-emerald-50 border-2 border-emerald-100 p-6 rounded-[2.5rem] shadow-sm animate-in zoom-in slide-in-from-top-4 duration-500 mb-8">
+            <div className="flex items-center gap-4">
+              <div className="bg-emerald-500 p-2 rounded-full text-white shadow-lg">
+                <CheckCircle size={20} />
+              </div>
+              <div>
+                <h4 className="font-black text-emerald-900">
+                  {isAr ? "تم إرسال بلاغ المنطقة بنجاح!" : "Area Report Submitted!"}
+                </h4>
+                <p className="text-emerald-700 text-sm font-medium">
+                  {isAr 
+                    ? "شكراً لمساعدتنا في الوصول للمحتاجين، سيتم تتبع الحالة هنا." 
+                    : "Thanks for helping us reach those in need. Tracking is active."}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* كارد المتتبع اليومي */}
           <Link href="/dashboard/tracker" className="group">
             <div className="bg-emerald-500 p-8 rounded-[2.5rem] text-white shadow-xl shadow-emerald-100 hover:scale-[1.02] transition-all duration-300 relative overflow-hidden h-full min-h-[280px] flex flex-col justify-between cursor-pointer">
               <PlusCircle className={`absolute ${isAr ? "-left-4" : "-right-4"} -top-4 w-40 h-40 text-emerald-400/30 rotate-12`} />
@@ -63,6 +100,7 @@ export default function DashboardHome() {
             </div>
           </Link>
 
+          {/* كارد العرض الشهري */}
           <Link href="/dashboard/tracker/monthly" className="group">
             <div className="bg-white p-8 rounded-[2.5rem] border-2 border-gray-100 shadow-sm hover:border-blue-200 hover:shadow-xl hover:shadow-blue-50 transition-all duration-300 relative overflow-hidden h-full min-h-[280px] flex flex-col justify-between cursor-pointer">
               <CalendarDays className={`absolute ${isAr ? "-left-4" : "-right-4"} -top-4 w-40 h-40 text-blue-50/50 rotate-12`} />

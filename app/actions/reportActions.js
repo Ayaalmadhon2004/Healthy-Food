@@ -32,8 +32,8 @@ export async function submitAreaReportAction(formData) {
 
   // إذا وصلنا هنا والحفظ نجح، نقوم بالتوجيه
   if (success) {
-    revalidatePath("/dashboard/tracker");
+    revalidatePath("/dashboard");
     console.log("3. Redirecting now..."); // فحص التوجيه
-    redirect("/dashboard/tracker?success=true");
+    redirect("/dashboard?success=true");
   }
 }
