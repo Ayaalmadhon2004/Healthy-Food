@@ -36,9 +36,6 @@ export const useUserData = create<UserState>((set, get) => ({
   listenToAuth: () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        // محاولة استخراج الاسم بذكاء:
-        // 1. من metadata (إذا وجد)
-        // 2. أو الجزء الأول من الإيميل (قبل علامة @) لضمان ظهور اسم
         const fallbackName = session.user.email?.split('@')[0] || "User";
         
         const newUser: User = {
@@ -48,10 +45,8 @@ export const useUserData = create<UserState>((set, get) => ({
           name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || fallbackName
         };
 
-        // تحديث سريع للواجهة (Optimistic Update)
         set({ user: newUser, loading: false });
         
-        // ثم نقوم بالمزامنة مع السيرفر في الخلفية لجلب البيانات الدقيقة (Prisma)
         get().fetchUser(); 
 
       } else if (event === 'SIGNED_OUT') {

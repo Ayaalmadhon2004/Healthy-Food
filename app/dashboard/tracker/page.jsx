@@ -1,222 +1,198 @@
 "use client";
-
-import React, { useState, useEffect, useCallback } from "react";
-import { createBrowserClient } from "@supabase/ssr"; 
-import { 
-  Plus, Coffee, Sun, Moon, Utensils, X, 
-  Trash2, Loader2, Sparkles, 
-} from "lucide-react"; 
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
-import { addMealAction, getMealsAction, deleteMealAction } from "@/app/actions/mealActions";
-import MealChart from "@/components/dashboard/MealChart";
+import { useUserData } from "@/hooks/useUserData";
+import Link from "next/link";
+import { 
+  PlusCircle, CalendarDays, ArrowRight, UtensilsCrossed,
+  LineChart, Activity, Users, Building2, TrendingUp,
+  CheckCircle, Loader2, ClipboardList, MapPin, Clock
+} from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { getAllReportsAction } from "@/app/actions/reportActions";
 
-const MealTracker = () => {
+const StatCard = ({ title, value, icon: Icon, color, isAr }) => (
+  <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow" dir={isAr ? "rtl" : "ltr"}>
+    <div className="flex items-center justify-between mb-4">
+      <div className={`p-3 rounded-2xl ${color}`}>
+        <Icon size={24} className="text-white" />
+      </div>
+      <TrendingUp size={16} className="text-gray-400" />
+    </div>
+    <h3 className="text-gray-500 text-sm font-bold">{title}</h3>
+    <p className="text-2xl font-black text-gray-900 mt-1">{value}</p>
+  </div>
+);
+
+export default function DashboardHome() {
   const { lang } = useLanguage();
+  const { user, loading } = useUserData();
   const isAr = lang === "ar";
-  
-  const [supabase] = useState(() => 
-    createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
-  );
+  const searchParams = useSearchParams();
+  const isReportSuccess = searchParams.get("success") === "true";
 
-  // States
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMealType, setSelectedMealType] = useState("");
-  const [foodName, setFoodName] = useState("");
-  const [calories, setCalories] = useState("");
-  const [meals, setMeals] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
 
-  // تحميل الوجبات
-  const loadMeals = useCallback(async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const result = await getMealsAction(user.id);
-        if (result.success) setMeals(result.meals);
-      }
-    } catch (error) {
-      console.error("Error loading meals:", error);
-    } finally {
-      setInitialLoading(false);
-    }
-  }, [supabase]);
+  const userRole = user?.role || "USER"; 
+  const userName = user?.name || user?.full_name || (isAr ? "مستخدم" : "User");
 
   useEffect(() => {
-    loadMeals();
-  }, [loadMeals]);
-
-  // إضافة وجبة جديدة
-  const handleAddMeal = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user) {
-      const result = await addMealAction({
-        userId: user.id,
-        type: selectedMealType,
-        name: foodName,
-        calories: parseInt(calories),
-      });
-
-      if (result.success) {
-        setFoodName("");
-        setCalories("");
-        setIsModalOpen(false);
-        loadMeals();
-      }
+    if (userRole === "ORG") {
+      const fetchReports = async () => {
+        setReportsLoading(true);
+        const result = await getAllReportsAction();
+        if (result.success) setReports(result.reports);
+        setReportsLoading(false);
+      };
+      fetchReports();
     }
-    setIsSubmitting(false);
-  };
+  }, [userRole]);
 
-  // حذف وجبة
-  const handleDeleteMeal = async (mealId) => {
-    const result = await deleteMealAction(mealId);
-    if (result.success) {
-      loadMeals();
-    }
-  };
-
-  // حساب إجمالي السعرات
-  const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
-
-  if (initialLoading) return (
-    <div className="flex flex-col items-center justify-center p-20 space-y-4">
-      <Loader2 className="animate-spin text-emerald-600" size={40} />
-      <p className="text-gray-400 font-bold">
-        {isAr ? "جاري تحميل البيانات..." : "Loading your data..."}
-      </p>
-    </div>
-  );
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-20">
-      
-
-      {/* --- الهيدر وإحصائيات السعرات --- */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-            {isAr ? "المتتبع اليومي" : "Daily Tracker"}
-          </h1>
-          <p className="text-gray-500 font-medium italic mt-1">
-            {isAr ? "تابع سعراتك وحقق أهدافك" : "Track calories & hit your goals"}
-          </p>
-        </div>
-        <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-xl shadow-emerald-100/20 flex items-baseline gap-2">
-          <span className="text-4xl font-black text-emerald-600">{totalCalories}</span>
-          <span className="text-gray-400 font-bold text-sm">/ 2200 kcal</span>
-        </div>
-      </header>
-
-      {/* --- الرسم البياني --- */}
-      <div className="bg-white p-6 rounded-[3rem] border border-gray-50 shadow-sm">
-        <MealChart meals={meals} lang={lang} />
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-emerald-500" size={40} />
+        <p className="text-gray-400 font-bold">{isAr ? "جاري تحميل بياناتك..." : "Loading your data..."}</p>
       </div>
+    );
+  }
 
-      {/* --- قائمة الوجبات --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {meals.map((meal) => (
-          <div key={meal.id} className="bg-white p-5 rounded-[2rem] border border-gray-100 flex justify-between items-center group hover:shadow-md transition-all">
+  // --- واجهة المستخدم العادي (USER) ---
+  if (userRole === "USER") {
+    return (
+      <div className="p-4 md:p-8 max-w-6xl mx-auto" dir={isAr ? "rtl" : "ltr"}>
+        <header className="mb-10 text-start">
+          <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+            {isAr ? `أهلاً، ${userName}!` : `Hi, ${userName}!`}
+          </h1>
+        </header>
+
+        {isReportSuccess && (
+          <div className="bg-emerald-50 border-2 border-emerald-100 p-6 rounded-[2.5rem] shadow-sm animate-in zoom-in slide-in-from-top-4 duration-500 mb-8 text-start">
             <div className="flex items-center gap-4">
-              <div className="bg-gray-50 p-3 rounded-2xl group-hover:bg-emerald-50 transition-colors">
-                {meal.type === "breakfast" && <Coffee className="text-orange-500" />}
-                {meal.type === "lunch" && <Sun className="text-yellow-500" />}
-                {meal.type === "dinner" && <Moon className="text-indigo-500" />}
-                {meal.type === "snack" && <Sparkles className="text-emerald-500" />}
+              <div className="bg-emerald-500 p-2 rounded-full text-white shadow-lg">
+                <CheckCircle size={20} />
               </div>
               <div>
-                <h4 className="font-bold text-gray-800">{meal.name}</h4>
-                <p className="text-sm text-gray-400 font-medium">{meal.calories} kcal</p>
+                <h4 className="font-black text-emerald-900">
+                  {isAr ? "تم إرسال بلاغ المنطقة بنجاح!" : "Area Report Submitted!"}
+                </h4>
+                <p className="text-emerald-700 text-sm font-medium">
+                  {isAr ? "شكراً لمساعدتنا، سيتم تتبع الحالة هنا." : "Thanks for helping. Tracking is active."}
+                </p>
               </div>
             </div>
-            <button 
-              onClick={() => handleDeleteMeal(meal.id)}
-              className="text-gray-300 hover:text-red-500 p-2 transition-colors"
-            >
-              <Trash2 size={18} />
-            </button>
           </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-start">
+          <Link href="/dashboard/tracker" className="group">
+            <div className="bg-emerald-500 p-8 rounded-[2.5rem] text-white shadow-xl hover:scale-[1.02] transition-all relative overflow-hidden h-full min-h-[280px] flex flex-col justify-between">
+              <PlusCircle className={`absolute ${isAr ? "-left-4" : "-right-4"} -top-4 w-40 h-40 text-emerald-400/30 rotate-12`} />
+              <div>
+                <UtensilsCrossed size={48} className="mb-6 text-emerald-100" />
+                <h2 className="text-3xl font-bold mb-3">{isAr ? "المتتبع اليومي" : "Daily Tracker"}</h2>
+                <p className="opacity-90 max-w-[250px]">{isAr ? "سجل وجباتك ونشاطك اليومي." : "Log your daily meals and activity."}</p>
+              </div>
+              <div className="bg-white text-emerald-600 font-bold px-6 py-3 rounded-full self-start flex items-center gap-2">
+                {isAr ? "ابدأ التدوين الآن" : "Start Logging Now"} <ArrowRight size={18} className={isAr ? "rotate-180" : ""} />
+              </div>
+            </div>
+          </Link>
+          <Link href="/dashboard/tracker/monthly" className="group">
+             <div className="bg-white p-8 rounded-[2.5rem] border-2 border-gray-100 shadow-sm hover:border-blue-200 hover:shadow-xl transition-all relative overflow-hidden h-full min-h-[280px] flex flex-col justify-between">
+              <CalendarDays className={`absolute ${isAr ? "-left-4" : "-right-4"} -top-4 w-40 h-40 text-blue-50/50 rotate-12`} />
+              <div>
+                <LineChart size={48} className="mb-6 text-blue-500" />
+                <h2 className="text-3xl font-bold mb-3 text-gray-900">{isAr ? "العرض الشهري" : "Monthly View"}</h2>
+                <p className="text-gray-500 max-w-[250px]">{isAr ? "راجع ملخص أدائك الصحي شهرياً." : "Review your health summary monthly."}</p>
+              </div>
+              <div className="bg-blue-50 text-blue-600 font-bold px-6 py-3 rounded-full border border-blue-100 self-start flex items-center gap-2">
+                {isAr ? "عرض التقارير" : "View Reports"} <ArrowRight size={18} className={isAr ? "rotate-180" : ""} />
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // --- واجهة الأدوار الإدارية (ORG / DOCTOR) ---
+  const stats = userRole === "ORG" ? [
+    { title: isAr ? "الوجبات الموزعة" : "Meals Distributed", value: "1,240", icon: UtensilsCrossed, color: "bg-orange-500" },
+    { title: isAr ? "السعة التشغيلية" : "Kitchen Capacity", value: "90%", icon: TrendingUp, color: "bg-emerald-500" },
+    { title: isAr ? "بلاغات المناطق" : "Area Reports", value: reports.length.toString(), icon: ClipboardList, color: "bg-purple-500" },
+  ] : [
+    { title: isAr ? "إجمالي المرضى" : "Total Patients", value: "48", icon: Users, color: "bg-indigo-500" },
+    { title: isAr ? "مواعيد اليوم" : "Today's Appts", value: "6", icon: CalendarDays, color: "bg-blue-500" },
+    { title: isAr ? "تنبيهات صحية" : "Health Alerts", value: "3", icon: Activity, color: "bg-red-500" },
+  ];
+
+  return (
+    <div className="p-4 md:p-8 max-w-6xl mx-auto" dir={isAr ? "rtl" : "ltr"}>
+      <header className="mb-8 text-start">
+        <h1 className="text-3xl font-black text-gray-900">
+          {isAr ? `لوحة التحكم: ${userName}` : `${userName}'s Dashboard`}
+        </h1>
+        <p className="text-gray-500 font-medium mt-2">
+          {isAr ? "ملخص سريع لإحصائياتك الحالية." : "A quick summary of your current statistics."}
+        </p>
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {stats.map((stat, index) => (
+          <StatCard key={index} {...stat} isAr={isAr} />
         ))}
       </div>
 
-      {/* --- زر إضافة وجبة (Floating) --- */}
-      <button 
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-10 right-10 bg-gray-900 text-white p-5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all z-50 flex items-center gap-2"
-      >
-        <Plus size={28} />
-      </button>
-
-      {/* --- مودال الإضافة --- */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-[3rem] p-8 shadow-2xl animate-in zoom-in duration-300">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-black text-gray-900">
-                {isAr ? "إضافة وجبة" : "Add Meal"}
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900">
-                <X size={24} />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddMeal} className="space-y-6">
-              {/* اختيار نوع الوجبة */}
-              <div className="grid grid-cols-4 gap-2">
-                {['breakfast', 'lunch', 'dinner', 'snack'].map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setSelectedMealType(type)}
-                    className={`p-4 rounded-2xl flex flex-col items-center gap-2 transition-all ${
-                      selectedMealType === type ? 'bg-emerald-600 text-white scale-105 shadow-lg' : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
-                    }`}
-                  >
-                    {type === 'breakfast' && <Coffee size={20} />}
-                    {type === 'lunch' && <Sun size={20} />}
-                    {type === 'dinner' && <Moon size={20} />}
-                    {type === 'snack' && <Sparkles size={20} />}
-                  </button>
-                ))}
+      {userRole === "ORG" && (
+        <div className="space-y-6 text-start">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-black text-gray-900">{isAr ? "آخر بلاغات الاحتياج" : "Recent Area Reports"}</h2>
+            <Link href="/dashboard/reports" className="text-emerald-600 font-bold text-sm hover:underline">{isAr ? "عرض الكل" : "View All"}</Link>
+          </div>
+          <div className="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm">
+            {reportsLoading ? (
+              <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-gray-300" /></div>
+            ) : reports.length === 0 ? (
+              <div className="p-10 text-center text-gray-400">{isAr ? "لا توجد بلاغات حالياً" : "No reports available"}</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="p-6 text-start text-xs font-black text-gray-400 uppercase">{isAr ? "المنطقة" : "Area"}</th>
+                      <th className="p-6 text-start text-xs font-black text-gray-400 uppercase">{isAr ? "العائلات" : "Families"}</th>
+                      <th className="p-6 text-start text-xs font-black text-gray-400 uppercase">{isAr ? "الحالة" : "Status"}</th>
+                      <th className="p-6"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {reports.slice(0, 5).map((report) => (
+                      <tr key={report.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="p-6">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-purple-100 p-2 rounded-xl text-purple-600"><MapPin size={18} /></div>
+                            <span className="font-bold text-gray-800">{report.areaName}</span>
+                          </div>
+                        </td>
+                        <td className="p-6 font-bold text-gray-600">{report.familyCount}</td>
+                        <td className="p-6">
+                          <span className="px-4 py-1.5 rounded-full text-xs font-black bg-orange-100 text-orange-600 uppercase">Pending</span>
+                        </td>
+                        <td className="p-6 text-end">
+                          <ArrowRight size={20} className={`text-gray-300 ${isAr ? "rotate-180" : ""}`} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-
-              <input 
-                placeholder={isAr ? "اسم الطعام" : "Food Name"}
-                value={foodName}
-                onChange={(e) => setFoodName(e.target.value)}
-                required
-                className="w-full p-5 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 outline-none font-bold"
-              />
-              
-              <input 
-                type="number"
-                placeholder={isAr ? "السعرات" : "Calories"}
-                value={calories}
-                onChange={(e) => setCalories(e.target.value)}
-                required
-                className="w-full p-5 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 outline-none font-bold"
-              />
-
-              <button 
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black text-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200"
-              >
-                {isSubmitting ? <Loader2 className="animate-spin" /> : <Utensils size={20} />}
-                {isAr ? "حفظ الوجبة" : "Save Meal"}
-              </button>
-            </form>
+            )}
           </div>
         </div>
       )}
-
     </div>
   );
-};
-
-export default MealTracker;
+}
