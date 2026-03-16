@@ -8,29 +8,20 @@ import { getCurrentUserRole } from "./actions/authActions";
 import { Toaster } from "react-hot-toast";
 import { UserInitializer } from "@/components/UserInitializer"; 
 
-export const metadata = {
-  title: { default: "NutriFlow", template: "%s | NutriFlow" },
-  description: "Healthy recipes and meals built with Next.js.",
-};
-
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get('lang')?.value || 'en';
-  const role = await getCurrentUserRole();
+  const serverRole = await getCurrentUserRole(); // جلب الدور من السيرفر (Cookies)
 
   return (
     <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#4CAF50" />
-      </head>
       <body className="min-h-screen bg-white text-gray-900 antialiased">
         <LanguageProvider initialLang={lang}>
           <UserInitializer /> 
-          
           <Toaster position="top-center" reverseOrder={false}/>
           <ErrorProvider>
-            <Navbar userRole={role}/>
+            {/* نمرر الدور القادم من السيرفر هنا */}
+            <Navbar serverRole={serverRole}/> 
             <main>{children}</main>
             <Footer />
           </ErrorProvider>

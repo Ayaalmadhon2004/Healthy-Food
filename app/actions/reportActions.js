@@ -30,10 +30,32 @@ export async function submitAreaReportAction(formData) {
     return { error: "Failed to save to database" };
   }
 
-  // إذا وصلنا هنا والحفظ نجح، نقوم بالتوجيه
   if (success) {
     revalidatePath("/dashboard");
     console.log("3. Redirecting now..."); // فحص التوجيه
     redirect("/dashboard?success=true");
+  }
+}
+
+export async function getAllReportsAction() {
+  try {
+    const reports = await prisma.areaReport.findMany({
+      orderBy: {
+        createdAt: 'desc', 
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    return { success: true, reports };
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    return { success: false, error: "Failed to fetch reports" };
   }
 }
