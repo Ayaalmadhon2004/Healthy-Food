@@ -1,11 +1,17 @@
 import Image from "next/image";
-import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { cookies } from "next/headers";
 import { 
   Utensils, Heart, Activity, ShieldCheck, 
   ChevronDown, ArrowRight, MapPin, Users 
 } from "lucide-react";
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 40 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+};
 
 export default function LandingPage() {
   const cookieStore = cookies();
