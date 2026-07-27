@@ -1,6 +1,5 @@
 import { prisma } from '../lib/prisma.js'; 
 
-// --- 1. بيانات النصائح الصحية ---
 const healthTips = [
   {
     header: { en: "Hydration", ar: "الترطيب" },
