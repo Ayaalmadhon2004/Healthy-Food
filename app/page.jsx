@@ -1,14 +1,15 @@
-"use client";
-import { motion } from "framer-motion";
+import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
-import { useLanguage } from "@/context/LanguageContext";
+import { cookies } from "next/headers";
 import { 
   Utensils, Heart, Activity, ShieldCheck, 
   ChevronDown, ArrowRight, MapPin, Users 
 } from "lucide-react";
 
 export default function LandingPage() {
-  const { lang } = useLanguage();
+  const cookieStore = cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
   const isAr = lang === "ar";
 
   const t = {
@@ -25,13 +26,6 @@ export default function LandingPage() {
     ]
   };
 
-  const fadeInUp = {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true },
-    transition: { duration: 0.8 }
-  };
-
   return (
     <div className={`w-full overflow-hidden bg-white ${isAr ? "font-arabic" : "font-sans"}`} dir={isAr ? "rtl" : "ltr"}>
       
@@ -39,27 +33,27 @@ export default function LandingPage() {
       <section className="relative min-h-screen flex items-center justify-center px-6 pt-20">
         <div className="absolute inset-0 bg-gradient-to-b from-green-50/50 to-white -z-10" />
         <div className="max-w-7xl mx-auto text-center">
-          <motion.span {...fadeInUp} className="inline-block px-5 py-2 rounded-full bg-green-100 text-green-700 text-sm font-black mb-8 uppercase tracking-widest">
+          <span className="inline-block px-5 py-2 rounded-full bg-green-100 text-green-700 text-sm font-black mb-8 uppercase tracking-widest">
             {t.heroTag}
-          </motion.span>
-          <motion.h1 {...fadeInUp} transition={{ delay: 0.2 }} className="text-7xl md:text-[10rem] font-black leading-none mb-8 tracking-tighter text-gray-900">
+          </span>
+          <h1 className="text-7xl md:text-[10rem] font-black leading-none mb-8 tracking-tighter text-gray-900">
             {t.heroTitle}<span className="text-green-600">.</span>
-          </motion.h1>
-          <motion.p {...fadeInUp} transition={{ delay: 0.4 }} className="max-w-3xl mx-auto text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
+          </h1>
+          <p className="max-w-3xl mx-auto text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
             {t.heroSub}
-          </motion.p>
-          <motion.div {...fadeInUp} transition={{ delay: 0.6 }} className="flex flex-wrap justify-center gap-6">
+          </p>
+          <div className="flex flex-wrap justify-center gap-6">
             <Link href="/recipes" className="group px-10 py-5 bg-green-600 text-white rounded-2xl font-bold text-lg shadow-2xl shadow-green-200 flex items-center gap-3 hover:bg-green-700 transition-all">
               {t.explore} <ArrowRight className={isAr ? "rotate-180" : ""} />
             </Link>
             <Link href="/dashboard" className="px-10 py-5 bg-white border-2 border-gray-100 text-gray-900 rounded-2xl font-bold text-lg hover:border-green-600 transition-all">
               {t.dashboard}
             </Link>
-          </motion.div>
+          </div>
         </div>
-        <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="absolute bottom-10 text-gray-300">
+        <div className="absolute bottom-10 text-gray-300 animate-bounce">
           <ChevronDown size={40} />
-        </motion.div>
+        </div>
       </section>
 
       {/* SECTION 2: LIVE METRICS (REAL-TIME IMPACT) */}
@@ -85,7 +79,7 @@ export default function LandingPage() {
               {isAr ? "نظام البلاغات والاحتياج الميداني" : "Field Reporting & Needs System"}
             </h2>
             <p className="text-xl text-gray-600 mb-10 leading-relaxed italic border-l-4 border-green-600 pl-6">
-              "نقوم بتحليل البيانات الواردة من مخيمات النزوح لتحديد أولويات توزيع الطرود الغذائية."
+              &quot;نقوم بتحليل البيانات الواردة من مخيمات النزوح لتحديد أولويات توزيع الطرود الغذائية.&quot;
             </p>
             <div className="space-y-6">
               {[
@@ -100,8 +94,8 @@ export default function LandingPage() {
             </div>
           </motion.div>
           <motion.div {...fadeInUp} className="lg:w-1/2 relative">
-             <div className="w-full aspect-square bg-gray-100 rounded-[4rem] overflow-hidden shadow-2xl">
-                <img src="/assets/jabalia.jpg" alt="Gaza Map" className="w-full h-full object-cover opacity-80" />
+             <div className="relative w-full aspect-square bg-gray-100 rounded-[4rem] overflow-hidden shadow-2xl">
+                <Image src="/assets/jabalia.jpg" alt="Gaza Map" fill className="object-cover opacity-80" />
              </div>
              <div className="absolute -bottom-10 -left-10 p-8 bg-white rounded-3xl shadow-xl max-w-xs border-t-8 border-green-600">
                 <p className="text-sm font-bold text-gray-400 mb-2">LAST REPORT IN</p>

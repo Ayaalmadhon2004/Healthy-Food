@@ -9,13 +9,14 @@ import { useFavStore } from "@/store/useFavStore";
 import { useUserData } from "@/hooks/useUserData";
 import NavbarLinks from "./NavbarLinks";
 
-export default function Navbar() {
+export default function Navbar({ serverRole }) {
   const [open, setOpen] = useState(false);
   // نستخدم user و loading من الـ store الذي يستخدم persist
-  const { user, loading, clearUser } = useUserData(); 
+  const { user, clearUser } = useUserData(); 
   const router = useRouter();
   
   const favItems = useFavStore((state) => state.favItems);
+  const resolvedRole = user?.role || serverRole || "USER";
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -38,8 +39,8 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             <NavbarLinks 
-              userRole={user?.role} 
-              loading={loading} 
+              userRole={resolvedRole} 
+              loading={false} 
               className="text-sm font-semibold text-gray-600" 
             />
 
@@ -80,8 +81,8 @@ export default function Navbar() {
         {open && (
           <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 p-6 flex flex-col gap-6">
             <NavbarLinks 
-              userRole={user?.role} 
-              loading={loading}
+              userRole={resolvedRole} 
+              loading={false}
               onClick={() => setOpen(false)} 
               className="text-lg font-bold text-gray-800" 
             />

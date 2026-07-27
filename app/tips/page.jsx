@@ -14,6 +14,11 @@ const IconMap = {
 // تفعيل الكاش لمدة ساعة لتحسين السرعة
 export const revalidate = 3600;
 
+export const metadata = {
+  title: "Health Tips | NutriFlow",
+  description: "Browse practical health and nutrition tips for food security in Gaza.",
+};
+
 export default async function TipsPage() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";

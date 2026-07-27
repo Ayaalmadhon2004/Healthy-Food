@@ -4,6 +4,11 @@ import { ArrowRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import ReportForm from "@/components/ReportForm"; // استيراد المكون الذي أنشأناه
 
+export const metadata = {
+  title: "Report Area | NutriFlow",
+  description: "Submit a community report on underserved Gaza areas that need urgent food security assistance.",
+};
+
 export default async function ReportAreaPage() {
   // 1. جلب اللغة من الإعدادات (الكوكيز أو الهيدرز)
   const cookieStore = await cookies();

@@ -1,12 +1,40 @@
+import { cache } from "react";
 import Image from "next/image";
 import BackButton from "../../../components/BackButton";
 import LogMealButton from "../../../components/LogMealButton";
-import AddToCartButton from "../../../components/recipes/AddToFavButton";
+import AddToFavButton from "../../../components/recipes/AddToFavButton";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
+const getRecipe = cache(async (id) => {
+  return prisma.foodRecipe.findUnique({
+    where: { id: parseInt(id) }
+  });
+});
+
+export async function generateMetadata({ params }) {
+  const id = params?.id;
+  const meal = id ? await getRecipe(id) : null;
+  const cookieStore = cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+
+  if (!meal) {
+    return {
+      title: lang === "ar" ? "الوصفة غير موجودة | NutriFlow" : "Recipe Not Found | NutriFlow",
+      description: lang === "ar" ? "الوصفة المطلوبة غير متوفرة حالياً." : "The requested recipe is not available.",
+    };
+  }
+
+  return {
+    title: `${meal.title[lang]} | NutriFlow`,
+    description: lang === "ar"
+      ? `اكتشف طريقة تحضير ${meal.title[lang]} الصحية والمغذية.`
+      : `Discover how to prepare ${meal.title[lang]} as a healthy and nourishing recipe.`,
+  };
+}
+
 export default async function RecipePage({ params }) {
-  const { id } = await params;
+  const id = params?.id;
 
   // 1. جلب اللغة في السيرفر
   const cookieStore = await cookies();
@@ -14,11 +42,9 @@ export default async function RecipePage({ params }) {
   const isRtl = lang === "ar";
 
   // 2. جلب الوصفة المحددة
-  const meal = await prisma.foodRecipe.findUnique({
-    where: { id: parseInt(id) }
-  });
+  const meal = id ? await getRecipe(id) : null;
 
-  if (!meal) {
+  if (!meal || !id) {
     return (
       <div className="p-10 text-center text-red-600 text-2xl bg-[var(--bg-main)]">
         {lang === "ar" ? "الوصفة غير موجودة ❌" : "Recipe Not Found ❌"}
@@ -80,7 +106,7 @@ export default async function RecipePage({ params }) {
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
               <LogMealButton calory={meal.cal[lang]} mealName={meal.title[lang]} className="w-full" />
-              <AddToCartButton meal={meal} className="w-full" />
+              <AddToFavButton meal={meal} className="w-full" />
             </div>
           </div>
         </div>

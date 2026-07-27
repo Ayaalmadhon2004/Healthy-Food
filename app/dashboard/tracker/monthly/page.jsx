@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { createBrowserClient } from "@supabase/ssr";
+import { supabase } from "@/lib/supabase/client";
 import MonthlyDashboard from "@/components/mealTracker/MonthlyDashboard";
 import { 
   getMonthlyGridDataAction, 
@@ -14,13 +14,6 @@ export default function MonthlyAnalyticsPage() {
   const [monthlyData, setMonthlyData] = useState({});
   const [stats, setStats] = useState({ avgCalories: 0, commitmentDays: 0, totalMeals: 0 });
   const [loading, setLoading] = useState(true);
-
-  const [supabase] = useState(() => 
-    createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
-  );
 
   const fetchMonthlyData = useCallback(async () => {
     setLoading(true);
@@ -44,7 +37,7 @@ export default function MonthlyAnalyticsPage() {
       }
     }
     setLoading(false);
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     fetchMonthlyData();

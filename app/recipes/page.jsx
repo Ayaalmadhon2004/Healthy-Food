@@ -2,6 +2,11 @@ import { prisma } from "@/lib/prisma";
 import FilterButtons from "../../components/recipes/FilterButtons";
 import { cookies } from "next/headers";
 
+export const metadata = {
+  title: "Browse Recipes | NutriFlow",
+  description: "Explore healthy recipes crafted for field nutrition and Gaza kitchen support.",
+};
+
 export default async function RecipesPage() {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "ar";

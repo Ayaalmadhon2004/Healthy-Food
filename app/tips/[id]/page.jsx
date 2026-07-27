@@ -1,3 +1,4 @@
+import { cache } from "react";
 import Link from "next/link";
 import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -11,6 +12,12 @@ const IconMap = {
 };
 
 // توليد المسارات الثابتة (Next.js Static Generation)
+const getTip = cache(async (id) => {
+  return prisma.healthTip.findUnique({
+    where: { id: parseInt(id) },
+  });
+});
+
 export async function generateStaticParams() {
   const tips = await prisma.healthTip.findMany();
   return tips.map((tip) => ({
@@ -18,8 +25,29 @@ export async function generateStaticParams() {
   }));
 }
 
+export async function generateMetadata({ params }) {
+  const id = params?.id;
+  const tip = id ? await getTip(id) : null;
+  const cookieStore = cookies();
+  const lang = cookieStore.get("lang")?.value || "ar";
+
+  if (!tip) {
+    return {
+      title: lang === "ar" ? "النصيحة غير موجودة | NutriFlow" : "Tip Not Found | NutriFlow",
+      description: lang === "ar" ? "النصيحة المطلوبة غير متوفرة." : "The requested tip is unavailable.",
+    };
+  }
+
+  return {
+    title: `${tip.header[lang]} | NutriFlow`,
+    description: lang === "ar"
+      ? `اقرأ المزيد عن ${tip.header[lang]} والنصيحة الصحية المتكاملة.`
+      : `Read more about ${tip.header[lang]} and the complete health advice.`,
+  };
+}
+
 export default async function TipDetails({ params }) {
-  const { id } = await params;
+  const id = params?.id;
 
   // 1. جلب اللغة من الكوكيز
   const cookieStore = await cookies();
@@ -27,11 +55,9 @@ export default async function TipDetails({ params }) {
   const isRtl = lang === "ar";
 
   // 2. جلب النصيحة المحددة من قاعدة البيانات مباشرة
-  const tip = await prisma.healthTip.findUnique({
-    where: { id: parseInt(id) },
-  });
+  const tip = id ? await getTip(id) : null;
 
-  if (!tip) {
+  if (!tip || !id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-red-500 text-lg md:text-xl font-bold">
