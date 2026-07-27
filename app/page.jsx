@@ -1,17 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { cookies } from "next/headers";
+import HomeAnimatedSections from "@/components/HomeAnimatedSections";
 import { 
-  Utensils, Heart, Activity, ShieldCheck, 
-  ChevronDown, ArrowRight, MapPin, Users 
+  Utensils, Heart, MapPin, Users 
 } from "lucide-react";
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 40 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-};
 
 export default function LandingPage() {
   const cookieStore = cookies();
@@ -63,19 +56,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 2: LIVE METRICS (REAL-TIME IMPACT) */}
-      <section className="py-24 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-12">
-          {t.stats.map((stat, i) => (
-            <motion.div key={i} {...fadeInUp} transition={{ delay: i * 0.1 }} className="text-center group">
-              <div className="mb-6 inline-flex p-4 rounded-2xl bg-white/5 text-green-400 group-hover:bg-green-600 group-hover:text-white transition-all duration-500">
-                {stat.icon}
-              </div>
-              <h3 className="text-5xl font-black mb-2">{stat.val}</h3>
-              <p className="text-gray-400 font-medium uppercase tracking-widest text-sm">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      <HomeAnimatedSections stats={t.stats} isAr={isAr} />
 
       {/* SECTION 3: EMERGENCY REPORTS (THE PRISMA DATA SECTION) */}
       <section className="py-32 px-6 max-w-7xl mx-auto">
