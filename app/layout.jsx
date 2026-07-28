@@ -60,7 +60,7 @@ export default async function RootLayout({ children }) {
     <html
       lang={lang}
       dir={lang === "ar" ? "rtl" : "ltr"}
-      className={`${inter.variable} ${poppins.variable}`}
+      className={`${inter.variable} ${poppins.variable} ${cairo.variable}`}
     >
       <body className="min-h-screen bg-white text-gray-900 antialiased font-sans">
         <LanguageProvider initialLang={lang}>
