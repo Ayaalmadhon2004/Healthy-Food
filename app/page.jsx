@@ -3,8 +3,9 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import HomeAnimatedSections from "@/components/HomeAnimatedSections";
 import { 
-  Utensils, Heart, MapPin, Users 
+  Utensils, Heart, MapPin, Users, Activity, ShieldCheck, ArrowRight, ChevronDown
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function LandingPage() {
   const cookieStore = cookies();
@@ -23,6 +24,12 @@ export default function LandingPage() {
       { label: isAr ? "نقطة توزيع" : "Distribution Points", val: "24", icon: <MapPin /> },
       { label: isAr ? "متطوع نشط" : "Active Volunteers", val: "+300", icon: <Users /> },
     ]
+  };
+
+  const fadeInUp = {
+    initial: { opacity: 0, y: 40 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
   };
 
   return (
