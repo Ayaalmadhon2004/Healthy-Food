@@ -46,18 +46,19 @@ export const useUserData = create<UserState>((set, get) => ({
   },
 
   fetchUser: async () => {
+    set({ loading: true, error: null });
     try {
       const res = await fetch("/api/auth/me", { cache: 'no-store' });
       if (!res.ok) throw new Error("Session expired or server error");
 
       const data = await res.json();
       if (!data?.user) {
-        set({ user: null, loading: false, error: null });
+        set({ user: null, error: null });
         return;
       }
 
       const userFromServer = data.user;
-      set({ user: userFromServer, loading: false, error: null });
+      set({ user: userFromServer, error: null });
       try {
         const favRes = await fetch(`/api/favorites?userId=${userFromServer.id}`);
         if (favRes.ok) {
@@ -76,13 +77,20 @@ export const useUserData = create<UserState>((set, get) => ({
         console.error("Error syncing favorites:", favErr);
       }
     } catch (err: unknown) {
-      const { data: { session } } = await supabase.auth.getSession();
-      const errorMessage = err instanceof Error ? err.message : "Unknown sync error";
-      if (!session) {
-        set({ user: null, loading: false, error: errorMessage });
-      } else {
-        set({ loading: false, error: "Server sync failed, but session exists." });
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const errorMessage = err instanceof Error ? err.message : "Unknown sync error";
+        if (!session) {
+          set({ user: null, error: errorMessage });
+        } else {
+          set({ error: "Server sync failed, but session exists." });
+        }
+      } catch (innerErr) {
+        console.error("Error while checking supabase session:", innerErr);
+        set({ user: null, error: "Auth check failed." });
       }
+    } finally {
+      set({ loading: false });
     }
   },
 

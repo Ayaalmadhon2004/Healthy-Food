@@ -22,6 +22,16 @@ const poppins = Poppins({
   display: "swap",
 });
 
+// Arabic font for improved Arabic rendering
+import { Cairo } from 'next/font/google';
+const cairo = Cairo({
+  subsets: ['arabic'],
+  variable: '--font-arabic',
+  weight: ['400','700','900'],
+  display: 'swap',
+});
+
+
 export const metadata = {
   title: {
     default: "NutriFlow - Gaza Pulse | منصة الأمن الغذائي الميداني",

@@ -5,11 +5,10 @@ import HomeAnimatedSections from "@/components/HomeAnimatedSections";
 import { 
   Utensils, Heart, MapPin, Users, Activity, ShieldCheck, ArrowRight, ChevronDown
 } from "lucide-react";
-import { motion } from "framer-motion";
 
-export default function LandingPage() {
-  const cookieStore = cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+export default async function LandingPage() {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("lang")?.value || "en";
   const isAr = lang === "ar";
 
   const t = {
@@ -26,11 +25,7 @@ export default function LandingPage() {
     ]
   };
 
-  const fadeInUp = {
-    initial: { opacity: 0, y: 40 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: 0.2 },
-  };
+ 
 
   return (
     <div className={`w-full overflow-hidden bg-white ${isAr ? "font-arabic" : "font-sans"}`} dir={isAr ? "rtl" : "ltr"}>
@@ -68,7 +63,7 @@ export default function LandingPage() {
       {/* SECTION 3: EMERGENCY REPORTS (THE PRISMA DATA SECTION) */}
       <section className="py-32 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-20 items-center">
-          <motion.div {...fadeInUp} className="lg:w-1/2">
+          <div className="lg:w-1/2">
             <h2 className="text-5xl font-black mb-8 leading-tight">
               {isAr ? "نظام البلاغات والاحتياج الميداني" : "Field Reporting & Needs System"}
             </h2>
@@ -86,8 +81,8 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-          </motion.div>
-          <motion.div {...fadeInUp} className="lg:w-1/2 relative">
+          </div>
+          <div className="lg:w-1/2 relative">
              <div className="relative w-full aspect-square bg-gray-100 rounded-[4rem] overflow-hidden shadow-2xl">
                 <Image src="/assets/jabalia.jpg" alt="Gaza Map" fill className="object-cover opacity-80" />
              </div>
@@ -95,7 +90,7 @@ export default function LandingPage() {
                 <p className="text-sm font-bold text-gray-400 mb-2">LAST REPORT IN</p>
                 <p className="text-xl font-black">Jabalia Refugee Camp</p>
              </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
