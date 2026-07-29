@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { LayoutDashboard, HeartPulse, Stethoscope, ClipboardList, Languages, Loader2 } from "lucide-react";
 
-export default function NavbarLinks({ className, userRole, loading }) { // أضيفي loading هنا
+export default function NavbarLinks({ className, userRole, loading, onClick }) { // أضيفي loading هنا
   const { lang, changeLanguage } = useLanguage();
 
   // 1. إذا كان النظام لا يزال يحمل، لا تعرضي الروابط المتغيرة (Dashboard)
@@ -65,6 +65,7 @@ export default function NavbarLinks({ className, userRole, loading }) { // أض�
       {/* رابط الداشبورد أصبح الآن مستقراً لأنه يعتمد على تحميل البيانات */}
       <Link 
         href="/dashboard" 
+        onClick={onClick}
         className={`${className} flex items-center gap-1.5 font-bold text-[var(--color-primary)]`}
       >
         {dashInfo.icon}
@@ -72,18 +73,18 @@ export default function NavbarLinks({ className, userRole, loading }) { // أض�
       </Link>
 
       {isOrg && (
-        <Link href="/dashboard/reports" className={`${className} flex items-center gap-1`}>
+        <Link href="/dashboard/reports" onClick={onClick} className={`${className} flex items-center gap-1`}>
           <ClipboardList size={16} className="text-gray-400" />
           {t.reports}
         </Link>
       )}
 
       {/* بقية الروابط الثابتة */}
-      <Link href="/recipes" className={className}>{t.recipes}</Link>
-      <Link href="/tracker" className={className}>{t.tracker}</Link>
-      <Link href="/tips" className={className}>{t.tips}</Link>
-      <Link href="/doctors" className={className}>{t.doctors}</Link>
-      <Link href="/gaza-kitchen" className={className}>{t.kitchen}</Link>
+      <Link href="/recipes" onClick={onClick} className={className}>{t.recipes}</Link>
+      <Link href="/tracker" onClick={onClick} className={className}>{t.tracker}</Link>
+      <Link href="/tips" onClick={onClick} className={className}>{t.tips}</Link>
+      <Link href="/doctors" onClick={onClick} className={className}>{t.doctors}</Link>
+      <Link href="/gaza-kitchen" onClick={onClick} className={className}>{t.kitchen}</Link>
       
       {/* زر اللغة */}
       <div className="flex items-center ml-4 mr-2 border-l border-gray-100 pl-4 h-6 my-auto">

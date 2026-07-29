@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import HomeAnimatedSections from "@/components/HomeAnimatedSections";
@@ -59,40 +58,6 @@ export default async function LandingPage() {
 
       {/* SECTION 2: LIVE METRICS (REAL-TIME IMPACT) */}
       <HomeAnimatedSections stats={t.stats} isAr={isAr} />
-
-      {/* SECTION 3: EMERGENCY REPORTS (THE PRISMA DATA SECTION) */}
-      <section className="py-32 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-20 items-center">
-          <div className="lg:w-1/2">
-            <h2 className="text-5xl font-black mb-8 leading-tight">
-              {isAr ? "نظام البلاغات والاحتياج الميداني" : "Field Reporting & Needs System"}
-            </h2>
-            <p className="text-xl text-gray-600 mb-10 leading-relaxed italic border-l-4 border-green-600 pl-6">
-              &quot;نقوم بتحليل البيانات الواردة من مخيمات النزوح لتحديد أولويات توزيع الطرود الغذائية.&quot;
-            </p>
-            <div className="space-y-6">
-              {[
-                { title: isAr ? "تحليل البيانات الجغرافي" : "Geographic Data Analysis", icon: <Activity /> },
-                { title: isAr ? "تنسيق الجهود الإغاثية" : "Relief Coordination", icon: <ShieldCheck /> }
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-4 p-4 rounded-xl hover:bg-green-50 transition-colors">
-                  <span className="text-green-600">{item.icon}</span>
-                  <span className="font-bold text-lg">{item.title}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="lg:w-1/2 relative">
-             <div className="relative w-full aspect-square bg-gray-100 rounded-[4rem] overflow-hidden shadow-2xl">
-                <Image src="/assets/jabalia.jpg" alt="Gaza Map" fill className="object-cover opacity-80" />
-             </div>
-             <div className="absolute -bottom-10 -left-10 p-8 bg-white rounded-3xl shadow-xl max-w-xs border-t-8 border-green-600">
-                <p className="text-sm font-bold text-gray-400 mb-2">LAST REPORT IN</p>
-                <p className="text-xl font-black">Jabalia Refugee Camp</p>
-             </div>
-          </div>
-        </div>
-      </section>
 
       {/* SECTION 4: ALTERNATIVE RECIPES (THE KITCHEN) */}
       <section className="py-32 bg-green-50 px-6">

@@ -4,7 +4,6 @@ import Footer from "@/components/Footer";
 import { ErrorProvider } from "@/context/ErrorProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { cookies } from "next/headers";
-import { getCurrentUserRole } from "./actions/authActions";
 import { Toaster } from "react-hot-toast";
 import { UserInitializer } from "@/components/UserInitializer";
 import { Inter, Poppins } from "next/font/google";
@@ -53,9 +52,6 @@ export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
   const lang = cookieStore.get("lang")?.value || "en";
 
-  // تشغيل بالتوازي لتقليل TTFB
-  const [serverRole] = await Promise.all([getCurrentUserRole()]);
-
   return (
     <html
       lang={lang}
@@ -67,7 +63,7 @@ export default async function RootLayout({ children }) {
           <UserInitializer />
           <Toaster position="top-center" reverseOrder={false} />
           <ErrorProvider>
-            <Navbar serverRole={serverRole} />
+            <Navbar />
             <main>{children}</main>
             <Footer />
           </ErrorProvider>

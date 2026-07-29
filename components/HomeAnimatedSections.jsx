@@ -1,13 +1,4 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { Activity, ShieldCheck, ArrowRight } from "lucide-react";
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 40 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-};
+import { Activity, ShieldCheck } from "lucide-react";
 
 export default function HomeAnimatedSections({ stats, isAr }) {
   return (
@@ -15,20 +6,20 @@ export default function HomeAnimatedSections({ stats, isAr }) {
       <section className="py-24 bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-12">
           {stats.map((stat, i) => (
-            <motion.div key={i} {...fadeInUp} transition={{ delay: i * 0.1 }} className="text-center group">
+            <div key={i} className="text-center group transition duration-500">
               <div className="mb-6 inline-flex p-4 rounded-2xl bg-white/5 text-green-400 group-hover:bg-green-600 group-hover:text-white transition-all duration-500">
                 {stat.icon}
               </div>
               <h3 className="text-5xl font-black mb-2">{stat.val}</h3>
               <p className="text-gray-400 font-medium uppercase tracking-widest text-sm">{stat.label}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </section>
 
       <section className="py-32 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-20 items-center">
-          <motion.div {...fadeInUp} className="lg:w-1/2">
+          <div className="lg:w-1/2">
             <h2 className="text-5xl font-black mb-8 leading-tight">
               {isAr ? "نظام البلاغات والاحتياج الميداني" : "Field Reporting & Needs System"}
             </h2>
@@ -46,8 +37,8 @@ export default function HomeAnimatedSections({ stats, isAr }) {
                 </div>
               ))}
             </div>
-          </motion.div>
-          <motion.div {...fadeInUp} className="lg:w-1/2 relative">
+          </div>
+          <div className="lg:w-1/2 relative">
              <div className="relative w-full aspect-square bg-gray-100 rounded-[4rem] overflow-hidden shadow-2xl">
                 <div className="absolute inset-0 bg-[url('/assets/jabalia.jpg')] bg-cover bg-center opacity-80" />
              </div>
@@ -55,7 +46,7 @@ export default function HomeAnimatedSections({ stats, isAr }) {
                 <p className="text-sm font-bold text-gray-400 mb-2">LAST REPORT IN</p>
                 <p className="text-xl font-black">Jabalia Refugee Camp</p>
              </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </>

@@ -48,7 +48,7 @@ export const useUserData = create<UserState>((set, get) => ({
   fetchUser: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch("/api/auth/me", { cache: 'no-store' });
+      const res = await fetch("/api/auth/me");
       if (!res.ok) throw new Error("Session expired or server error");
 
       const data = await res.json();

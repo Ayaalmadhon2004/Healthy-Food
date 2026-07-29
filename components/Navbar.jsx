@@ -9,18 +9,19 @@ import { useFavStore } from "@/store/useFavStore";
 import { useUserData } from "@/hooks/useUserData";
 import NavbarLinks from "./NavbarLinks";
 
-export default function Navbar({ serverRole }) {
+export default function Navbar() {
   const [open, setOpen] = useState(false);
-  // نستخدم user و loading من الـ store الذي يستخدم persist
-  const { user, clearUser } = useUserData(); 
-  const router = useRouter();
   
+  // ← استخرج loading هنا
+  const { user, loading, clearUser } = useUserData(); 
+  
+  const router = useRouter();
   const favItems = useFavStore((state) => state.favItems);
-  const resolvedRole = user?.role || serverRole || "USER";
+  const resolvedRole = user?.role || "USER";
 
   const logout = async () => {
     await supabase.auth.signOut();
-    clearUser(); // تنظيف الـ Store والـ LocalStorage
+    clearUser();
     setOpen(false);
     router.push("/login");
   };
@@ -40,11 +41,11 @@ export default function Navbar({ serverRole }) {
           <div className="hidden md:flex items-center gap-8">
             <NavbarLinks 
               userRole={resolvedRole} 
-              loading={false} 
+              loading={loading}        // ← مرر loading الحقيقي
               className="text-sm font-semibold text-gray-600" 
             />
 
-            <Link href="/favorites" className="relative text-gray-700 hover:text-red-500 p-2">
+            <Link href="/favorites" aria-label="Favorites" className="relative text-gray-700 hover:text-red-500 p-2">
               <Heart className={`w-6 h-6 ${favItems.length > 0 ? "fill-red-500 text-red-500" : ""}`} />
               {favItems.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black border-2 border-white">
@@ -53,17 +54,19 @@ export default function Navbar({ serverRole }) {
               )}
             </Link>
 
-            {/* عرض اسم المستخدم فقط إذا انتهى التحميل أو إذا كانت البيانات موجودة مسبقاً */}
-            {user ? (
+            {/* عرض حالة التحميل أو تسجيل الدخول */}
+            {loading ? (
+              <div className="w-8 h-8 rounded-full border-2 border-green-600 border-t-transparent animate-spin" />
+            ) : user ? (
               <div className="flex items-center gap-4">
                 <span className="text-sm font-bold text-gray-700">
                   {user.name || user.email?.split('@')[0]}
                 </span>
-                <button onClick={logout} className="text-gray-400 hover:text-red-600 transition-colors">
+                <button aria-label="Log out" onClick={logout} className="text-gray-400 hover:text-red-600 transition-colors">
                   <LogOut size={18} />
                 </button>
               </div>
-            ) : !loading && (
+            ) : (
               <div className="flex items-center gap-4">
                 <Link href="/login" className="text-sm font-bold">Sign In</Link>
                 <Link href="/signup" className="px-5 py-2 rounded-xl text-white bg-green-600 font-bold text-sm">Sign Up</Link>
@@ -72,7 +75,7 @@ export default function Navbar({ serverRole }) {
           </div>
 
           {/* Mobile Button */}
-          <button className="md:hidden p-2 text-gray-600" onClick={() => setOpen(!open)}>
+          <button aria-label="Toggle navigation menu" className="md:hidden p-2 text-gray-600" onClick={() => setOpen(!open)}>
             {open ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
@@ -82,7 +85,7 @@ export default function Navbar({ serverRole }) {
           <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 p-6 flex flex-col gap-6">
             <NavbarLinks 
               userRole={resolvedRole} 
-              loading={false}
+              loading={loading}        // ← مرر loading هنا أيضاً
               onClick={() => setOpen(false)} 
               className="text-lg font-bold text-gray-800" 
             />
