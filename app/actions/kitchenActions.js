@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getSessionUser } from "@/lib/auth";
 
 const REGION_MAP = {
   "North": { ar: "الشمال", en: "North" },
@@ -102,7 +103,7 @@ export async function addKitchenAction(formData) {
     return { success: true, kitchen: newKitchen };
   } catch (error) {
     console.error("Prisma Create Error:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "Failed to save kitchen" };
   }
 }
 
@@ -137,7 +138,7 @@ export async function updateKitchenAction(kitchenId, formData) {
     return { success: true, kitchen: updatedKitchen };
   } catch (error) {
     console.error("Update Kitchen Error:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: "Failed to save kitchen" };
   }
 }
 
@@ -161,8 +162,12 @@ export async function deleteKitchenAction(kitchenId) {
 }
 
 // 7. جلب السجلات (Food Logs)
-export async function getKitchenByIdAction(userId, year, month) {
+export async function getKitchenByIdAction(_userId, year, month) {
     try {
+      const sessionUser = await getSessionUser();
+      if (!sessionUser) return { success: false, error: "Unauthorized" };
+      const userId = sessionUser.id;
+
       const startDate = new Date(year, month - 1, 1);
       const endDate = new Date(year, month, 0, 23, 59, 59);
 
