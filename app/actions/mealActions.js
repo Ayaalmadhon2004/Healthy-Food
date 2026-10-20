@@ -1,12 +1,16 @@
 "use server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getSessionUser } from "@/lib/auth";
 
 export async function addMealAction(data) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return { success: false, error: "Unauthorized" };
+
     const meal = await prisma.meal.create({
       data: {
-        userId: data.userId,
+        userId: sessionUser.id,
         mealType: data.mealType,
         foodName: data.foodName,
         calories: parseInt(data.calories),
@@ -18,12 +22,16 @@ export async function addMealAction(data) {
 
     return { success: true, meal };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: "Something went wrong" };
   }
 }
 
-export async function getMealsAction(userId) {
+export async function getMealsAction() {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return { success: false, error: "Unauthorized" };
+    const userId = sessionUser.id;
+
     const today = new Date();
     today.setHours(0, 0, 0, 0); 
 
@@ -41,25 +49,33 @@ export async function getMealsAction(userId) {
 
     return { success: true, meals };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: "Something went wrong" };
   }
 }
 
 export async function deleteMealAction(mealId) {
   try {
-    await prisma.meal.delete({
-      where: { id: mealId },
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return { success: false, error: "Unauthorized" };
+
+    const { count } = await prisma.meal.deleteMany({
+      where: { id: mealId, userId: sessionUser.id },
     });
+    if (count === 0) return { success: false, error: "Meal not found" };
     revalidatePath("/dashboard/tracker");
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: "Something went wrong" };
   }
 }
 
-export async function getMonthlyGridDataAction(userId, year, month) {
+export async function getMonthlyGridDataAction(_userId, year, month) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
+    const userId = sessionUser.id;
+
     const startDate = new Date(Date.UTC(year, month - 1, 1));
     const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
@@ -83,8 +99,12 @@ export async function getMonthlyGridDataAction(userId, year, month) {
   }
 }
 
-export async function getMonthlyStatsAction(userId, year, month) {
+export async function getMonthlyStatsAction(_userId, year, month) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
+    const userId = sessionUser.id;
+
     const startDate = new Date(Date.UTC(year, month - 1, 1));
     const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
@@ -115,12 +135,14 @@ export async function getMonthlyStatsAction(userId, year, month) {
       } 
     };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: "Something went wrong" };
   }
 }
 
-export async function reserveMealAction(userId, kitchenId, quantity = 1) {
+export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
   try {
+    const sessionUser = await getSessionUser();
+    const userId = sessionUser?.id;
     const kId = Number(kitchenId);
     const qty = Number(quantity);
 
@@ -163,11 +185,14 @@ export async function reserveMealAction(userId, kitchenId, quantity = 1) {
     return { success: `تم حجز ${qty} وجبات بنجاح لغدًا.` };
   } catch (error) {
     console.error("Meal Order Error:", error);
-    return { error: `خطأ تقني: ${error.message}` };
+    return { error: "حدث خطأ تقني، حاول مرة أخرى لاحقاً." };
   }
 }
 
-export async function checkUserReservation(userId, kitchenId) {
+export async function checkUserReservation(_userId, kitchenId) {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return false;
+  const userId = sessionUser.id;
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
@@ -179,7 +204,11 @@ export async function checkUserReservation(userId, kitchenId) {
   return !!order; // ستعيد true إذا وجد حجز، و false إذا لم يجد
 }
 
-export async function cancelMealAction(userId, kitchenId) {
+export async function cancelMealAction(_userId, kitchenId) {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { success: false, error: "Unauthorized" };
+  const userId = sessionUser.id;
+  kitchenId = Number(kitchenId);
   const tomorrow=new Date();
   tomorrow.setDate(tomorrow.getDate()+1);
   tomorrow.setHours(0,0,0,0);

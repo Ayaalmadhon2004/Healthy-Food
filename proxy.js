@@ -42,7 +42,7 @@ export async function proxy(request) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // 3. حماية المسارات (Routes Protection)
-  const isProtectedRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/doctors')
+  const isProtectedRoute = ['/dashboard', '/doctors', '/tracker', '/report-area'].some((p) => pathname.startsWith(p))
   
   if (!user && isProtectedRoute) {
     return NextResponse.redirect(new URL('/login', request.url))

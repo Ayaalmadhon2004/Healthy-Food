@@ -1,14 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getSessionUser } from "@/lib/auth";
 
-export async function GET(request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-
-    if (!userId) {
+    // The user is always taken from the session, never from the query string.
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) {
       return NextResponse.json({ favorites: [] }, { status: 200 });
     }
+    const userId = sessionUser.id;
 
     const favorites = await prisma.favorite.findMany({
       where: { userId },
@@ -29,26 +30,23 @@ export async function GET(request) {
 
   } catch (error) {
     console.error("GET Error:", error.message);
-    return NextResponse.json({ favorites: [], error: error.message }, { status: 200 });
+    return NextResponse.json({ favorites: [], error: "Failed to load favorites" }, { status: 200 });
   }
 }
 
 export async function POST(request) {
   try {
-    const { userId, recipeId, mealData } = await request.json(); // these 3 from where ? or the request from where ? 
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const userId = sessionUser.id;
+
+    const { recipeId, mealData } = await request.json();
     const rId = Number(recipeId);
 
-    if (!userId || isNaN(rId)) {
-      return NextResponse.json({ error: "بيانات غير مكتملة" }, { status: 400 }); // where this will appear 
-    }
-
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    
-    if (!user) {
-      return NextResponse.json({ 
-        error: "User record missing", 
-        details: "المستخدم مسجل في Auth ولكن ليس له سجل في جدول User الخاص بـ Prisma" 
-      }, { status: 404 });
+    if (!Number.isInteger(rId) || !mealData || typeof mealData !== "object") {
+      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
     let recipe = await prisma.foodRecipe.findUnique({ where: { id: rId } });
@@ -92,6 +90,7 @@ export async function POST(request) {
     }
 
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("POST Error:", error);
+    return NextResponse.json({ error: "Failed to update favorites" }, { status: 500 });
   }
 }

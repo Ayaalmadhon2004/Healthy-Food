@@ -2,15 +2,21 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getSessionUser, isOrgRole } from "@/lib/auth";
 
 export async function submitAreaReportAction(formData) {
   const areaName = formData.get("areaName");
   const description = formData.get("description");
-  const userId = formData.get("userId");
 
-  console.log("1. Starting Action for user:", userId); // فحص الخطوة الأولى
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { error: "Unauthorized" };
+  const userId = sessionUser.id;
 
-  if (!prisma) throw new Error("Prisma client is not initialized");
+  if (typeof areaName !== "string" || typeof description !== "string" ||
+      !areaName.trim() || !description.trim() ||
+      areaName.length > 200 || description.length > 2000) {
+    return { error: "Invalid data" };
+  }
 
   let success = false;
 
@@ -23,7 +29,6 @@ export async function submitAreaReportAction(formData) {
         status: "pending", 
       },
     });
-    console.log("2. Database Save Success!"); // فحص نجاح الحفظ
     success = true;
   } catch (error) {
     console.error("Prisma Error:", error);
@@ -32,13 +37,17 @@ export async function submitAreaReportAction(formData) {
 
   if (success) {
     revalidatePath("/dashboard");
-    console.log("3. Redirecting now..."); // فحص التوجيه
     redirect("/dashboard?success=true");
   }
 }
 
 export async function getAllReportsAction() {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser || !isOrgRole(sessionUser.role)) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const reports = await prisma.areaReport.findMany({
       orderBy: {
         createdAt: 'desc', 

@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     }, { status: 200 });
 
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Server Error";
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error("Login Error:", error);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
