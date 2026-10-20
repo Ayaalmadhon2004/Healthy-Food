@@ -1,5 +1,5 @@
-export async function getDictionaryServer(locale) {
-  const dictionaries = {
+export async function getDictionaryServer(locale: string) {
+  const dictionaries: Record<string, () => Promise<Record<string, unknown>>> = {
     en: () => import("@/locales/en.json").then((module) => module.default),
     ar: () => import("@/locales/ar.json").then((module) => module.default),
   };

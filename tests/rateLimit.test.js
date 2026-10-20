@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getClientIp, rateLimit } from "../lib/rateLimit.js";
+import { getClientIp, rateLimit } from "../lib/rateLimit.ts";
 
 test("allows up to the limit, then blocks with a retry time", () => {
   const key = `test-${Math.random()}`;

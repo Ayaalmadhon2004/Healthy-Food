@@ -9,7 +9,8 @@
     "start": "next start -p 3001",
     "postinstall": "prisma generate",
     "lint": "eslint .",
-    "test": "node --test \"tests/*.test.js\""
+    "test": "node --test \"tests/*.test.js\"",
+    "typecheck": "tsc --noEmit"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "baseline-browser-mapping": "^2.9.0",

@@ -5,7 +5,7 @@ import {
   getGazaMonthRange,
   getGazaTodayStart,
   getReservationTargetDate,
-} from "../lib/dates.js";
+} from "../lib/dates.ts";
 
 const iso = (d) => d.toISOString();
 

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { formatCapacity, getCapacityLimit, parseCapacity, validateCapacityInput } from "../lib/capacity.js";
+import { formatCapacity, getCapacityLimit, parseCapacity, validateCapacityInput } from "../lib/capacity.ts";
 
 test("parseCapacity reads every stored format", () => {
   assert.equal(parseCapacity(500), 500);

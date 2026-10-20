@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
 
-export async function submitAreaReportAction(formData) {
+export async function submitAreaReportAction(formData: FormData): Promise<{ error: string } | undefined> {
   const areaName = formData.get("areaName");
   const description = formData.get("description");
 

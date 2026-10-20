@@ -1,4 +1,10 @@
-import { prisma } from '../lib/prisma.js'; 
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+
+// Own client (instead of lib/prisma) so the seed runs on any Node version without loading TypeScript.
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 const healthTips = [
   {
@@ -168,4 +174,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });
