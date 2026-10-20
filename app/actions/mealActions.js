@@ -161,7 +161,10 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
     tomorrow.setHours(0, 0, 0, 0);
 
     // Serializable transaction: two concurrent reservations cannot both pass the capacity check.
-    const outcome = await prisma.$transaction(async (tx) => {
+    const isConflict = (e) =>
+      e?.code === "P2034" || /TransactionWriteConflict|could not serialize/i.test(e?.message ?? "");
+
+    const reserve = () => prisma.$transaction(async (tx) => {
       const existingOrder = await tx.mealOrder.findFirst({
         where: { userId, kitchenId: kId, targetDate: tomorrow }
       });
@@ -184,13 +187,24 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
       return { ok: true };
     }, { isolationLevel: "Serializable" });
 
+    let outcome;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        outcome = await reserve();
+        break;
+      } catch (e) {
+        if (!isConflict(e) || attempt >= 4) throw e;
+        await new Promise((r) => setTimeout(r, 25 * (attempt + 1) + Math.random() * 50));
+      }
+    }
+
     if (outcome.error) return { error: outcome.error };
     revalidatePath("/"); 
     return { success: `تم حجز ${qty} وجبات بنجاح لغدًا.` };
   } catch (error) {
     console.error("Meal Order Error:", error);
     // P2034 = serialization conflict, P2002 = duplicate reservation
-    if (error?.code === "P2034") return { error: "الطلبات كثيرة حالياً، حاول مرة أخرى." };
+    if (error?.code === "P2034" || /TransactionWriteConflict/i.test(error?.message ?? "")) return { error: "الطلبات كثيرة حالياً، حاول مرة أخرى." };
     if (error?.code === "P2002") return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
     return { error: "حدث خطأ تقني، حاول مرة أخرى لاحقاً." };
   }
