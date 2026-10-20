@@ -1,5 +1,5 @@
 {
-  "name": "healty-food",
+  "name": "healthy-food",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,9 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start -p 3001",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "lint": "eslint .",
+    "test": "node --test \"tests/*.test.js\""
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -15,11 +17,9 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
-    "@supabase/auth-helpers-nextjs": "^0.15.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
     "dotenv": "^17.2.3",
-    "i18n": "^0.15.3",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.556.0",
     "next": "^16.1.1",
@@ -44,7 +44,6 @@
     "eslint-config-next": "16.0.3",
     "prisma": "^7.2.0",
     "tailwindcss": "^4",
-    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

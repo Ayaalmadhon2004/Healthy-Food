@@ -1,5 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase/server"
-import { prismaClient } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { rateLimit, getClientIp } from "@/lib/rateLimit"
 import { signupSchema } from "@/lib/validations/auth"
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
     const { name, email, password } = validation.data
 
-    const existingUser = await prismaClient.user.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { email },
     })
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const supabaseAdmin = getSupabaseAdmin()
 
     if (!supabaseAdmin) {
-      console.error("🚨 Supabase Admin Keys are missing in .env");
+      console.error("Supabase Admin Keys are missing in .env");
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 }
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     }
 
     try {
-      const user = await prismaClient.user.create({
+      const user = await prisma.user.create({
         data: {
           id: auth.user.id,
           name,
@@ -92,15 +92,15 @@ export async function POST(req: Request) {
       );
     } catch (prismaError) {
       await supabaseAdmin.auth.admin.deleteUser(auth.user.id)
-      console.error("🚨 Prisma DB Error:", prismaError)
+      console.error("Prisma DB Error:", prismaError)
       return NextResponse.json(
         { error: "Database error occurred" },
         { status: 500 }
       );
     }
     
-  } catch (error: any) {
-    console.error("🚨 Global Signup API Error:", error.message)
+  } catch (error: unknown) {
+    console.error("Global Signup API Error:", error instanceof Error ? error.message : error)
     return NextResponse.json(
       { error: "Something went wrong on our end" },
       { status: 500 }

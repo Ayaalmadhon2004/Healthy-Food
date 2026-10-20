@@ -78,7 +78,7 @@ export default function DoctorsListClient({ initialDoctors, lang }) {
             {/* About Section */}
             <div className="mt-6 p-5 bg-gray-50/80 rounded-2xl border border-gray-50 flex-grow">
               <p className="text-gray-700 text-sm leading-relaxed line-clamp-3 italic">
-                "{doctor.about[lang]}"
+                &ldquo;{doctor.about[lang]}&rdquo;
               </p>
             </div>
 
