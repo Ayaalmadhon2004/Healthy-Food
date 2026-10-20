@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { getGazaMonthRange } from "@/lib/dates";
 
 export async function getUserMonthlyLogsAction(_userId, year, month) {
   try {
@@ -9,15 +10,14 @@ export async function getUserMonthlyLogsAction(_userId, year, month) {
     if (!sessionUser) return { success: false, error: "Unauthorized" };
     const userId = sessionUser.id;
 
-    const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
-    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+    const { start: startDate, end: endDate } = getGazaMonthRange(year, month);
 
     const logs = await prisma.foodLog.findMany({
       where: {
         userId: userId,
         createdAt: {
           gte: startDate,
-          lte: endDate,
+          lt: endDate,
         },
       },
       orderBy: {

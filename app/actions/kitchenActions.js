@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
+import { getCapacityLimit, validateCapacityInput } from "@/lib/capacity";
+import { getGazaMonthRange, getReservationTargetDate } from "@/lib/dates";
 
 const REGION_MAP = {
   "North": { ar: "الشمال", en: "North" },
@@ -42,9 +44,24 @@ export async function getKitchensAction(page = 1, limit = 5) {
       prisma.kitchen.count()
     ]);
 
+    // Meals already reserved for tomorrow and the numeric capacity, so the UI matches the server check.
+    const reserved = await prisma.mealOrder.groupBy({
+      by: ["kitchenId"],
+      where: {
+        kitchenId: { in: kitchens.map((k) => k.id) },
+        targetDate: getReservationTargetDate(),
+      },
+      _sum: { quantity: true },
+    });
+    const reservedByKitchen = new Map(reserved.map((r) => [r.kitchenId, r._sum.quantity || 0]));
+
     return {
       success: true,
-      kitchens,
+      kitchens: kitchens.map((k) => ({
+        ...k,
+        capacityLimit: getCapacityLimit(k.capacity),
+        reservedTomorrow: reservedByKitchen.get(k.id) || 0,
+      })),
       totalPages: Math.ceil(totalCount / limit),
       currentPage: page,
     };
@@ -65,6 +82,9 @@ export async function addKitchenAction(formData) {
     const regionId = formData.get("regionId"); 
     
     const regionData = REGION_MAP[regionId] || { ar: "غير محدد", en: "Unspecified" };
+
+    const capacity = validateCapacityInput(formData.get("capacity"));
+    if (capacity === null) return { success: false, error: "Invalid capacity" };
 
     // منطق الترقيم التلقائي للأسماء المكررة
     const existingKitchens = await prisma.kitchen.findMany({
@@ -93,7 +113,7 @@ export async function addKitchenAction(formData) {
         todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
         distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
         contact: formData.get("contact") || "No Contact",
-        capacity: formData.get("capacity") || "0",
+        capacity,
         accessInfo: { ar: "", en: "" },
       },
     });
@@ -116,12 +136,15 @@ export async function updateKitchenAction(kitchenId, formData) {
     const regionId = formData.get("regionId");
     const regionData = REGION_MAP[regionId];
 
+    const capacity = validateCapacityInput(formData.get("capacity"));
+    if (capacity === null) return { success: false, error: "Invalid capacity" };
+
     const updatedData = {
       name: { ar: formData.get("nameAr"), en: formData.get("nameEn") },
       todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
       distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
       contact: formData.get("contact") || "No Contact",
-      capacity: formData.get("capacity") || "0",
+      capacity,
     };
 
     if (regionData) {
@@ -168,15 +191,14 @@ export async function getKitchenByIdAction(_userId, year, month) {
       if (!sessionUser) return { success: false, error: "Unauthorized" };
       const userId = sessionUser.id;
 
-      const startDate = new Date(year, month - 1, 1);
-      const endDate = new Date(year, month, 0, 23, 59, 59);
+      const { start: startDate, end: endDate } = getGazaMonthRange(year, month);
 
       const logs = await prisma.foodLog.findMany({
         where: {
           userId: userId,
           createdAt: {
             gte: startDate,
-            lte: endDate,
+            lt: endDate,
           },
         },
         orderBy: {

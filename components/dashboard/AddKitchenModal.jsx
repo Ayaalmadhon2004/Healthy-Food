@@ -156,7 +156,7 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
                   <Users size={12} /> {t.capacity}
                 </label>
-                <input type="number" name="capacity" required className="form-input" placeholder="500" />
+                <input type="number" name="capacity" required min="1" max="100000" step="1" className="form-input" placeholder="500" />
               </div>
 
               {/* التواصل */}

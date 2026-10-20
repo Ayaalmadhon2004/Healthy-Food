@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatCapacity } from "@/lib/capacity";
 import { MapPin, Clock, Users, PhoneCall, Info } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext"; // استيراد الـ context
 
@@ -92,7 +93,7 @@ export default function KitchensFilter({ kitchens }) {
                 <div className="flex items-center">
                   <Users size={16} className={`${lang === 'ar' ? 'ml-2' : 'mr-2'} text-gray-400`} />
                   <span>
-                    <strong>{lang === "ar" ? "السعة:" : "Capacity:"}</strong> {kitchen.capacity[lang]}
+                    <strong>{lang === "ar" ? "السعة:" : "Capacity:"}</strong> {formatCapacity(kitchen.capacity, lang)}
                   </span>
                 </div>
 
