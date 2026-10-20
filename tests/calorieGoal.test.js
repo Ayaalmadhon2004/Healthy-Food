@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_CALORIE_GOAL, readCalorieGoal, validateCalorieGoalInput, withCalorieGoal } from "../lib/calorieGoal.js";
+import { DEFAULT_CALORIE_GOAL, readCalorieGoal, validateCalorieGoalInput, withCalorieGoal } from "../lib/calorieGoal.ts";
 
 test("readCalorieGoal falls back to the default for users without a goal", () => {
   for (const v of [null, undefined, [], {}, { dailyCalories: "2500" }, { dailyCalories: 10 }, { dailyCalories: 99999 }]) {

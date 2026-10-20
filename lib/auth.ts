@@ -1,8 +1,14 @@
+import type { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // Returns { id, role } for the signed-in user (taken from the session cookie), or null.
-export async function getSessionUser() {
+export interface SessionUser {
+  id: string;
+  role: Role;
+}
+
+export async function getSessionUser(): Promise<SessionUser | null> {
   try {
     const supabase = await createSupabaseServerClient();
     if (!supabase) return null;
@@ -22,6 +28,6 @@ export async function getSessionUser() {
   }
 }
 
-export function isOrgRole(role) {
+export function isOrgRole(role: string | null | undefined): boolean {
   return role === "ORG" || role === "ADMIN";
 }

@@ -33,6 +33,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run typecheck
       - run: npm test
       # The build reads recipes/tips from the database while generating pages.
       - run: npx prisma db push

@@ -1,8 +1,18 @@
 // Fixed-window in-memory rate limiter. State is per server instance, so on
 // serverless platforms it is best-effort; use a shared store (e.g. Redis) for strict limits.
-const buckets = new Map();
+const buckets = new Map<string, { count: number; resetAt: number }>();
 
-export function rateLimit(key, { limit, windowMs }) {
+export interface RateLimitOptions {
+  limit: number;
+  windowMs: number;
+}
+
+export interface RateLimitResult {
+  ok: boolean;
+  retryAfter: number;
+}
+
+export function rateLimit(key: string, { limit, windowMs }: RateLimitOptions): RateLimitResult {
   const now = Date.now();
 
   if (buckets.size > 10000) {
@@ -22,7 +32,7 @@ export function rateLimit(key, { limit, windowMs }) {
   return { ok: true, retryAfter: 0 };
 }
 
-export function getClientIp(request) {
+export function getClientIp(request: { headers: Headers }): string {
   const forwarded = request.headers.get("x-forwarded-for");
   return forwarded ? forwarded.split(",")[0].trim() : request.headers.get("x-real-ip") || "unknown";
 }

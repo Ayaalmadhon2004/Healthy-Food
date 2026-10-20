@@ -108,7 +108,7 @@ The **Gaza Kitchen Community** module helps families locate and reserve free mea
 
 ## Installation and Setup
 
-Requirements: Node.js 22+, a PostgreSQL database and a Supabase project.
+Requirements: Node.js 22.18+ (the unit tests import TypeScript files directly), a PostgreSQL database and a Supabase project.
 
 ```bash
 git clone https://github.com/Ayaalmadhon2004/Healthy-Food.git
@@ -136,9 +136,10 @@ npm run dev
 | `npm run dev` | Development server |
 | `npm run build` / `npm start` | Production build and server (the build reads the seeded database) |
 | `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript check (`lib/` is TypeScript; pages and actions are still JavaScript) |
 | `npm test` | Unit tests (Node test runner) for dates, capacity and rate limiting |
 
-CI (`.github/workflows/ci.yml`) runs lint, tests and a build against a temporary PostgreSQL.
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against a temporary PostgreSQL.
 
 ---
 
