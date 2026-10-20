@@ -12,7 +12,8 @@ import {
   getMealsAction, 
   deleteMealAction, 
   getMonthlyGridDataAction,
-  getMonthlyStatsAction 
+  getMonthlyStatsAction,
+  setCalorieGoalAction 
 } from "@/app/actions/mealActions";
 
 const ProgressCard = dynamic(() => import("@/components/mealTracker/ProgressCard"), { 
@@ -76,6 +77,7 @@ function reducer(state, action) {
 function TrackerContent() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [mounted, setMounted] = useState(false);
+  const [goal, setGoal] = useState(2000);
   const { lang } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -106,6 +108,7 @@ function TrackerContent() {
 
       if (statsRes.success) {
         dispatch({ type: "SET_MONTHLY_STATS", payload: statsRes.stats });
+        if (statsRes.stats.goal) setGoal(statsRes.stats.goal);
       }
     }
   }, []);
@@ -168,6 +171,15 @@ function TrackerContent() {
     }
   };
 
+  const handleGoalChange = useCallback(async (value) => {
+    const result = await setCalorieGoalAction(value);
+    if (result?.success) {
+      setGoal(result.goal);
+      await loadData();
+    }
+    return result;
+  }, [loadData]);
+
   if (!mounted) return <div className="min-h-screen bg-[var(--color-primary-light)]" />;
 
   return (
@@ -177,7 +189,7 @@ function TrackerContent() {
       </h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-        <ProgressCard calories={state.calories} />
+        <ProgressCard calories={state.calories} goal={goal} onGoalChange={handleGoalChange} />
         {/* نمرر دالة الإضافة فقط، الفورم سيهتم بحالته الخاصة */}
         <AddMealForm onAdd={handleAddMeal} />
       </div>

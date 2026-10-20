@@ -1,12 +1,11 @@
 // components/mealTracker/MonthlyGrid.jsx
 "use client";
 
-export default function MonthlyGrid({ dailyTotals, year, month, lang }) {
+export default function MonthlyGrid({ dailyTotals, year, month, lang, goal = 2000 }) {
     const currentYear = year || new Date().getFullYear();
     const currentMonth = month || (new Date().getMonth() + 1);
     
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-    const goal = 2000;
 
   return (
     <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 mt-10">
