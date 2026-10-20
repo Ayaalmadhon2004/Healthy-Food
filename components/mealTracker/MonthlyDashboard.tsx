@@ -1,10 +1,21 @@
 "use client";
 import MonthlyGrid from "@/components/mealTracker/MonthlyGrid";
 
-export default function MonthlyDashboard({ data = {}, stats = {}, lang }) { 
+export interface MonthlyStats {
+    avgCalories?: number;
+    commitmentDays?: number;
+    totalMeals?: number;
+    goal?: number;
+}
+
+export default function MonthlyDashboard({ data = {}, stats = {}, lang }: {
+    data?: Record<string, number>;
+    stats?: MonthlyStats;
+    lang: string;
+}) { 
     const isRtl = lang === "ar";
     
-    const formattedGridData = Object.entries(data).reduce((acc, [key, value]) => {
+    const formattedGridData = Object.entries(data).reduce<Record<number, number>>((acc, [key, value]) => {
         acc[parseInt(key)] = value;
         return acc;
     }, {});
@@ -37,7 +48,12 @@ export default function MonthlyDashboard({ data = {}, stats = {}, lang }) {
     );
     }
 
-    function StatCard({ label, value, unit, color }) {
+    function StatCard({ label, value, unit, color }: {
+        label: string;
+        value: number;
+        unit: string;
+        color: "blue" | "green" | "orange";
+    }) {
     const colors = {
         blue: "bg-blue-50 text-blue-700 border-blue-100",
         green: "bg-green-50 text-green-700 border-green-100",

@@ -1,15 +1,15 @@
 "use client";
 
 import { submitAreaReportAction } from "@/app/actions/reportActions";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation"; // الخطوة الأهم
 
-export default function ReportForm({ userId, isAr }) {
+export default function ReportForm({ userId, isAr }: { userId: string; isAr: boolean }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter(); 
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); 
     setLoading(true);
 

@@ -2,12 +2,13 @@
 import { useState } from "react";
 import RecipeCard from "./RecipeCard";
 import { useLanguage } from "@/context/LanguageContext";
+import type { Localized, Recipe } from "@/lib/types";
 
-export default function FilterButtons({ initialRecipes, loading = false }) {
+export default function FilterButtons({ initialRecipes, loading = false }: { initialRecipes: Recipe[]; loading?: boolean }) {
   const { lang } = useLanguage();
   const [filter, setFilter] = useState("All");
 
-  const categories = [
+  const categories: (Localized & { id: string })[] = [
     { id: "All", en: "All", ar: "الكل" },
     { id: "Breakfast", en: "Breakfast", ar: "فطور" },
     { id: "Lunch", en: "Lunch", ar: "غداء" },
@@ -18,7 +19,7 @@ export default function FilterButtons({ initialRecipes, loading = false }) {
   const filtered =
     filter === "All"
       ? initialRecipes
-      : initialRecipes.filter((r) => r.type[lang] === cat.id);
+      : initialRecipes.filter((r) => r.type.en === filter);
 
   const skeletonCount = 8;
 

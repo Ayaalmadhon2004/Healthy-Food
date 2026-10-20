@@ -1,6 +1,13 @@
+import type { ReactNode } from "react";
 import { Activity, ShieldCheck } from "lucide-react";
 
-export default function HomeAnimatedSections({ stats, isAr }) {
+interface Stat {
+  icon: ReactNode;
+  val: string | number;
+  label: string;
+}
+
+export default function HomeAnimatedSections({ stats, isAr }: { stats: Stat[]; isAr: boolean }) {
   return (
     <>
       <section className="py-24 bg-gray-900 text-white">

@@ -2,10 +2,11 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { toLang, type Lang } from "@/lib/types";
 
 interface LanguageContextValue {
-  lang: string;
-  changeLanguage: (newLang: string) => void;
+  lang: Lang;
+  changeLanguage: (newLang: Lang) => void;
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
@@ -14,10 +15,10 @@ const LanguageContext = createContext<LanguageContextValue>({
 });
 
 export function LanguageProvider({ children, initialLang }: { children: ReactNode; initialLang: string }) {
-  const [lang, setLang] = useState(initialLang);
+  const [lang, setLang] = useState<Lang>(toLang(initialLang));
   const router = useRouter();
 
-  const changeLanguage = (newLang: string) => {
+  const changeLanguage = (newLang: Lang) => {
     setLang(newLang);
     Cookies.set("lang", newLang, { expires: 365 });
     router.refresh();
