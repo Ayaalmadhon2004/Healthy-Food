@@ -42,29 +42,18 @@ export async function POST(request) {
     }
     const userId = sessionUser.id;
 
-    const { recipeId, mealData } = await request.json();
+    const { recipeId } = await request.json();
     const rId = Number(recipeId);
 
-    if (!Number.isInteger(rId) || !mealData || typeof mealData !== "object") {
+    if (!Number.isInteger(rId)) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
-    let recipe = await prisma.foodRecipe.findUnique({ where: { id: rId } });
-
+    // Only recipes that already exist in the database can be favorited;
+    // clients can no longer create recipes through this endpoint.
+    const recipe = await prisma.foodRecipe.findUnique({ where: { id: rId } });
     if (!recipe) {
-      recipe = await prisma.foodRecipe.create({
-        data: {
-          id: rId,
-          img: mealData.img || "",
-          title: mealData.title || {}, 
-          type: mealData.type || {},
-          time: mealData.time || {},
-          cal: mealData.cal || {},
-          nutrition: mealData.nutrition || {},
-          ingredients: mealData.ingredients || {},
-          instructions: mealData.instructions || {},
-        }
-      }); 
+      return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
     }
 
     const existingFavorite = await prisma.favorite.findUnique({
@@ -83,7 +72,17 @@ export async function POST(request) {
         data: {
           userId,
           recipeId: rId,
-          recipeData: mealData
+          // Stored from the trusted DB record, not from client input.
+          recipeData: {
+            img: recipe.img,
+            title: recipe.title,
+            type: recipe.type,
+            time: recipe.time,
+            cal: recipe.cal,
+            nutrition: recipe.nutrition,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions,
+          }
         }
       });
       return NextResponse.json({ message: "Added" });

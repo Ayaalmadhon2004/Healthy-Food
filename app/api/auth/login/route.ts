@@ -1,10 +1,19 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server"
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { loginSchema } from "@/lib/validations/auth";
 import { User as UserData } from "@/hooks/useUserData";
 
 export async function POST(request: Request) {
+  const limited = rateLimit(`login:${getClientIp(request)}`, { limit: 10, windowMs: 60000 });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many attempts, please try again later" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
+    );
+  }
+
   try {
     const body = await request.json();
     const validation = loginSchema.safeParse(body);

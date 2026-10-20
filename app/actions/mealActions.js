@@ -147,44 +147,51 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
     const qty = Number(quantity);
 
     if (!userId) return { error: "يرجى تسجيل الدخول أولاً." };
-    if (qty < 1) return { error: "يجب اختيار وجبة واحدة على الأقل." };
+    if (!Number.isInteger(qty) || qty < 1 || qty > 20) return { error: "يجب اختيار وجبة واحدة على الأقل." };
 
     const kitchen = await prisma.kitchen.findUnique({
       where: { id: kId }
     });
     if (!kitchen) return { error: "المطبخ غير موجود." };
 
-    const capValue = kitchen.capacity?.en || "500";
+    const capValue = String(kitchen.capacity?.en ?? kitchen.capacity ?? "500");
     const capacityLimit = parseInt(capValue.split('-').pop()) || 500;
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
-    const aggregation = await prisma.mealOrder.aggregate({
-      where: { kitchenId: kId, targetDate: tomorrow },
-      _sum: { quantity: true }
-    });
-    const currentTotal = aggregation._sum.quantity || 0;
 
-    if (currentTotal + qty > capacityLimit) {
-      const remaining = capacityLimit - currentTotal;
-      return { error: `عذراً، المتبقي فقط ${remaining} وجبة.` };
-    }
-    const existingOrder = await prisma.mealOrder.findFirst({
-      where: { userId, kitchenId: kId, targetDate: tomorrow }
-    });
-    if (existingOrder) return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
-    const newOrder = await prisma.mealOrder.create({
-      data: {
-        userId: userId,
-        kitchenId: kId,
-        targetDate: tomorrow,
-        quantity: qty 
+    // Serializable transaction: two concurrent reservations cannot both pass the capacity check.
+    const outcome = await prisma.$transaction(async (tx) => {
+      const existingOrder = await tx.mealOrder.findFirst({
+        where: { userId, kitchenId: kId, targetDate: tomorrow }
+      });
+      if (existingOrder) return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
+
+      const aggregation = await tx.mealOrder.aggregate({
+        where: { kitchenId: kId, targetDate: tomorrow },
+        _sum: { quantity: true }
+      });
+      const currentTotal = aggregation._sum.quantity || 0;
+
+      if (currentTotal + qty > capacityLimit) {
+        const remaining = Math.max(capacityLimit - currentTotal, 0);
+        return { error: `عذراً، المتبقي فقط ${remaining} وجبة.` };
       }
-    });
+
+      await tx.mealOrder.create({
+        data: { userId, kitchenId: kId, targetDate: tomorrow, quantity: qty }
+      });
+      return { ok: true };
+    }, { isolationLevel: "Serializable" });
+
+    if (outcome.error) return { error: outcome.error };
     revalidatePath("/"); 
     return { success: `تم حجز ${qty} وجبات بنجاح لغدًا.` };
   } catch (error) {
     console.error("Meal Order Error:", error);
+    // P2034 = serialization conflict, P2002 = duplicate reservation
+    if (error?.code === "P2034") return { error: "الطلبات كثيرة حالياً، حاول مرة أخرى." };
+    if (error?.code === "P2002") return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
     return { error: "حدث خطأ تقني، حاول مرة أخرى لاحقاً." };
   }
 }
