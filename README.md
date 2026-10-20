@@ -1,9 +1,3 @@
-You are absolutely right. I focused too much on the new technical additions and condensed your original sections. A great README should be a complete tour of the app, just like the one you started.
-
-Here is the **full, professional version** that includes every single section from your original draft (Recipes, Tracker, Cart, Tips, Doctors) while seamlessly weaving in the new Gaza Kitchen features—all without emojis or "v2" labels.
-
----
-
 # Healthy Food and Gaza Kitchen Community
 
 ## Overview
@@ -39,13 +33,13 @@ The **Browse Recipes** page is the hub for discovering meals that fit your lifes
 
 * **Filtering:** Sort by Breakfast, Lunch, Dinner, or Snacks.
 * **Details:** View prep time, total calories, ingredients, and instructions.
-* **Action:** Users can **Log this Meal** to their tracker or **Add to Cart** to save it for later.
+* **Action:** Users can **Log this Meal** to their tracker or **Add to Favorites** to save it for later.
   <img width="1149" height="687" alt="image" src="https://github.com/user-attachments/assets/29482493-298e-4817-9e24-f5c933962554" />
 
 
-### 🛒 Fav and Calorie Overview
+### Favorites and Calorie Overview
 
-When a recipe is added to the Fav , the system displays the **name, quantity, and calorie value**. Adjusting quantities updates the total calories automatically, helping users stay within their daily targets.
+When a recipe is added to Favorites, the system displays the **name, quantity, and calorie value**. Adjusting quantities updates the total calories automatically, helping users stay within their daily targets.
 <img width="1289" height="891" alt="image" src="https://github.com/user-attachments/assets/3f3626c1-4eba-4849-a2f4-d27a27849023" />
 
 
@@ -103,23 +97,58 @@ The **Gaza Kitchen Community** module helps families locate and reserve free mea
 
 ## Tech Stack
 
-* **Frontend:** Next.js (App Router) with Tailwind CSS
-* **Backend Logic:** Server Actions for secure data mutations
-* **Database and ORM:** PostgreSQL with **Prisma ORM**
-* **Icons:** Lucide React
+* **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4
+* **Backend Logic:** Server Actions and Route Handlers
+* **Database and ORM:** PostgreSQL with **Prisma 7**
+* **Auth:** Supabase Auth (session cookies), roles `USER` / `ORG` / `ADMIN`
+* **State and validation:** Zustand, Zod
+* **Other:** Recharts, Lucide React, PWA (next-pwa)
 
 ---
 
 ## Installation and Setup
 
+Requirements: Node.js 22+, a PostgreSQL database and a Supabase project.
+
 ```bash
 git clone https://github.com/Ayaalmadhon2004/Healthy-Food.git
 cd Healthy-Food
-npm install
-npx prisma generate
+cp .env.example .env        # then fill in the values
+npm install                 # also runs prisma generate
+npx prisma db push          # create the tables
+npx prisma db seed          # sample recipes, tips, doctors and kitchens
 npm run dev
-
 ```
+
+### Environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL`, `DIRECT_URL` | PostgreSQL connection strings |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase client |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only, used by sign-up |
+| `CRON_SECRET` | Required in production for `/api/cron/keep-alive` (`Authorization: Bearer <secret>`) |
+
+### Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` / `npm start` | Production build and server (the build reads the seeded database) |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests (Node test runner) for dates, capacity and rate limiting |
+
+CI (`.github/workflows/ci.yml`) runs lint, tests and a build against a temporary PostgreSQL.
+
+---
+
+## Design Notes
+
+* **Identity comes from the session.** Server Actions and API routes read the signed-in user from the Supabase session (`lib/auth.js`); they never trust a user id sent by the client. Kitchen management and area reports are restricted to `ORG` / `ADMIN`.
+* **Gaza time.** "Today", "tomorrow" and monthly statistics use the `Asia/Gaza` timezone (`lib/dates.js`), independent of the server timezone.
+* **Reservations** run in a serializable transaction (with retry), so a kitchen cannot be overbooked by concurrent requests.
+* **Kitchen capacity** is stored as a number; older `{ en, ar }` values are still read correctly (`lib/capacity.js`).
+* **Rate limiting** on login and sign-up is in-memory (`lib/rateLimit.js`); on serverless hosting use a shared store for strict limits.
 
 ---
 
@@ -127,13 +156,15 @@ npm run dev
 
 ```text
 Healthy-Food/
-├─ app/                 # Next.js pages, layouts, and Server Actions
-├─ components/          # Reusable UI and Kitchen components
-├─ prisma/              # Database Schema and Migrations
-├─ public/              # Optimized images and assets
-├─ hooks/               # Custom React hooks for user and language state
-└─ README.md            # Project documentation
-
+├─ app/                 # Pages, layouts, API routes and Server Actions (app/actions)
+├─ components/          # Reusable UI, dashboard, kitchen and tracker components
+├─ context/, hooks/, store/   # Language, user and favorites state
+├─ lib/                 # Prisma, Supabase, auth, dates, capacity, rate limiting, validation
+├─ locales/             # Arabic and English dictionaries
+├─ prisma/              # Schema and seed
+├─ tests/               # Unit tests
+├─ public/              # Images, icons, manifest
+└─ proxy.js             # Session refresh and route protection
 ```
 
 ---
@@ -145,5 +176,3 @@ Healthy-Food/
 * Enhanced reporting tools for aid organizations to track distribution efficiency.
 
 ---
-
-**Would you like me to add a specific section for the "Claim Area" or "WhatsApp Support" features we discussed earlier to make it even more complete?**

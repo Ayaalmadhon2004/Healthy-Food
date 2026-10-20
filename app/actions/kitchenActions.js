@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
 import { getCapacityLimit, validateCapacityInput } from "@/lib/capacity";
-import { getGazaMonthRange, getReservationTargetDate } from "@/lib/dates";
+import { getReservationTargetDate } from "@/lib/dates";
 
 const REGION_MAP = {
   "North": { ar: "الشمال", en: "North" },
@@ -182,32 +182,4 @@ export async function deleteKitchenAction(kitchenId) {
     console.error("Delete Error:", error);
     return { success: false, error: "Failed to delete kitchen" };
   }
-}
-
-// 7. جلب السجلات (Food Logs)
-export async function getKitchenByIdAction(_userId, year, month) {
-    try {
-      const sessionUser = await getSessionUser();
-      if (!sessionUser) return { success: false, error: "Unauthorized" };
-      const userId = sessionUser.id;
-
-      const { start: startDate, end: endDate } = getGazaMonthRange(year, month);
-
-      const logs = await prisma.foodLog.findMany({
-        where: {
-          userId: userId,
-          createdAt: {
-            gte: startDate,
-            lt: endDate,
-          },
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      });
-      return { success: true, logs };
-    } catch (error) {
-      console.error("Fetch Logs Error:", error);
-      return { success: false, error: "Failed to fetch logs" };
-    }
 }
