@@ -31,6 +31,7 @@ export default function MonthlyDashboard({ data = {}, stats = {}, lang }) {
             year={new Date().getFullYear()} 
             month={new Date().getMonth() + 1} 
             lang={lang} 
+            goal={stats?.goal || 2000}
         />
         </section>
     );

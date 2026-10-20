@@ -51,7 +51,15 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 full: "عذراً، اكتمل العدد",
                 loginAlert: "يرجى تسجيل الدخول أولاً",
                 errorDefault: "حدث خطأ غير متوقع",
-                success: "تم حجز الوجبات بنجاح"
+                success: "تم حجز الوجبات بنجاح",
+                errors: {
+                    LOGIN_REQUIRED: "يرجى تسجيل الدخول أولاً.",
+                    INVALID_QUANTITY: "يجب اختيار وجبة واحدة على الأقل.",
+                    KITCHEN_NOT_FOUND: "المطبخ غير موجود.",
+                    ALREADY_RESERVED: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا.",
+                    NOT_ENOUGH_LEFT: (n) => `عذراً، المتبقي فقط ${n} وجبة.`,
+                    BUSY: "الطلبات كثيرة حالياً، حاول مرة أخرى."
+                }
             },
             en: {
                 title: "📅 Tomorrow's Meal",
@@ -65,7 +73,15 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 full: "Sorry, fully booked",
                 loginAlert: "Please login first",
                 errorDefault: "An unexpected error occurred",
-                success: "Reservation successful"
+                success: "Reservation successful",
+                errors: {
+                    LOGIN_REQUIRED: "Please log in first.",
+                    INVALID_QUANTITY: "Please choose at least one meal.",
+                    KITCHEN_NOT_FOUND: "Kitchen not found.",
+                    ALREADY_RESERVED: "You have already reserved at this kitchen for tomorrow.",
+                    NOT_ENOUGH_LEFT: (n) => `Sorry, only ${n} meals left.`,
+                    BUSY: "Many requests right now, please try again."
+                }
             }
         };
         return translations[lang] || translations.ar;
@@ -91,11 +107,12 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 setIsReserved(true); 
                 setStatus("success");
                 setStatus("success");
-                setMessage(result.success || t.success);
+                setMessage(t.success);
                 setCurrentCount(prev => prev + quantity);
             } else {
                 setStatus("error");
-                setMessage(result?.error || t.errorDefault);
+                const known = t.errors[result?.error];
+                setMessage(typeof known === "function" ? known(result.remaining) : known || t.errorDefault);
             }
         } catch (err) {
             setStatus("error");

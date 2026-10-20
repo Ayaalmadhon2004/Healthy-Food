@@ -4,6 +4,46 @@ import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
 import { getGazaDayOfMonth, getGazaMonthRange, getGazaTodayStart, getReservationTargetDate } from "@/lib/dates";
 import { getCapacityLimit } from "@/lib/capacity";
+import { readCalorieGoal, validateCalorieGoalInput, withCalorieGoal } from "@/lib/calorieGoal";
+
+async function loadCalorieGoal(userId) {
+  const row = await prisma.user.findUnique({ where: { id: userId }, select: { health_goals: true } });
+  return readCalorieGoal(row?.health_goals);
+}
+
+export async function getCalorieGoalAction() {
+  try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return { success: false, error: "Unauthorized" };
+    return { success: true, goal: await loadCalorieGoal(sessionUser.id) };
+  } catch (error) {
+    console.error("mealActions error:", error);
+    return { success: false, error: "Something went wrong" };
+  }
+}
+
+export async function setCalorieGoalAction(value) {
+  try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return { success: false, error: "Unauthorized" };
+
+    const goal = validateCalorieGoalInput(value);
+    if (goal === null) return { success: false, error: "INVALID_GOAL" };
+
+    const row = await prisma.user.findUnique({ where: { id: sessionUser.id }, select: { health_goals: true } });
+    await prisma.user.update({
+      where: { id: sessionUser.id },
+      data: { health_goals: withCalorieGoal(row?.health_goals, goal) },
+    });
+
+    revalidatePath("/tracker");
+    revalidatePath("/dashboard/tracker/monthly");
+    return { success: true, goal };
+  } catch (error) {
+    console.error("mealActions error:", error);
+    return { success: false, error: "Something went wrong" };
+  }
+}
 
 export async function addMealAction(data) {
   try {
@@ -24,6 +64,7 @@ export async function addMealAction(data) {
 
     return { success: true, meal };
   } catch (error) {
+    console.error("mealActions error:", error);
     return { success: false, error: "Something went wrong" };
   }
 }
@@ -50,6 +91,7 @@ export async function getMealsAction() {
 
     return { success: true, meals };
   } catch (error) {
+    console.error("mealActions error:", error);
     return { success: false, error: "Something went wrong" };
   }
 }
@@ -67,6 +109,7 @@ export async function deleteMealAction(mealId) {
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
+    console.error("mealActions error:", error);
     return { success: false, error: "Something went wrong" };
   }
 }
@@ -93,8 +136,9 @@ export async function getMonthlyGridDataAction(_userId, year, month) {
       dailyTotals[day] = (dailyTotals[day] || 0) + meal.calories;
     });
 
-    return { success: true, dailyTotals };
+    return { success: true, dailyTotals, goal: await loadCalorieGoal(userId) };
   } catch (error) {
+    console.error("mealActions error:", error);
     return { success: false, dailyTotals: {} };
   }
 }
@@ -122,18 +166,21 @@ export async function getMonthlyStatsAction(_userId, year, month) {
       ? Math.round(totalsArray.reduce((a, b) => a + b, 0) / totalsArray.length) 
       : 0;
     
-    // أيام الالتزام (أقل من 2000 سعرة)
-    const commitmentDays = totalsArray.filter(v => v <= 2000 && v > 0).length;
+    // Commitment days: days with intake at or under the user's own daily goal
+    const goal = await loadCalorieGoal(userId);
+    const commitmentDays = totalsArray.filter(v => v <= goal && v > 0).length;
 
     return { 
       success: true, 
       stats: { 
         avgCalories, 
         commitmentDays, 
-        totalMeals: meals.length 
+        totalMeals: meals.length,
+        goal
       } 
     };
   } catch (error) {
+    console.error("mealActions error:", error);
     return { success: false, error: "Something went wrong" };
   }
 }
@@ -145,13 +192,13 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
     const kId = Number(kitchenId);
     const qty = Number(quantity);
 
-    if (!userId) return { error: "يرجى تسجيل الدخول أولاً." };
-    if (!Number.isInteger(qty) || qty < 1 || qty > 20) return { error: "يجب اختيار وجبة واحدة على الأقل." };
+    if (!userId) return { error: "LOGIN_REQUIRED" };
+    if (!Number.isInteger(qty) || qty < 1 || qty > 20) return { error: "INVALID_QUANTITY" };
 
     const kitchen = await prisma.kitchen.findUnique({
       where: { id: kId }
     });
-    if (!kitchen) return { error: "المطبخ غير موجود." };
+    if (!kitchen) return { error: "KITCHEN_NOT_FOUND" };
 
     const capacityLimit = getCapacityLimit(kitchen.capacity);
     const tomorrow = getReservationTargetDate();
@@ -164,7 +211,7 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
       const existingOrder = await tx.mealOrder.findFirst({
         where: { userId, kitchenId: kId, targetDate: tomorrow }
       });
-      if (existingOrder) return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
+      if (existingOrder) return { error: "ALREADY_RESERVED" };
 
       const aggregation = await tx.mealOrder.aggregate({
         where: { kitchenId: kId, targetDate: tomorrow },
@@ -174,7 +221,7 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
 
       if (currentTotal + qty > capacityLimit) {
         const remaining = Math.max(capacityLimit - currentTotal, 0);
-        return { error: `عذراً، المتبقي فقط ${remaining} وجبة.` };
+        return { error: "NOT_ENOUGH_LEFT", remaining };
       }
 
       await tx.mealOrder.create({
@@ -194,15 +241,15 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
       }
     }
 
-    if (outcome.error) return { error: outcome.error };
+    if (outcome.error) return outcome;
     revalidatePath("/"); 
-    return { success: `تم حجز ${qty} وجبات بنجاح لغدًا.` };
+    return { success: true, quantity: qty };
   } catch (error) {
     console.error("Meal Order Error:", error);
     // P2034 = serialization conflict, P2002 = duplicate reservation
-    if (error?.code === "P2034" || /TransactionWriteConflict/i.test(error?.message ?? "")) return { error: "الطلبات كثيرة حالياً، حاول مرة أخرى." };
-    if (error?.code === "P2002") return { error: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا." };
-    return { error: "حدث خطأ تقني، حاول مرة أخرى لاحقاً." };
+    if (error?.code === "P2034" || /TransactionWriteConflict/i.test(error?.message ?? "")) return { error: "BUSY" };
+    if (error?.code === "P2002") return { error: "ALREADY_RESERVED" };
+    return { error: "GENERIC" };
   }
 }
 
