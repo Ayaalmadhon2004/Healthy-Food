@@ -2,6 +2,19 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 
+// recipeData is stored as JSON; older rows may hold it as a JSON string.
+function parseRecipeData(value: unknown): Record<string, unknown> {
+  if (typeof value === "string") {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+    } catch {
+      return {};
+    }
+  }
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
 export async function GET() {
   try {
     // The user is always taken from the session, never from the query string.
@@ -15,26 +28,20 @@ export async function GET() {
       where: { userId },
     });
 
-    const formatted = favorites.map(f => {
-      const recipeData = typeof f.recipeData === 'string' 
-        ? JSON.parse(f.recipeData) 
-        : (f.recipeData || {});
-        
-      return {
-        ...recipeData,
-        id: f.recipeId 
-      };
-    });
+    const formatted = favorites.map((f) => ({
+      ...parseRecipeData(f.recipeData),
+      id: f.recipeId,
+    }));
 
     return NextResponse.json({ favorites: formatted }, { status: 200 });
 
   } catch (error) {
-    console.error("GET Error:", error.message);
+    console.error("GET Error:", error);
     return NextResponse.json({ favorites: [], error: "Failed to load favorites" }, { status: 200 });
   }
 }
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) {
@@ -42,7 +49,8 @@ export async function POST(request) {
     }
     const userId = sessionUser.id;
 
-    const { recipeId } = await request.json();
+    const body: { recipeId?: unknown } | null = await request.json().catch(() => null);
+    const { recipeId } = body ?? {};
     const rId = Number(recipeId);
 
     if (!Number.isInteger(rId)) {
