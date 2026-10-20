@@ -60,7 +60,7 @@ export const useUserData = create<UserState>((set, get) => ({
       const userFromServer = data.user;
       set({ user: userFromServer, error: null });
       try {
-        const favRes = await fetch(`/api/favorites?userId=${userFromServer.id}`);
+        const favRes = await fetch("/api/favorites");
         if (favRes.ok) {
           const favData = await favRes.json();
           if (favData.favorites) {

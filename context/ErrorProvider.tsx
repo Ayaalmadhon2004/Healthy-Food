@@ -1,16 +1,21 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
-const ErrorContext = createContext({
+interface ErrorContextValue {
+  errorMsg: string;
+  setError: (msg: string) => void;
+}
+
+const ErrorContext = createContext<ErrorContextValue>({
   errorMsg: "",
-  setError: (msg) => {},
+  setError: () => {},
 });
 
 export const useError = () => useContext(ErrorContext);
 
-export const ErrorProvider = ({ children }) => {
+export const ErrorProvider = ({ children }: { children: ReactNode }) => {
   const [errorMsg, setError] = useState("");
   const router = useRouter();
 
