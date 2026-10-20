@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Activity, Calendar, Building2, Stethoscope } from "lucide-react";
 
-export default function Sidebar({ userRole, lang }) {
+export default function Sidebar({ userRole, lang }: { userRole?: string | null; lang: string }) {
   const pathname = usePathname();
   const isAr = lang === "ar";
 
@@ -15,7 +15,7 @@ export default function Sidebar({ userRole, lang }) {
     en: { menu: "Menu", overview: "Overview", daily: "Daily Tracker", monthly: "Monthly View", organization: "Organization", patients: "Patients List" }
   };
 
-  const t = allTranslations[lang] || allTranslations.en;
+  const t = allTranslations[lang as keyof typeof allTranslations] || allTranslations.en;
 
   const menuItems = [
     { href: "/dashboard", label: t.overview, icon: <LayoutDashboard size={20} />, roles: ["USER", "ORG", "DOCTOR", "ADMIN", "GUEST"] },

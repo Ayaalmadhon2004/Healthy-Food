@@ -7,25 +7,33 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteKitchenAction } from "@/app/actions/kitchenActions";
 import Swal from "sweetalert2";
+import { pickText, toLang, type KitchenView, type Localized } from "@/lib/types";
+
+interface OrgKitchenTableProps {
+  initialKitchens?: KitchenView[];
+  lang?: string;
+  totalPages?: number;
+  currentPage?: number;
+}
 
 export default function OrgKitchenTable({ 
   initialKitchens = [], 
   lang = "ar", 
   totalPages = 1, 
   currentPage = 1 
-}) {
+}: OrgKitchenTableProps) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   
   // ✅ إصلاح 1: وضع البيانات في State داخلية لتحديثها فوراً عند الإضافة
-  const [kitchens, setKitchens] = useState(initialKitchens);
+  const [kitchens, setKitchens] = useState<KitchenView[]>(initialKitchens);
 
   // تحديث الحالة الداخلية كلما تغيرت البيانات القادمة من الأب (Props)
   useEffect(() => {
     setKitchens(initialKitchens);
   }, [initialKitchens]);
 
-  const t = {
+  const t: Record<string, Record<string, string>> = {
     ar: {
       searchPlaceholder: "ابحث عن مطبخ أو منطقة...",
       name: "المطبخ",
@@ -67,13 +75,7 @@ export default function OrgKitchenTable({
   // ✅ إصلاح 2: التأكد من اختيار اللغة بشكل صارم
   const currentT = t[lang] || t["ar"];
 
-  const getText = (field, language) => {
-    if (!field) return "";
-    if (typeof field === "string") return field;
-    // إذا كان كائن، نبحث عن اللغة المطلوبة، وإذا لم توجد نأخذ العربية
-    if (typeof field === "object") return field[language] || field["ar"] || "";
-    return "";
-  };
+  const getText = (field: KitchenView["name"], language: string) => pickText(field, toLang(language));
 
   const filtered = (kitchens || []).filter((kitchen) => {
     const name = getText(kitchen.name, lang).toLowerCase();
@@ -82,11 +84,11 @@ export default function OrgKitchenTable({
     return name.includes(searchTerm) || region.includes(searchTerm);
   });
 
-  const goToPage = (pageNumber) => {
+  const goToPage = (pageNumber: number) => {
     router.push(`?page=${pageNumber}`);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     const result = await Swal.fire({
       title: currentT.confirmTitle,
       text: currentT.confirmText,
@@ -185,7 +187,7 @@ export default function OrgKitchenTable({
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="px-6 py-12 text-center text-gray-400 font-medium italic">
+                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-medium italic">
                   {currentT.noResults}
                 </td>
               </tr>

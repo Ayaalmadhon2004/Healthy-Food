@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import type { Localized } from "@/lib/types";
 import { parseCapacity } from "@/lib/capacity";
 import { useRouter } from "next/navigation";
 import { updateKitchenAction } from "@/app/actions/kitchenActions";
@@ -15,7 +16,17 @@ const REGION_OPTIONS = [
   { id: "Rafah", en: "Rafah", ar: "رفح" },
 ];
 
-export default function EditKitchenForm({ kitchen, lang }) {
+export interface EditableKitchen {
+  id: number;
+  name?: Partial<Localized> | null;
+  region?: Partial<Localized> | null;
+  todaysMeal?: Partial<Localized> | null;
+  distributionTime?: Partial<Localized> | null;
+  contact?: string;
+  capacity?: unknown;
+}
+
+export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKitchen; lang: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -60,13 +71,13 @@ export default function EditKitchenForm({ kitchen, lang }) {
       phCapacity: "e.g. 500",
       phContact: "059XXXXXXXX"
     }
-  }[lang];
+  }[lang as "ar" | "en"];
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.currentTarget);
     const result = await updateKitchenAction(kitchen.id, formData);
 
     if (result.success) {
