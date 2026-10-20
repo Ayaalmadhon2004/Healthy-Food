@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react"; // أضفنا useEffect
+import { formatCapacity } from "@/lib/capacity";
 import { Edit3, Trash2, ChevronLeft, ChevronRight, MapPin, Clock, Users, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -161,7 +162,7 @@ export default function OrgKitchenTable({
                   <td className="px-6 py-4 text-gray-500">
                     <div className="flex items-center gap-1">
                       <Users size={14} />
-                      {getText(kitchen.capacity, lang)}
+                      {formatCapacity(kitchen.capacity, lang)}
                     </div>
                   </td>
                   <td className="px-6 py-4">

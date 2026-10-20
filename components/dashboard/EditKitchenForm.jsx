@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { parseCapacity } from "@/lib/capacity";
 import { useRouter } from "next/navigation";
 import { updateKitchenAction } from "@/app/actions/kitchenActions";
 import { Save, Utensils, MapPin, Clock, Globe, Users, Phone, ChevronDown } from "lucide-react";
@@ -108,7 +109,7 @@ export default function EditKitchenForm({ kitchen, lang }) {
           <input 
             type="number" 
             name="capacity" 
-            defaultValue={kitchen.capacity} 
+            defaultValue={parseCapacity(kitchen.capacity) ?? ""} min="1" required 
             placeholder={t.phCapacity} 
             className="form-input-custom !bg-white" 
           />

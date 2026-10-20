@@ -96,8 +96,8 @@ export default function KitchensFilterClient({ kitchens, lang }) {
               <div className="mt-auto pt-6 border-t border-gray-50">
                 <MealRegistration 
                   kitchenId={kitchen.id} 
-                  capacity={kitchen.capacity || 500} 
-                  initialCount={kitchen._count?.orders || 0} 
+                  capacity={kitchen.capacityLimit} 
+                  initialCount={kitchen.reservedTomorrow || 0} 
                   lang={lang} 
                 />
               </div>

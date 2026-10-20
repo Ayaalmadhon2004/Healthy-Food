@@ -2,6 +2,8 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
+import { getGazaDayOfMonth, getGazaMonthRange, getGazaTodayStart, getReservationTargetDate } from "@/lib/dates";
+import { getCapacityLimit } from "@/lib/capacity";
 
 export async function addMealAction(data) {
   try {
@@ -32,8 +34,7 @@ export async function getMealsAction() {
     if (!sessionUser) return { success: false, error: "Unauthorized" };
     const userId = sessionUser.id;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); 
+    const today = getGazaTodayStart();
 
     const meals = await prisma.meal.findMany({
       where: {
@@ -76,20 +77,19 @@ export async function getMonthlyGridDataAction(_userId, year, month) {
     if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
     const userId = sessionUser.id;
 
-    const startDate = new Date(Date.UTC(year, month - 1, 1));
-    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+    const { start: startDate, end: endDate } = getGazaMonthRange(year, month);
 
     const meals = await prisma.meal.findMany({
       where: {
         userId: userId,
-        createdAt: { gte: startDate, lte: endDate },
+        createdAt: { gte: startDate, lt: endDate },
       },
       select: { calories: true, createdAt: true }
     });
 
     const dailyTotals = {};
     meals.forEach(meal => {
-      const day = new Date(meal.createdAt).getUTCDate(); 
+      const day = getGazaDayOfMonth(meal.createdAt);
       dailyTotals[day] = (dailyTotals[day] || 0) + meal.calories;
     });
 
@@ -105,16 +105,15 @@ export async function getMonthlyStatsAction(_userId, year, month) {
     if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
     const userId = sessionUser.id;
 
-    const startDate = new Date(Date.UTC(year, month - 1, 1));
-    const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+    const { start: startDate, end: endDate } = getGazaMonthRange(year, month);
 
     const meals = await prisma.meal.findMany({
-      where: { userId, createdAt: { gte: startDate, lte: endDate } },
+      where: { userId, createdAt: { gte: startDate, lt: endDate } },
     });
 
     const dailyTotals = {};
     meals.forEach(meal => {
-      const day = new Date(meal.createdAt).getUTCDate();
+      const day = getGazaDayOfMonth(meal.createdAt);
       dailyTotals[day] = (dailyTotals[day] || 0) + meal.calories;
     });
 
@@ -154,11 +153,8 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
     });
     if (!kitchen) return { error: "المطبخ غير موجود." };
 
-    const capValue = String(kitchen.capacity?.en ?? kitchen.capacity ?? "500");
-    const capacityLimit = parseInt(capValue.split('-').pop()) || 500;
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    const capacityLimit = getCapacityLimit(kitchen.capacity);
+    const tomorrow = getReservationTargetDate();
 
     // Serializable transaction: two concurrent reservations cannot both pass the capacity check.
     const isConflict = (e) =>
@@ -214,9 +210,7 @@ export async function checkUserReservation(_userId, kitchenId) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return false;
   const userId = sessionUser.id;
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
+  const tomorrow = getReservationTargetDate();
 
   const order = await prisma.mealOrder.findFirst({
     where: { userId, kitchenId: Number(kitchenId), targetDate: tomorrow }
@@ -230,12 +224,15 @@ export async function cancelMealAction(_userId, kitchenId) {
   if (!sessionUser) return { success: false, error: "Unauthorized" };
   const userId = sessionUser.id;
   kitchenId = Number(kitchenId);
-  const tomorrow=new Date();
-  tomorrow.setDate(tomorrow.getDate()+1);
-  tomorrow.setHours(0,0,0,0);
+  const tomorrow = getReservationTargetDate();
 
-  await prisma.mealOrder.deleteMany({
-    where:{userId,kitchenId,targetDate:tomorrow}
+  const orders = await prisma.mealOrder.findMany({
+    where: { userId, kitchenId, targetDate: tomorrow },
+    select: { quantity: true },
   });
-    return {success:true};
+  await prisma.mealOrder.deleteMany({
+    where: { userId, kitchenId, targetDate: tomorrow }
+  });
+  const quantity = orders.reduce((sum, o) => sum + o.quantity, 0);
+  return { success: true, quantity };
 }

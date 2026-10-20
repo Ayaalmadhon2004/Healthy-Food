@@ -115,7 +115,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 setIsReserved(false); 
                 setStatus("success");
                 setMessage(isAr ? "تم إلغاء الحجز بنجاح" : "Reservation cancelled");
-                setCurrentCount(prev => Math.max(0, prev - quantity));
+                setCurrentCount(prev => Math.max(0, prev - (result.quantity || 0)));
             }
         } catch(err){
             setMessage(t.errorDefault);
