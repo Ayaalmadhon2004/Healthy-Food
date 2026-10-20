@@ -1,15 +1,21 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, type FormEvent } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 
-const AddMealForm = memo(({ onAdd }) => {
+export interface NewMealInput {
+  name: string;
+  calories: number;
+  option: string;
+}
+
+const AddMealForm = memo(({ onAdd }: { onAdd: (meal: NewMealInput) => void }) => {
   const { lang } = useLanguage();
   const [mealName, setMealName] = useState("");
   const [calories, setCalories] = useState("");
   const [option, setOption] = useState("Lunch");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!mealName || !calories || Number(calories) <= 0) return;
 

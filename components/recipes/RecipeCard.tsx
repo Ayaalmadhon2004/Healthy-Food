@@ -3,6 +3,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { Clock, Activity } from "lucide-react";
 import { memo } from "react";
+import type { Lang, Recipe } from "@/lib/types";
 
 // تحميل الأزرار التفاعلية فقط عند حاجة المستخدم إليها
 const AddToFavButton = dynamic(() => import("./AddToFavButton"), { 
@@ -14,7 +15,7 @@ const ViewButton = dynamic(() => import("../ViewButton"), {
   loading: () => <div className="h-10 bg-gray-50 animate-pulse rounded-xl" /> 
 });
 
-const RecipeCard = ({ meal, lang, index }) => {
+const RecipeCard = ({ meal, lang, index }: { meal: Recipe; lang: Lang; index: number }) => {
   const isRtl = lang === "ar";
 
   return (

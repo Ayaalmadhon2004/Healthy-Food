@@ -1,9 +1,10 @@
 "use client";
 import { Heart } from "lucide-react";
-import { useFavStore } from "@/store/useFavStore";
+import type { MouseEvent } from "react";
+import { useFavStore, type FavItem } from "@/store/useFavStore";
 import { useUserData } from "@/hooks/useUserData";
 
-export default function AddToFavButton({ meal }) {
+export default function AddToFavButton({ meal }: { meal: FavItem }) {
   const { user } = useUserData();
   
   // استخدام Selector يضمن تحديث الزر فور تغير favItems في المتجر
@@ -13,7 +14,7 @@ export default function AddToFavButton({ meal }) {
   // التحقق المباشر من القائمة المدمجة
   const isFavorite = favItems.some((item) => item.id === meal.id);
 
-  const handleToggle = async (e) => {
+  const handleToggle = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     

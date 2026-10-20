@@ -18,7 +18,7 @@ interface UserState {
   setUser: (user: User | null) => void;
   clearUser: () => void;
   fetchUser: () => Promise<void>;
-  listenToAuth: () => void;
+  listenToAuth: () => { unsubscribe: () => void };
 }
 
 export const useUserData = create<UserState>((set, get) => ({ 

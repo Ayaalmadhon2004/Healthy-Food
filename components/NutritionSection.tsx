@@ -1,16 +1,37 @@
 import {prisma} from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { toLang, type Localized } from "@/lib/types";
+
+interface GuideSection {
+  color: string;
+  title: Localized;
+  description: Localized;
+  listTitle: Localized;
+  items: Localized[];
+}
+
+interface GuideStep {
+  number: number | string;
+  title: Localized;
+  text: Localized;
+}
+
+interface GuideContent {
+  header: { badge: Localized; title: Localized; subtitle: Localized };
+  sections: GuideSection[];
+  stretching: { title: Localized; subtitle: Localized; steps: GuideStep[] };
+}
 
 export default async function NutritionSection() {
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = toLang(cookieStore.get("lang")?.value);
   const isRtl = lang === "ar";
 
   const guideData = await prisma.nutritionGuide.findFirst();
   
   if (!guideData || !guideData.content) return null;
   
-  const { header, sections, stretching } = guideData.content;
+  const { header, sections, stretching } = guideData.content as unknown as GuideContent;
 
   return (
     <section 

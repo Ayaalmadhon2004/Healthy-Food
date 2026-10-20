@@ -1,13 +1,18 @@
 "use client";
 
-import { ErrorBoundary } from "react-error-boundary";
+import type { ComponentType, ReactNode } from "react";
+import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
+
+interface FallbackWithMessageProps extends FallbackProps {
+  message?: string;
+}
 
 // 1️⃣ Default Fallback Component
-function DefaultFallback({ error, resetErrorBoundary, message }) {
+function DefaultFallback({ error, resetErrorBoundary, message }: FallbackWithMessageProps) {
   return (
     <div style={{ padding: 20, textAlign: "center" }}>
       <h2> {message || "Something went wrong!"}</h2>
-      <p>{error.message}</p>
+      <p>{error instanceof Error ? error.message : String(error)}</p>
       <button
         style={{
           padding: "10px 20px",
@@ -30,6 +35,10 @@ export default function ErrorBoundaryWrapper({
   children,
   fallbackComponent: Fallback = DefaultFallback,
   message,
+}: {
+  children: ReactNode;
+  fallbackComponent?: ComponentType<FallbackWithMessageProps>;
+  message?: string;
 }) {
   return (
     <ErrorBoundary

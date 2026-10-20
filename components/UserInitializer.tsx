@@ -6,7 +6,7 @@ import { useUserData } from "@/hooks/useUserData";
 export function UserInitializer() {
   const fetchUser = useUserData((state) => state.fetchUser);
   const listenToAuth = useUserData((state) => state.listenToAuth);
-  const idleCallbackId = useRef(null);
+  const idleCallbackId = useRef<number | null>(null);
 
   useEffect(() => {
     const scheduleAuthFetch = () => {
@@ -34,9 +34,7 @@ export function UserInitializer() {
           window.clearTimeout(idleCallbackId.current);
         }
       }
-      if (subscription?.unsubscribe) {
-        subscription.unsubscribe();
-      }
+      subscription.unsubscribe();
     };
   }, [fetchUser, listenToAuth]);
 

@@ -3,18 +3,25 @@
 import { memo } from "react";
 import { Trash } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import type { Lang, Localized, TrackedMeal } from "@/lib/types";
 
 // 1. استخدام memo لكل وجبة بشكل منفصل
 // هذا يضمن أن الوجبة القديمة لا تتأثر نهائياً عند إضافة وجبة جديدة فوقها
-const MealItem = memo(({ meal, onDelete, lang }) => {
-  const optionTranslations = {
+interface MealItemProps {
+  meal: TrackedMeal;
+  onDelete: (id: string | number) => void;
+  lang: Lang;
+}
+
+const MealItem = memo(({ meal, onDelete, lang }: MealItemProps) => {
+  const optionTranslations: Record<string, Localized> = {
     Lunch: { en: "Lunch", ar: "غداء" },
     Breakfast: { en: "Breakfast", ar: "فطور" },
     Dinner: { en: "Dinner", ar: "عشاء" },
     Snack: { en: "Snack", ar: "سناك" },
   };
 
-  const translatedOption = optionTranslations[meal.mealType || meal.option]?.[lang] || meal.option;
+  const translatedOption = optionTranslations[meal.mealType || meal.option || ""]?.[lang] || meal.option;
 
   return (
     <div className="p-6 border rounded-2xl mb-2 bg-white border-gray-100 shadow-sm transition-all hover:shadow-md animate-in fade-in slide-in-from-bottom-2">
@@ -47,11 +54,11 @@ const MealItem = memo(({ meal, onDelete, lang }) => {
 MealItem.displayName = "MealItem";
 
 // 2. استخدام memo للقائمة بالكامل
-const MealList = memo(({ meals, onDelete }) => {
+const MealList = memo(({ meals, onDelete }: { meals: TrackedMeal[]; onDelete: (id: string | number) => void }) => {
   const { lang } = useLanguage();
   const isRtl = lang === "ar";
 
-  const t = {
+  const t: Record<string, Localized> = {
     title: { en: "Meals Added", ar: "الوجبات المضافة" },
     empty: { en: "No meals added yet.", ar: "لم يتم إضافة وجبات بعد." },
   };
