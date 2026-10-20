@@ -1,13 +1,13 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isOrgRole } from "@/lib/auth";
 import { getCapacityLimit, validateCapacityInput } from "@/lib/capacity";
 import { getReservationTargetDate } from "@/lib/dates";
 
-const REGION_MAP = {
+const REGION_MAP: Record<string, { ar: string; en: string }> = {
   "North": { ar: "الشمال", en: "North" },
   "Gaza": { ar: "غزة", en: "Gaza" },
   "Middle": { ar: "الوسطى", en: "Middle" },
@@ -15,23 +15,22 @@ const REGION_MAP = {
   "Rafah": { ar: "رفح", en: "Rafah" },
 };
 
-async function getIsAuthorized() {
-  const supabase = await createSupabaseServerClient();
-  if (!supabase) return false;
+// Kitchen pages that must be refreshed after a change.
+const KITCHEN_PATHS = ["/dashboard/organization", "/gaza-kitchen"];
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return false;
+async function getIsAuthorized(): Promise<boolean> {
+  const user = await getSessionUser();
+  return isOrgRole(user?.role);
+}
 
-  const dbUser = await prisma.user.findUnique({
-    where: { email: user.email },
-    select: { role: true }
-  });
-
-  return dbUser?.role === "ORG" || dbUser?.role === "ADMIN";
+// Text field from a form (empty string when missing or not text).
+function field(formData: FormData, key: string): string {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
 }
 
 // 3. جلب المطابخ (مع Pagination)
-export async function getKitchensAction(page = 1, limit = 5) {
+export async function getKitchensAction(page: number = 1, limit: number = 5) {
   try {
     const skip = (page - 1) * limit;
 
@@ -72,16 +71,16 @@ export async function getKitchensAction(page = 1, limit = 5) {
 }
 
 // 4. إضافة مطبخ جديد
-export async function addKitchenAction(formData) {
+export async function addKitchenAction(formData: FormData) {
   try {
     const isAuthorized = await getIsAuthorized();
     if (!isAuthorized) return { success: false, error: "Unauthorized" };
 
-    const nameAr = formData.get("nameAr");
-    const nameEn = formData.get("nameEn");
-    const regionId = formData.get("regionId"); 
-    
-    const regionData = REGION_MAP[regionId] || { ar: "غير محدد", en: "Unspecified" };
+    const nameAr = field(formData, "nameAr");
+    const nameEn = field(formData, "nameEn");
+    if (!nameAr || !nameEn) return { success: false, error: "Name is required" };
+
+    const regionData = REGION_MAP[field(formData, "regionId")] || { ar: "غير محدد", en: "Unspecified" };
 
     const capacity = validateCapacityInput(formData.get("capacity"));
     if (capacity === null) return { success: false, error: "Invalid capacity" };
@@ -91,7 +90,7 @@ export async function addKitchenAction(formData) {
       where: {
         name: {
           path: ['ar'],
-          string_starts_with: nameAr.trim(),
+          string_starts_with: nameAr,
         }
       }
     });
@@ -110,16 +109,15 @@ export async function addKitchenAction(formData) {
         name: { ar: finalNameAr, en: finalNameEn },
         region: { ar: regionData.ar, en: regionData.en },
         location: { ar: regionData.ar, en: regionData.en },
-        todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
-        distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
-        contact: formData.get("contact") || "No Contact",
+        todaysMeal: { ar: field(formData, "mealAr"), en: field(formData, "mealEn") },
+        distributionTime: { ar: field(formData, "timeAr"), en: field(formData, "timeEn") },
+        contact: field(formData, "contact") || "No Contact",
         capacity,
         accessInfo: { ar: "", en: "" },
       },
     });
 
-    revalidatePath("/dashboard/organization");
-    revalidatePath("/kitchens");
+    KITCHEN_PATHS.forEach((path) => revalidatePath(path));
     return { success: true, kitchen: newKitchen };
   } catch (error) {
     console.error("Prisma Create Error:", error);
@@ -128,22 +126,25 @@ export async function addKitchenAction(formData) {
 }
 
 // 5. تحديث مطبخ موجود
-export async function updateKitchenAction(kitchenId, formData) {
+export async function updateKitchenAction(kitchenId: number | string, formData: FormData) {
   try {
     const isAuthorized = await getIsAuthorized();
     if (!isAuthorized) return { success: false, error: "Unauthorized" };
 
-    const regionId = formData.get("regionId");
-    const regionData = REGION_MAP[regionId];
+    const regionData = REGION_MAP[field(formData, "regionId")];
 
     const capacity = validateCapacityInput(formData.get("capacity"));
     if (capacity === null) return { success: false, error: "Invalid capacity" };
 
-    const updatedData = {
-      name: { ar: formData.get("nameAr"), en: formData.get("nameEn") },
-      todaysMeal: { ar: formData.get("mealAr"), en: formData.get("mealEn") },
-      distributionTime: { ar: formData.get("timeAr"), en: formData.get("timeEn") },
-      contact: formData.get("contact") || "No Contact",
+    const nameAr = field(formData, "nameAr");
+    const nameEn = field(formData, "nameEn");
+    if (!nameAr || !nameEn) return { success: false, error: "Name is required" };
+
+    const updatedData: Prisma.KitchenUpdateInput = {
+      name: { ar: nameAr, en: nameEn },
+      todaysMeal: { ar: field(formData, "mealAr"), en: field(formData, "mealEn") },
+      distributionTime: { ar: field(formData, "timeAr"), en: field(formData, "timeEn") },
+      contact: field(formData, "contact") || "No Contact",
       capacity,
     };
 
@@ -156,8 +157,7 @@ export async function updateKitchenAction(kitchenId, formData) {
       data: updatedData
     });
 
-    revalidatePath("/dashboard/organization");
-    revalidatePath("/kitchens");
+    KITCHEN_PATHS.forEach((path) => revalidatePath(path));
     return { success: true, kitchen: updatedKitchen };
   } catch (error) {
     console.error("Update Kitchen Error:", error);
@@ -166,7 +166,7 @@ export async function updateKitchenAction(kitchenId, formData) {
 }
 
 // 6. حذف مطبخ
-export async function deleteKitchenAction(kitchenId) {
+export async function deleteKitchenAction(kitchenId: number | string) {
   try {
     const isAuthorized = await getIsAuthorized();
     if (!isAuthorized) return { success: false, error: "Unauthorized" };
@@ -175,8 +175,7 @@ export async function deleteKitchenAction(kitchenId) {
       where: { id: Number(kitchenId) }
     });
 
-    revalidatePath("/dashboard/organization");
-    revalidatePath("/kitchens");
+    KITCHEN_PATHS.forEach((path) => revalidatePath(path));
     return { success: true };
   } catch (error) {
     console.error("Delete Error:", error);

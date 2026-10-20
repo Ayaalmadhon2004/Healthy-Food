@@ -1,4 +1,5 @@
 "use server";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
@@ -6,7 +7,10 @@ import { getGazaDayOfMonth, getGazaMonthRange, getGazaTodayStart, getReservation
 import { getCapacityLimit } from "@/lib/capacity";
 import { readCalorieGoal, validateCalorieGoalInput, withCalorieGoal } from "@/lib/calorieGoal";
 
-async function loadCalorieGoal(userId) {
+type ReservationFailure = { error: string; remaining?: number };
+type ReservationOutcome = { ok: true } | ReservationFailure;
+
+async function loadCalorieGoal(userId: string): Promise<number> {
   const row = await prisma.user.findUnique({ where: { id: userId }, select: { health_goals: true } });
   return readCalorieGoal(row?.health_goals);
 }
@@ -22,7 +26,7 @@ export async function getCalorieGoalAction() {
   }
 }
 
-export async function setCalorieGoalAction(value) {
+export async function setCalorieGoalAction(value: unknown) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) return { success: false, error: "Unauthorized" };
@@ -33,7 +37,7 @@ export async function setCalorieGoalAction(value) {
     const row = await prisma.user.findUnique({ where: { id: sessionUser.id }, select: { health_goals: true } });
     await prisma.user.update({
       where: { id: sessionUser.id },
-      data: { health_goals: withCalorieGoal(row?.health_goals, goal) },
+      data: { health_goals: withCalorieGoal(row?.health_goals, goal) as Prisma.InputJsonObject },
     });
 
     revalidatePath("/tracker");
@@ -45,17 +49,28 @@ export async function setCalorieGoalAction(value) {
   }
 }
 
-export async function addMealAction(data) {
+interface NewMeal {
+  mealType: string;
+  foodName: string;
+  calories: number | string;
+}
+
+export async function addMealAction(data: NewMeal) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) return { success: false, error: "Unauthorized" };
+
+    const calories = Number.parseInt(String(data.calories), 10);
+    if (!Number.isFinite(calories) || calories < 0 || calories > 20000) {
+      return { success: false, error: "Invalid calories" };
+    }
 
     const meal = await prisma.meal.create({
       data: {
         userId: sessionUser.id,
         mealType: data.mealType,
         foodName: data.foodName,
-        calories: parseInt(data.calories),
+        calories,
       }
     });
 
@@ -96,7 +111,7 @@ export async function getMealsAction() {
   }
 }
 
-export async function deleteMealAction(mealId) {
+export async function deleteMealAction(mealId: string) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) return { success: false, error: "Unauthorized" };
@@ -114,7 +129,17 @@ export async function deleteMealAction(mealId) {
   }
 }
 
-export async function getMonthlyGridDataAction(_userId, year, month) {
+// Calories per Gaza day of the month.
+function sumByDay(meals: { calories: number; createdAt: Date }[]): Record<number, number> {
+  const totals: Record<number, number> = {};
+  for (const meal of meals) {
+    const day = getGazaDayOfMonth(meal.createdAt);
+    totals[day] = (totals[day] || 0) + meal.calories;
+  }
+  return totals;
+}
+
+export async function getMonthlyGridDataAction(_userId: unknown, year: number, month: number) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
@@ -130,11 +155,7 @@ export async function getMonthlyGridDataAction(_userId, year, month) {
       select: { calories: true, createdAt: true }
     });
 
-    const dailyTotals = {};
-    meals.forEach(meal => {
-      const day = getGazaDayOfMonth(meal.createdAt);
-      dailyTotals[day] = (dailyTotals[day] || 0) + meal.calories;
-    });
+    const dailyTotals = sumByDay(meals);
 
     return { success: true, dailyTotals, goal: await loadCalorieGoal(userId) };
   } catch (error) {
@@ -143,7 +164,7 @@ export async function getMonthlyGridDataAction(_userId, year, month) {
   }
 }
 
-export async function getMonthlyStatsAction(_userId, year, month) {
+export async function getMonthlyStatsAction(_userId: unknown, year: number, month: number) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
@@ -155,11 +176,7 @@ export async function getMonthlyStatsAction(_userId, year, month) {
       where: { userId, createdAt: { gte: startDate, lt: endDate } },
     });
 
-    const dailyTotals = {};
-    meals.forEach(meal => {
-      const day = getGazaDayOfMonth(meal.createdAt);
-      dailyTotals[day] = (dailyTotals[day] || 0) + meal.calories;
-    });
+    const dailyTotals = sumByDay(meals);
 
     const totalsArray = Object.values(dailyTotals);
     const avgCalories = totalsArray.length > 0 
@@ -185,7 +202,7 @@ export async function getMonthlyStatsAction(_userId, year, month) {
   }
 }
 
-export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
+export async function reserveMealAction(_userId: unknown, kitchenId: number | string, quantity: number = 1): Promise<ReservationFailure | { success: true; quantity: number }> {
   try {
     const sessionUser = await getSessionUser();
     const userId = sessionUser?.id;
@@ -204,10 +221,10 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
     const tomorrow = getReservationTargetDate();
 
     // Serializable transaction: two concurrent reservations cannot both pass the capacity check.
-    const isConflict = (e) =>
-      e?.code === "P2034" || /TransactionWriteConflict|could not serialize/i.test(e?.message ?? "");
+    const isConflict = (e: unknown) =>
+      (e as { code?: string })?.code === "P2034" || /TransactionWriteConflict|could not serialize/i.test((e as Error)?.message ?? "");
 
-    const reserve = () => prisma.$transaction(async (tx) => {
+    const reserve = (): Promise<ReservationOutcome> => prisma.$transaction(async (tx): Promise<ReservationOutcome> => {
       const existingOrder = await tx.mealOrder.findFirst({
         where: { userId, kitchenId: kId, targetDate: tomorrow }
       });
@@ -230,7 +247,7 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
       return { ok: true };
     }, { isolationLevel: "Serializable" });
 
-    let outcome;
+    let outcome: ReservationOutcome;
     for (let attempt = 0; ; attempt++) {
       try {
         outcome = await reserve();
@@ -241,19 +258,20 @@ export async function reserveMealAction(_userId, kitchenId, quantity = 1) {
       }
     }
 
-    if (outcome.error) return outcome;
+    if ("error" in outcome) return outcome;
     revalidatePath("/"); 
     return { success: true, quantity: qty };
   } catch (error) {
     console.error("Meal Order Error:", error);
     // P2034 = serialization conflict, P2002 = duplicate reservation
-    if (error?.code === "P2034" || /TransactionWriteConflict/i.test(error?.message ?? "")) return { error: "BUSY" };
-    if (error?.code === "P2002") return { error: "ALREADY_RESERVED" };
+    const { code, message } = error as { code?: string; message?: string };
+    if (code === "P2034" || /TransactionWriteConflict/i.test(message ?? "")) return { error: "BUSY" };
+    if (code === "P2002") return { error: "ALREADY_RESERVED" };
     return { error: "GENERIC" };
   }
 }
 
-export async function checkUserReservation(_userId, kitchenId) {
+export async function checkUserReservation(_userId: unknown, kitchenId: number | string) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return false;
   const userId = sessionUser.id;
@@ -266,19 +284,19 @@ export async function checkUserReservation(_userId, kitchenId) {
   return !!order; // ستعيد true إذا وجد حجز، و false إذا لم يجد
 }
 
-export async function cancelMealAction(_userId, kitchenId) {
+export async function cancelMealAction(_userId: unknown, kitchenId: number | string) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { success: false, error: "Unauthorized" };
   const userId = sessionUser.id;
-  kitchenId = Number(kitchenId);
+  const kId = Number(kitchenId);
   const tomorrow = getReservationTargetDate();
 
   const orders = await prisma.mealOrder.findMany({
-    where: { userId, kitchenId, targetDate: tomorrow },
+    where: { userId, kitchenId: kId, targetDate: tomorrow },
     select: { quantity: true },
   });
   await prisma.mealOrder.deleteMany({
-    where: { userId, kitchenId, targetDate: tomorrow }
+    where: { userId, kitchenId: kId, targetDate: tomorrow }
   });
   const quantity = orders.reduce((sum, o) => sum + o.quantity, 0);
   return { success: true, quantity };
