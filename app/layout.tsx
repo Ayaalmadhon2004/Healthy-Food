@@ -41,6 +41,7 @@ const cairo = localFont({
 
 
 export const metadata = {
+  manifest: "/manifest.json",
   title: {
     default: "NutriFlow - Gaza Pulse | منصة الأمن الغذائي الميداني",
     template: "%s | NutriFlow",

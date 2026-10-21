@@ -18,7 +18,9 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith('/_next') || 
     pathname.includes('favicon.ico') ||
-    pathname.includes('manifest.json')
+    pathname.includes('manifest.json') ||
+    pathname === '/sw.js' ||
+    pathname === '/offline.html'
   ) {
     return NextResponse.next()
   }
@@ -62,5 +64,5 @@ export async function proxy(request: NextRequest) {
 
 // 4. الإعدادات (Matcher)
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|assets|favicon.ico|manifest.json).*)'],
+  matcher: ['/((?!_next/static|_next/image|assets|favicon.ico|manifest.json|sw.js|offline.html|icons).*)'],
 }
