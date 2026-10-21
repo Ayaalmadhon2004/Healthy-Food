@@ -2,30 +2,22 @@
 
 import type { ComponentType, ReactNode } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface FallbackWithMessageProps extends FallbackProps {
   message?: string;
 }
 
-// 1️⃣ Default Fallback Component
 function DefaultFallback({ error, resetErrorBoundary, message }: FallbackWithMessageProps) {
+  const { lang } = useLanguage();
   return (
-    <div style={{ padding: 20, textAlign: "center" }}>
-      <h2> {message || "Something went wrong!"}</h2>
-      <p>{error instanceof Error ? error.message : String(error)}</p>
-      <button
-        style={{
-          padding: "10px 20px",
-          marginTop: "10px",
-          backgroundColor: "#ff6347",
-          color: "white",
-          border: "none",
-          borderRadius: 5,
-          cursor: "pointer",
-        }}
-        onClick={resetErrorBoundary}
-      >
-        Try Again
+    <div role="alert" className="surface p-6 text-center">
+      <p className="text-lg font-semibold text-ink">
+        {message || (lang === "ar" ? "حدث خطأ ما" : "Something went wrong")}
+      </p>
+      <p className="mt-2 text-sm text-ink-soft">{error instanceof Error ? error.message : String(error)}</p>
+      <button type="button" className="btn btn-clay mt-4" onClick={resetErrorBoundary}>
+        {lang === "ar" ? "حاول مرة أخرى" : "Try again"}
       </button>
     </div>
   );

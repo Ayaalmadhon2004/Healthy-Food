@@ -42,7 +42,7 @@ export default async function EditKitchenPage({ params }: { params: Promise<{ id
         <div className="p-8 max-w-3xl mx-auto" dir={isAr ? "rtl" : "ltr"}>
             <Link 
                 href="/dashboard/organization" 
-                className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors mb-6 font-bold group"
+                className="flex items-center gap-2 text-ink-mute hover:text-black transition-colors mb-6 font-bold group"
             >
                 {isAr ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 {isAr ? "العودة للمطابخ" : "Back to Kitchens"}
@@ -52,7 +52,7 @@ export default async function EditKitchenPage({ params }: { params: Promise<{ id
                 <h1 className="text-4xl font-black text-gray-900">
                     {isAr ? "تعديل بيانات المطبخ" : "Edit Kitchen Details"}
                 </h1>
-                <p className="text-gray-500 mt-2">
+                <p className="text-ink-mute mt-2">
                     {isAr 
                         ? `أنت تقوم الآن بتعديل بيانات: ${pickText(asLocalizedField(kitchen.name), "ar")}` 
                         : `You are currently editing: ${pickText(asLocalizedField(kitchen.name), "en")}`}

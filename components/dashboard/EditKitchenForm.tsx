@@ -95,17 +95,17 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
       {/* قسم الاسم */}
       <section className="space-y-4">
         <h3 className="flex items-center gap-2 font-bold text-gray-700 border-b pb-2">
-          <Utensils size={18} className="text-orange-500" />
+          <Utensils size={18} className="text-clay-600" />
           {t.kitchenName}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-xs text-gray-400 font-bold">{t.arabic}</label>
-            <input name="nameAr" defaultValue={kitchen.name?.ar} placeholder={t.phNameAr} required className="form-input-custom" />
+            <label htmlFor="edit-kitchen-nameAr" className="text-xs text-ink-mute font-bold">{t.arabic}</label>
+            <input id="edit-kitchen-nameAr" name="nameAr" defaultValue={kitchen.name?.ar} placeholder={t.phNameAr} required className="form-input-custom" />
           </div>
           <div className="space-y-1">
-            <label className="text-xs text-gray-400 font-bold">{t.english}</label>
-            <input name="nameEn" defaultValue={kitchen.name?.en} placeholder={t.phNameEn} required className="form-input-custom text-left" dir="ltr" />
+            <label htmlFor="edit-kitchen-nameEn" className="text-xs text-ink-mute font-bold">{t.english}</label>
+            <input id="edit-kitchen-nameEn" name="nameEn" defaultValue={kitchen.name?.en} placeholder={t.phNameEn} required className="form-input-custom text-left" dir="ltr" />
           </div>
         </div>
       </section>
@@ -113,26 +113,26 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
       {/* قسم السعة والتواصل (تصميم مميز) */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-emerald-50/30 p-6 rounded-xl border border-emerald-100/50">
         <div className="space-y-2">
-          <label className="flex items-center gap-2 font-bold text-gray-600 text-sm">
-            <Users size={16} className="text-emerald-600" />
+          <label htmlFor="edit-kitchen-capacity" className="flex items-center gap-2 font-bold text-gray-600 text-sm">
+            <Users size={16} className="text-olive-700" />
             {t.capacity}
           </label>
           <input 
             type="number" 
-            name="capacity" 
+            id="edit-kitchen-capacity" name="capacity" 
             defaultValue={parseCapacity(kitchen.capacity) ?? ""} min="1" required 
             placeholder={t.phCapacity} 
             className="form-input-custom !bg-white" 
           />
         </div>
         <div className="space-y-2">
-          <label className="flex items-center gap-2 font-bold text-gray-600 text-sm">
-            <Phone size={16} className="text-blue-600" />
+          <label htmlFor="edit-kitchen-contact" className="flex items-center gap-2 font-bold text-gray-600 text-sm">
+            <Phone size={16} className="text-sea-700" />
             {t.contact}
           </label>
           <input 
             type="text" 
-            name="contact" 
+            id="edit-kitchen-contact" name="contact" 
             defaultValue={kitchen.contact} 
             placeholder={t.phContact} 
             className="form-input-custom !bg-white text-left" 
@@ -149,6 +149,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
             <div className="relative group">
               <select 
                 name="regionId" 
+                aria-label={t.region}
                 required 
                 className="form-input-custom appearance-none cursor-pointer pr-10"
                 defaultValue={kitchen.region?.en} // نفترض أن الـ ID المخزن هو القيمة الإنجليزية
@@ -160,22 +161,22 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
                   </option>
                 ))}
               </select>
-              <ChevronDown size={18} className={`absolute ${isAr ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-emerald-600 transition-colors`} />
+              <ChevronDown size={18} className={`absolute ${isAr ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none group-hover:text-olive-700 transition-colors`} />
             </div>
          </div>
 
          {/* الوجبة */}
          <div className="space-y-3">
             <h4 className="font-bold text-gray-700 flex items-center gap-2"><Globe size={16}/> {t.meal}</h4>
-            <input name="mealAr" defaultValue={kitchen.todaysMeal?.ar} placeholder={t.phMealAr} className="form-input-custom mb-2" />
-            <input name="mealEn" defaultValue={kitchen.todaysMeal?.en} placeholder={t.phMealEn} className="form-input-custom text-left" dir="ltr" />
+            <input name="mealAr" defaultValue={kitchen.todaysMeal?.ar} aria-label={t.meal} placeholder={t.phMealAr} className="form-input-custom mb-2" />
+            <input name="mealEn" defaultValue={kitchen.todaysMeal?.en} aria-label={t.meal} placeholder={t.phMealEn} className="form-input-custom text-left" dir="ltr" />
          </div>
 
          {/* الوقت */}
          <div className="space-y-3">
             <h4 className="font-bold text-gray-700 flex items-center gap-2"><Clock size={16}/> {t.time}</h4>
-            <input name="timeAr" defaultValue={kitchen.distributionTime?.ar} placeholder={isAr ? "مثلاً: 1:00 ظهرًا" : "e.g. 1:00 PM"} className="form-input-custom mb-2" />
-            <input name="timeEn" defaultValue={kitchen.distributionTime?.en} placeholder="e.g. 1:00 PM" className="form-input-custom text-left" dir="ltr" />
+            <input aria-label={t.time} name="timeAr" defaultValue={kitchen.distributionTime?.ar} placeholder={isAr ? "مثلاً: 1:00 ظهرًا" : "e.g. 1:00 PM"} className="form-input-custom mb-2" />
+            <input aria-label={t.time} name="timeEn" defaultValue={kitchen.distributionTime?.en} placeholder="e.g. 1:00 PM" className="form-input-custom text-left" dir="ltr" />
          </div>
       </div>
 
@@ -192,7 +193,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
         <button 
           type="button"
           onClick={() => router.push("/dashboard/organization")}
-          className="px-8 py-4 bg-gray-100 text-gray-500 rounded-lg font-bold hover:bg-gray-200 transition-all"
+          className="px-8 py-4 bg-gray-100 text-ink-mute rounded-lg font-bold hover:bg-gray-200 transition-all"
         >
           {t.cancel}
         </button>

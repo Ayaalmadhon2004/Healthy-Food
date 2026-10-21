@@ -61,7 +61,7 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-gray-900">{currentT.title}</h1>
-          <p className="text-gray-500 text-sm mt-1">{currentT.desc}</p>
+          <p className="text-ink-mute text-sm mt-1">{currentT.desc}</p>
         </div>
 
         <AddKitchenModal 
@@ -103,7 +103,7 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
         {isLoading ? (
           <div className="p-32 text-center flex flex-col items-center gap-4">
              <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-             <p className="text-gray-400 font-bold">{isAr ? "جاري جلب بيانات المطابخ..." : "Fetching kitchen data..."}</p>
+             <p className="text-ink-mute font-bold">{isAr ? "جاري جلب بيانات المطابخ..." : "Fetching kitchen data..."}</p>
           </div>
         ) : (
           <OrgKitchenTable 
@@ -117,8 +117,8 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
 
       {/* 4. قسم ملاحظات إدارة السعة */}
       <footer className="bg-gray-50 p-6 rounded-3xl border border-dashed border-gray-200 flex items-start gap-3">
-        <Info size={20} className="text-gray-400 mt-1 shrink-0" />
-        <p className="text-sm text-gray-500 leading-relaxed">
+        <Info size={20} className="text-ink-mute mt-1 shrink-0" />
+        <p className="text-sm text-ink-mute leading-relaxed">
           {isAr 
             ? "تأكد من تحديث أرقام التواصل وسعة الوجبات بشكل دوري لضمان وصول المساعدات للأهالي بدقة." 
             : "Ensure contact numbers and meal capacities are updated regularly to guarantee accurate aid delivery."}

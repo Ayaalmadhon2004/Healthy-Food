@@ -69,8 +69,8 @@ const ProgressCard = memo(({ calories, goal = 2000, onGoalChange }: ProgressCard
 
       <div className="mb-4 font-bold flex items-baseline gap-1">
         <span className="text-4xl text-gray-900 tracking-tight">{calories}</span>
-        <span className="text-gray-400 text-lg">/ {goal}</span>
-        <span className="text-sm text-gray-500 font-medium mx-1">{content.unit[lang]}</span>
+        <span className="text-ink-mute text-lg">/ {goal}</span>
+        <span className="text-sm text-ink-mute font-medium mx-1">{content.unit[lang]}</span>
       </div>
 
       <div className="w-full h-2.5 bg-paper-deep rounded-sm mb-6 overflow-hidden">
@@ -109,11 +109,11 @@ const ProgressCard = memo(({ calories, goal = 2000, onGoalChange }: ProgressCard
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="px-3 py-1.5 rounded-lg text-gray-500 text-sm font-semibold"
+                className="px-3 py-1.5 rounded-lg text-ink-mute text-sm font-semibold"
               >
                 {content.cancel[lang]}
               </button>
-              {error && <p className="w-full text-red-600 text-xs font-semibold">{error}</p>}
+              {error && <p className="w-full text-brick-600 text-xs font-semibold">{error}</p>}
             </div>
           ) : (
             <button type="button" onClick={startEdit} className="text-sm font-bold text-green-800 underline underline-offset-4">

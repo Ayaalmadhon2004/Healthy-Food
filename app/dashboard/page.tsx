@@ -22,7 +22,7 @@ interface AreaReportRow {
 
 const StatCard = ({ title, value, isAr }: StatCardProps) => (
   <div className="border-t-2 border-ink pt-3" dir={isAr ? "rtl" : "ltr"}>
-    <h3 className="text-sm text-ink-soft font-medium">{title}</h3>
+    <p className="text-sm text-ink-soft font-medium">{title}</p>
     <p className="text-4xl font-medium text-ink mt-1 tabular-nums font-display">{value}</p>
   </div>
 );
@@ -57,7 +57,7 @@ export default function DashboardHome() {
   if (loading) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="animate-spin text-olive-600" size={28} />
+        <Loader2 className="animate-spin text-olive-700" size={28} />
         <p className="text-ink-mute">{isAr ? "جاري تحميل بياناتك..." : "Loading your data..."}</p>
       </div>
     );

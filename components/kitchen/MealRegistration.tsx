@@ -172,6 +172,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
             <div
                 className="w-full bg-paper-deep h-2 rounded-sm overflow-hidden"
                 role="progressbar"
+                aria-label={`${t.title}: ${t.remaining} ${remaining} ${t.meal}`}
                 aria-valuemin={0}
                 aria-valuemax={limit}
                 aria-valuenow={Math.min(currentCount, limit)}

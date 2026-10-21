@@ -26,9 +26,9 @@ export default function MonthlyDashboard({ data = {}, stats = {}, lang }: {
 
     return (
         <section className="w-full settle">
-        <h2 className="text-3xl font-medium text-ink mb-8">
+        <h1 className="text-3xl font-medium text-ink mb-8">
             {isRtl ? "ملخص الشهر" : "This month"}
-        </h2>
+        </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 mb-10">
             <StatCard label={isRtl ? "متوسط الاستهلاك" : "Average intake"} value={avg} unit={isRtl ? "سعرة" : "cal"} />

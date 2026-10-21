@@ -51,7 +51,7 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
     <div className="w-full" dir={isAr ? "rtl" : "ltr"}>
 
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 mb-8">
-        <nav className="flex flex-wrap gap-2" aria-label={isAr ? "تصفية حسب المنطقة" : "Filter by region"}>
+        <div className="flex flex-wrap gap-2" role="group" aria-label={isAr ? "تصفية حسب المنطقة" : "Filter by region"}>
           {regions.map((region) => (
             <button
               key={region.id}
@@ -63,7 +63,7 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
               {isAr ? region.ar : region.en}
             </button>
           ))}
-        </nav>
+        </div>
         <p className="text-sm text-ink-mute" aria-live="polite">{countLabel}</p>
       </div>
 
@@ -75,7 +75,7 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredKitchens.map((kitchen) => {
+          {filteredKitchens.map((kitchen, index) => {
             const name = pickText(kitchen.name, lang);
             return (
               <article
@@ -88,6 +88,8 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
                     seed={kitchen.id}
                     alt={isAr ? `مطبخ ${name}` : `${name} kitchen`}
                     fill
+                    priority={index < 2}
+                    fetchPriority={index === 0 ? "high" : undefined}
                     sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
                     className="object-cover"
                   />
@@ -102,12 +104,10 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
                   </p>
 
                   <dl className="mt-5 space-y-3 text-[0.9375rem]">
-                    <div className="flex items-start gap-3">
-                      <Clock size={17} strokeWidth={1.75} className="text-ink-mute mt-1 shrink-0" aria-hidden="true" />
-                      <div>
-                        <dt className="text-xs text-ink-mute">{isAr ? "وقت التوزيع" : "Served at"}</dt>
-                        <dd className="text-ink font-medium">{pickText(kitchen.distributionTime, lang)}</dd>
-                      </div>
+                    <div className="grid grid-cols-[1.0625rem_1fr] gap-x-3">
+                      <Clock size={17} strokeWidth={1.75} className="text-ink-mute mt-1 row-span-2" aria-hidden="true" />
+                      <dt className="text-xs text-ink-mute">{isAr ? "وقت التوزيع" : "Served at"}</dt>
+                      <dd className="text-ink font-medium">{pickText(kitchen.distributionTime, lang)}</dd>
                     </div>
 
                     <div className="border-s-2 border-ochre-400 ps-3">
@@ -129,7 +129,7 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
                     {kitchen.contact && (
                       <a
                         href={`tel:${kitchen.contact}`}
-                        className="mt-4 flex items-center gap-2 text-sm text-ink-soft hover:text-olive-800"
+                        className="mt-4 flex items-center gap-2 min-h-11 text-sm text-ink-soft hover:text-olive-800"
                       >
                         <Phone size={15} strokeWidth={1.75} aria-hidden="true" />
                         <span dir="ltr">{kitchen.contact}</span>

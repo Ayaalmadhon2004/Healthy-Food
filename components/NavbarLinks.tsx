@@ -52,9 +52,9 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
   const t = content[lang] || content.ar;
 
   const getDashboardLinkInfo = () => {
-    if (isOrg) return { label: t.orgDashboard, icon: <LayoutDashboard size={16} strokeWidth={1.75} /> };
-    if (isDoctor) return { label: t.doctorDashboard, icon: <Stethoscope size={16} strokeWidth={1.75} /> };
-    return { label: t.userDashboard, icon: <HeartPulse size={16} strokeWidth={1.75} /> };
+    if (isOrg) return { label: t.orgDashboard, icon: <LayoutDashboard size={16} strokeWidth={1.75} aria-hidden="true" /> };
+    if (isDoctor) return { label: t.doctorDashboard, icon: <Stethoscope size={16} strokeWidth={1.75} aria-hidden="true" /> };
+    return { label: t.userDashboard, icon: <HeartPulse size={16} strokeWidth={1.75} aria-hidden="true" /> };
   };
 
   const dashInfo = getDashboardLinkInfo();
@@ -66,7 +66,7 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
         href={href}
         onClick={onClick}
         aria-current={active ? "page" : undefined}
-        className={`${className} ${extra} ${active ? "!text-ink font-semibold underline decoration-clay-500 decoration-2 underline-offset-[10px]" : ""}`}
+        className={`${className} ${extra} inline-flex items-center min-h-11 ${active ? "!text-ink font-semibold underline decoration-clay-500 decoration-2 underline-offset-[10px]" : ""}`}
       >
         {label}
       </Link>
@@ -79,7 +79,7 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
         href="/dashboard"
         onClick={onClick}
         aria-current={pathname === "/dashboard" ? "page" : undefined}
-        className={`${className} inline-flex items-center gap-1.5 !text-olive-800 font-semibold`}
+        className={`${className} inline-flex items-center gap-1.5 min-h-11 !text-olive-800 font-semibold`}
       >
         {dashInfo.icon}
         {dashInfo.label}
@@ -95,9 +95,10 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
 
       <div className={mobile ? "pt-4" : "flex items-center"}>
         <button
+          type="button"
           onClick={() => changeLanguage(lang === 'ar' ? 'en' : 'ar')}
           lang={lang === "ar" ? "en" : "ar"}
-          className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md border border-line-strong text-sm text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
+          className="inline-flex items-center gap-2 px-3 min-h-10 rounded-md border border-line-strong text-sm text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
         >
           <Languages size={15} strokeWidth={1.75} aria-hidden="true" />
           <span>{t.langName}</span>
