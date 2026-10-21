@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
+import { getServerMessages } from "@/lib/i18n";
 
 // recipeData is stored as JSON; older rows may hold it as a JSON string.
 function parseRecipeData(value: unknown): Record<string, unknown> {
@@ -16,6 +17,7 @@ function parseRecipeData(value: unknown): Record<string, unknown> {
 }
 
 export async function GET() {
+  const m = await getServerMessages();
   try {
     // The user is always taken from the session, never from the query string.
     const sessionUser = await getSessionUser();
@@ -37,15 +39,16 @@ export async function GET() {
 
   } catch (error) {
     console.error("GET Error:", error);
-    return NextResponse.json({ favorites: [], error: "Failed to load favorites" }, { status: 200 });
+    return NextResponse.json({ favorites: [], error: m.favoritesLoadFailed }, { status: 200 });
   }
 }
 
 export async function POST(request: Request) {
+  const m = await getServerMessages();
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: m.unauthorized }, { status: 401 });
     }
     const userId = sessionUser.id;
 
@@ -54,14 +57,14 @@ export async function POST(request: Request) {
     const rId = Number(recipeId);
 
     if (!Number.isInteger(rId)) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json({ error: m.invalidData }, { status: 400 });
     }
 
     // Only recipes that already exist in the database can be favorited;
     // clients can no longer create recipes through this endpoint.
     const recipe = await prisma.foodRecipe.findUnique({ where: { id: rId } });
     if (!recipe) {
-      return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
+      return NextResponse.json({ error: m.recipeNotFound }, { status: 404 });
     }
 
     const existingFavorite = await prisma.favorite.findUnique({
@@ -98,6 +101,6 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error("POST Error:", error);
-    return NextResponse.json({ error: "Failed to update favorites" }, { status: 500 });
+    return NextResponse.json({ error: m.favoritesUpdateFailed }, { status: 500 });
   }
 }

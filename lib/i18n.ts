@@ -1,3 +1,7 @@
+import { cookies } from "next/headers";
+import type en from "@/locales/en.json";
+import { toLang, type Lang } from "@/lib/types";
+
 export async function getDictionaryServer(locale: string) {
   const dictionaries: Record<string, () => Promise<Record<string, unknown>>> = {
     en: () => import("@/locales/en.json").then((module) => module.default),
@@ -20,4 +24,18 @@ export async function getDictionaryClient() {
     return import("@/locales/ar.json").then((m) => m.default);
   }
   return import("@/locales/en.json").then((m) => m.default);
+}
+
+export type ServerMessages = typeof en.server;
+
+// Language of the current request, from the `lang` cookie (Arabic by default).
+export async function getServerLang(): Promise<Lang> {
+  const cookieStore = await cookies();
+  return toLang(cookieStore.get("lang")?.value);
+}
+
+// User-facing messages (errors) from the server.* dictionary, in the request's language.
+export async function getServerMessages(): Promise<ServerMessages> {
+  const dict = (await getDictionaryServer(await getServerLang())) as { server: ServerMessages };
+  return dict.server;
 }

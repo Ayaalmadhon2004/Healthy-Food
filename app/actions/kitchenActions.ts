@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
+import { getServerMessages } from "@/lib/i18n";
 import { getCapacityLimit, validateCapacityInput } from "@/lib/capacity";
 import { getReservationTargetDate } from "@/lib/dates";
 import { asLocalizedField, type KitchenView } from "@/lib/types";
@@ -74,7 +75,7 @@ export async function getKitchensAction(page: number = 1, limit: number = 5) {
     };
   } catch (error) {
     console.error("Fetch Kitchens Error:", error);
-    return { success: false, error: "Failed to load kitchens" };
+    return { success: false, error: (await getServerMessages()).kitchensLoadFailed };
   }
 }
 
@@ -82,16 +83,16 @@ export async function getKitchensAction(page: number = 1, limit: number = 5) {
 export async function addKitchenAction(formData: FormData) {
   try {
     const isAuthorized = await getIsAuthorized();
-    if (!isAuthorized) return { success: false, error: "Unauthorized" };
+    if (!isAuthorized) return { success: false, error: (await getServerMessages()).unauthorized };
 
     const nameAr = field(formData, "nameAr");
     const nameEn = field(formData, "nameEn");
-    if (!nameAr || !nameEn) return { success: false, error: "Name is required" };
+    if (!nameAr || !nameEn) return { success: false, error: (await getServerMessages()).nameRequired };
 
     const regionData = REGION_MAP[field(formData, "regionId")] || { ar: "غير محدد", en: "Unspecified" };
 
     const capacity = validateCapacityInput(formData.get("capacity"));
-    if (capacity === null) return { success: false, error: "Invalid capacity" };
+    if (capacity === null) return { success: false, error: (await getServerMessages()).invalidCapacity };
 
     // منطق الترقيم التلقائي للأسماء المكررة
     const existingKitchens = await prisma.kitchen.findMany({
@@ -129,7 +130,7 @@ export async function addKitchenAction(formData: FormData) {
     return { success: true, kitchen: newKitchen };
   } catch (error) {
     console.error("Prisma Create Error:", error);
-    return { success: false, error: "Failed to save kitchen" };
+    return { success: false, error: (await getServerMessages()).kitchenSaveFailed };
   }
 }
 
@@ -137,16 +138,16 @@ export async function addKitchenAction(formData: FormData) {
 export async function updateKitchenAction(kitchenId: number | string, formData: FormData) {
   try {
     const isAuthorized = await getIsAuthorized();
-    if (!isAuthorized) return { success: false, error: "Unauthorized" };
+    if (!isAuthorized) return { success: false, error: (await getServerMessages()).unauthorized };
 
     const regionData = REGION_MAP[field(formData, "regionId")];
 
     const capacity = validateCapacityInput(formData.get("capacity"));
-    if (capacity === null) return { success: false, error: "Invalid capacity" };
+    if (capacity === null) return { success: false, error: (await getServerMessages()).invalidCapacity };
 
     const nameAr = field(formData, "nameAr");
     const nameEn = field(formData, "nameEn");
-    if (!nameAr || !nameEn) return { success: false, error: "Name is required" };
+    if (!nameAr || !nameEn) return { success: false, error: (await getServerMessages()).nameRequired };
 
     const updatedData: Prisma.KitchenUpdateInput = {
       name: { ar: nameAr, en: nameEn },
@@ -169,7 +170,7 @@ export async function updateKitchenAction(kitchenId: number | string, formData: 
     return { success: true, kitchen: updatedKitchen };
   } catch (error) {
     console.error("Update Kitchen Error:", error);
-    return { success: false, error: "Failed to save kitchen" };
+    return { success: false, error: (await getServerMessages()).kitchenSaveFailed };
   }
 }
 
@@ -177,7 +178,7 @@ export async function updateKitchenAction(kitchenId: number | string, formData: 
 export async function deleteKitchenAction(kitchenId: number | string) {
   try {
     const isAuthorized = await getIsAuthorized();
-    if (!isAuthorized) return { success: false, error: "Unauthorized" };
+    if (!isAuthorized) return { success: false, error: (await getServerMessages()).unauthorized };
 
     await prisma.kitchen.delete({
       where: { id: Number(kitchenId) }
@@ -187,6 +188,6 @@ export async function deleteKitchenAction(kitchenId: number | string) {
     return { success: true };
   } catch (error) {
     console.error("Delete Error:", error);
-    return { success: false, error: "Failed to delete kitchen" };
+    return { success: false, error: (await getServerMessages()).kitchenDeleteFailed };
   }
 }

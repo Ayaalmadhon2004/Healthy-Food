@@ -15,7 +15,6 @@
       "general_error": "حدث خطأ ما، يرجى المحاولة مرة أخرى."
     }
   },
-  
   "doctors": {
     "title": "متخصصو الرعاية الصحية",
     "subtitle": "خبراء في مجال الرعاية الصحية المتكاملة",
@@ -55,5 +54,50 @@
       "rate_limited": "عدد التذاكر كبير جداً. حاول لاحقاً.",
       "failed": "حدث خطأ ما. حاول مرة أخرى."
     }
+  },
+  "server": {
+    "unauthorized": "غير مصرح لك بتنفيذ هذا الإجراء",
+    "somethingWrong": "حدث خطأ ما",
+    "invalidCalories": "قيمة السعرات الحرارية غير صالحة",
+    "mealNotFound": "الوجبة غير موجودة",
+    "invalidData": "بيانات غير صالحة",
+    "reportSaveFailed": "تعذر الحفظ في قاعدة البيانات",
+    "reportsFetchFailed": "تعذر جلب البلاغات",
+    "kitchensLoadFailed": "تعذر تحميل المطابخ",
+    "nameRequired": "الاسم مطلوب",
+    "invalidCapacity": "السعة غير صالحة",
+    "kitchenSaveFailed": "تعذر حفظ المطبخ",
+    "kitchenDeleteFailed": "تعذر حذف المطبخ",
+    "tooManyAttempts": "محاولات كثيرة، يرجى المحاولة لاحقاً",
+    "validationFailed": "فشل التحقق من البيانات",
+    "emailRegistered": "البريد الإلكتروني مسجل مسبقاً",
+    "serverConfigError": "خطأ في إعدادات الخادم",
+    "internalConfigError": "خطأ داخلي في إعدادات الخادم",
+    "authProviderError": "خطأ في مزود المصادقة",
+    "databaseError": "حدث خطأ في قاعدة البيانات",
+    "signupFailed": "حدث خطأ من جانبنا",
+    "logoutFailed": "فشل تسجيل الخروج",
+    "unexpectedError": "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى.",
+    "authUnavailable": "خدمة المصادقة غير متاحة",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "profileNotFound": "الملف الشخصي للمستخدم غير موجود",
+    "serverError": "خطأ في الخادم",
+    "doctorsFailed": "فشل الاتصال بقاعدة البيانات",
+    "kitchensFetchFailed": "تعذر جلب المطابخ",
+    "favoritesLoadFailed": "تعذر تحميل المفضلة",
+    "recipeNotFound": "الوصفة غير موجودة",
+    "favoritesUpdateFailed": "تعذر تحديث المفضلة",
+    "cronUnauthorized": "غير مصرح",
+    "cronWakeFailed": "تعذر إيقاظ قاعدة البيانات",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalidAddress": "يرجى إدخال بريد إلكتروني صالح",
+    "emailInvalidFormat": "صيغة البريد الإلكتروني غير صالحة",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "nameTooShort": "يجب أن يتكون الاسم من حرفين على الأقل",
+    "nameTooLong": "الاسم طويل جداً",
+    "passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+    "passwordNeedsUpper": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل",
+    "passwordNeedsNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
+    "passwordNeedsSpecial": "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
   }
 }
