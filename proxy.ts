@@ -4,7 +4,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 // Routes that require a signed-in user. One entry per line to keep merges easy.
 const PROTECTED_ROUTES = [
   '/dashboard',
-  '/doctors',
   '/tracker',
   '/report-area',
   '/support',
