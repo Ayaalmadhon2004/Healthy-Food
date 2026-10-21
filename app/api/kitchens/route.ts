@@ -9,7 +9,7 @@ export async function GET() {
     });
     
     return Response.json(kitchens);
-  } catch (error) {
+  } catch {
     return Response.json({ error: m.kitchensFetchFailed }, { status: 500 });
   }
 }

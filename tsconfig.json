@@ -28,10 +28,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts",
-    "hooks/useUserData.tsx",
-    "app/doctors/page.jsx",
-    "app/api/doctors/route.js"
-, "components/kitchen/MealRegistration.jsx"  ],
+    "**/*.mts"
+  ],
   "exclude": ["node_modules"]
 }

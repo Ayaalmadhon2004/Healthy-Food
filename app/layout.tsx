@@ -7,28 +7,36 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { cookies } from "next/headers";
 import { Toaster } from "react-hot-toast";
 import { UserInitializer } from "@/components/UserInitializer";
-import { Inter, Poppins } from "next/font/google";
+import localFont from "next/font/local";
 
-const inter = Inter({
-  subsets: ["latin"],
+// Fonts are committed under app/fonts so the build does not need network access
+// (next/font/google intermittently failed in CI).
+const inter = localFont({
+  src: "./fonts/inter-latin-wght-normal.woff2",
+  weight: "100 900",
   variable: "--font-main",
   display: "swap",
 });
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+const poppins = localFont({
+  src: [
+    { path: "./fonts/poppins-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/poppins-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/poppins-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/poppins-latin-700-normal.woff2", weight: "700", style: "normal" },
+    { path: "./fonts/poppins-latin-800-normal.woff2", weight: "800", style: "normal" },
+    { path: "./fonts/poppins-latin-900-normal.woff2", weight: "900", style: "normal" },
+  ],
   variable: "--font-headings",
   display: "swap",
 });
 
 // Arabic font for improved Arabic rendering
-import { Cairo } from 'next/font/google';
-const cairo = Cairo({
-  subsets: ['arabic'],
-  variable: '--font-arabic',
-  weight: ['400','700','900'],
-  display: 'swap',
+const cairo = localFont({
+  src: "./fonts/cairo-arabic-wght-normal.woff2",
+  weight: "200 1000",
+  variable: "--font-arabic",
+  display: "swap",
 });
 
 

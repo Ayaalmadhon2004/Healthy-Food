@@ -40,7 +40,8 @@ export default function MonthlyAnalyticsPage() {
   }, []);
 
   useEffect(() => {
-    fetchMonthlyData();
+    // Deferred so the state updates inside fetchMonthlyData are not synchronous in the effect body.
+    void Promise.resolve().then(fetchMonthlyData);
   }, [fetchMonthlyData]);
 
   if (loading) {

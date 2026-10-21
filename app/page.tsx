@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import HomeAnimatedSections from "@/components/HomeAnimatedSections";
 import { 
-  Utensils, Heart, MapPin, Users, Activity, ShieldCheck, ArrowRight, ChevronDown
+  Utensils, Heart, MapPin, Users, ArrowRight, ChevronDown
 } from "lucide-react";
 
 export default async function LandingPage() {
