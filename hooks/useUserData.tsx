@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { useFavStore } from "@/store/useFavStore";
-import { supabase } from "@/lib/supabase/client"; 
+import { getSupabase } from "@/lib/supabase/client";
 
 export interface User {
   id: string;
@@ -74,15 +74,31 @@ export const useUserData = create<UserState>((set, get) => ({
   },
 
   listenToAuth: () => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        set({ loading: true, error: null });
-        await get().fetchUser();
-      } else if (event === 'SIGNED_OUT') {
-        get().clearUser();
-      }
-    });
-    return subscription;
+    // The Supabase client is loaded lazily, so the subscription is attached once it
+    // arrives. `unsubscribe` also works if it is called before that happens.
+    let cancelled = false;
+    let subscription: { unsubscribe: () => void } | null = null;
+
+    getSupabase()
+      .then((supabase) => {
+        if (cancelled) return;
+        subscription = supabase.auth.onAuthStateChange(async (event, session) => {
+          if (session?.user) {
+            set({ loading: true, error: null });
+            await get().fetchUser();
+          } else if (event === 'SIGNED_OUT') {
+            get().clearUser();
+          }
+        }).data.subscription;
+      })
+      .catch((err) => console.error("Could not start the auth listener:", err));
+
+    return {
+      unsubscribe: () => {
+        cancelled = true;
+        subscription?.unsubscribe();
+      },
+    };
   },
 
   fetchUser: async () => {
@@ -120,6 +136,7 @@ export const useUserData = create<UserState>((set, get) => ({
       }
     } catch (err: unknown) {
       try {
+        const supabase = await getSupabase();
         const { data: { session } } = await supabase.auth.getSession();
         const errorMessage = err instanceof Error ? err.message : "Unknown sync error";
         if (!session) {

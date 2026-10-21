@@ -35,7 +35,7 @@ export default function AddToFavButton({ meal }: { meal: FavItem }) {
       aria-label={label}
       aria-pressed={isFavorite}
       title={label}
-      className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-lg border transition-colors ${
+      className={`w-11 h-11 shrink-0 flex items-center justify-center rounded-lg border transition-colors ${
         isFavorite
           ? "bg-clay-50 border-clay-300 text-clay-700"
           : "bg-white border-line-strong text-ink-mute hover:text-clay-700 hover:border-clay-300"
@@ -45,6 +45,7 @@ export default function AddToFavButton({ meal }: { meal: FavItem }) {
         size={19}
         strokeWidth={1.75}
         className={isFavorite ? "fill-current" : ""}
+        aria-hidden="true"
       />
     </button>
   );

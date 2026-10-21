@@ -1,6 +1,6 @@
-import {prisma} from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { toLang, type Localized } from "@/lib/types";
+import { getNutritionGuide } from "@/lib/data";
+import { getServerLang } from "@/lib/i18n";
+import type { Localized } from "@/lib/types";
 
 interface GuideSection {
   color: string;
@@ -34,12 +34,9 @@ const ACCENTS: Record<string, string> = {
 };
 
 export default async function NutritionSection() {
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, guideData] = await Promise.all([getServerLang(), getNutritionGuide()]);
   const isRtl = lang === "ar";
 
-  const guideData = await prisma.nutritionGuide.findFirst();
-  
   if (!guideData || !guideData.content) return null;
   
   const { header, sections, stretching } = guideData.content as unknown as GuideContent;

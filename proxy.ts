@@ -20,8 +20,20 @@ export async function proxy(request: NextRequest) {
     pathname.includes('favicon.ico') ||
     pathname.includes('manifest.json') ||
     pathname === '/sw.js' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
     pathname === '/offline.html'
   ) {
+    return NextResponse.next()
+  }
+
+  const isProtectedRoute = PROTECTED_ROUTES.some((p) => pathname.startsWith(p))
+  // Supabase stores the session in cookies named sb-<project>-auth-token (possibly chunked: ...-token.0).
+  const hasSession = request.cookies.getAll().some((c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'))
+
+  // Anonymous visitors on public pages need nothing from Supabase. Skipping the client
+  // here removes a network round trip from the time-to-first-byte of every such page.
+  if (!isProtectedRoute && !hasSession) {
     return NextResponse.next()
   }
 
@@ -49,14 +61,18 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // 2. تحديث الجلسة (هذا الجزء يمنع اختفاء "moh" بعد دقيقة)
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // 3. حماية المسارات (Routes Protection)
-  const isProtectedRoute = PROTECTED_ROUTES.some((p) => pathname.startsWith(p))
-  
-  if (!user && isProtectedRoute) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (isProtectedRoute) {
+    // 2. Protected routes: verify the user with Supabase (and refresh the session if needed).
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  } else {
+    // 3. Public routes with a session cookie: only keep the session fresh (this is what stops
+    // the user from being signed out after the access token expires). getSession() reads the
+    // cookie and talks to Supabase only when the token has actually expired, so most requests
+    // cost nothing, unlike getUser() which is a network call every time.
+    await supabase.auth.getSession()
   }
 
   return response
@@ -64,5 +80,5 @@ export async function proxy(request: NextRequest) {
 
 // 4. الإعدادات (Matcher)
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|assets|favicon.ico|manifest.json|sw.js|offline.html|icons).*)'],
+  matcher: ['/((?!_next/static|_next/image|assets|favicon.ico|manifest.json|sw.js|swe-worker|workbox-|offline.html|robots.txt|sitemap.xml|icons|opengraph-image).*)'],
 }

@@ -6,7 +6,6 @@ import { Edit3, Trash2, ChevronLeft, ChevronRight, MapPin, Clock, Users, Search 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteKitchenAction } from "@/app/actions/kitchenActions";
-import Swal from "sweetalert2";
 import { pickText, toLang, type KitchenView } from "@/lib/types";
 
 interface OrgKitchenTableProps {
@@ -89,6 +88,8 @@ export default function OrgKitchenTable({
   };
 
   const handleDelete = async (id: number) => {
+    // Loaded on demand: the dialog library is only needed when someone deletes a kitchen.
+    const { default: Swal } = await import("sweetalert2");
     const result = await Swal.fire({
       title: currentT.confirmTitle,
       text: currentT.confirmText,
@@ -120,11 +121,12 @@ export default function OrgKitchenTable({
       
       {/* شريط البحث */}
       <div className="p-5 border-b border-gray-50 flex items-center gap-4 bg-gray-50/30">
-        <Search className="text-gray-400" size={20} />
+        <Search className="text-ink-mute" size={20} />
         <input 
           type="text" 
           placeholder={currentT.searchPlaceholder}
-          className="bg-transparent border-none outline-none w-full font-medium text-gray-700 placeholder:text-gray-300"
+          aria-label={currentT.searchPlaceholder}
+          className="bg-transparent border-none outline-none w-full font-medium text-gray-700 placeholder:text-ink-mute"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -133,7 +135,7 @@ export default function OrgKitchenTable({
       {/* الجدول */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50/50 text-gray-400 font-bold border-b border-gray-100">
+          <thead className="bg-gray-50/50 text-ink-mute font-bold border-b border-gray-100">
             <tr className="text-[11px] uppercase tracking-wider">
               <th className="px-6 py-4 text-start">{currentT.name}</th>
               <th className="px-6 py-4 text-start">{currentT.location}</th>
@@ -149,19 +151,19 @@ export default function OrgKitchenTable({
                   <td className="px-6 py-4 font-bold text-gray-800">
                     {getText(kitchen.name, lang)}
                   </td>
-                  <td className="px-6 py-4 text-gray-500">
+                  <td className="px-6 py-4 text-ink-mute">
                     <div className="flex items-center gap-1">
-                      <MapPin size={14} className="text-green-500" />
+                      <MapPin size={14} className="text-olive-700" />
                       {getText(kitchen.region, lang)}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-500">
+                  <td className="px-6 py-4 text-ink-mute">
                     <div className="flex items-center gap-1">
                       <Clock size={14} />
                       {getText(kitchen.distributionTime, lang)}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-500">
+                  <td className="px-6 py-4 text-ink-mute">
                     <div className="flex items-center gap-1">
                       <Users size={14} />
                       {formatCapacity(kitchen.capacity, lang)}
@@ -171,13 +173,13 @@ export default function OrgKitchenTable({
                     <div className="flex justify-center items-center gap-2">
                       <Link
                         href={`/dashboard/organization/${kitchen.id}/edit`}
-                        className="p-2.5 bg-white border border-gray-100 text-gray-400 rounded-xl hover:border-green-500 hover:text-green-500 hover:shadow-sm transition-all"
+                        className="p-2.5 bg-white border border-gray-100 text-ink-mute rounded-xl hover:border-green-500 hover:text-olive-700 hover:shadow-sm transition-all"
                       >
                         <Edit3 size={18} />
                       </Link>
                       <button
                         onClick={() => handleDelete(kitchen.id)}
-                        className="p-2.5 bg-white border border-gray-100 text-gray-400 rounded-xl hover:border-red-500 hover:text-red-500 hover:shadow-sm transition-all"
+                        className="p-2.5 bg-white border border-gray-100 text-ink-mute rounded-xl hover:border-red-500 hover:text-brick-600 hover:shadow-sm transition-all"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -187,7 +189,7 @@ export default function OrgKitchenTable({
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 font-medium italic">
+                <td colSpan={5} className="px-6 py-12 text-center text-ink-mute font-medium italic">
                   {currentT.noResults}
                 </td>
               </tr>
@@ -202,20 +204,20 @@ export default function OrgKitchenTable({
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-lg disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-lg disabled:opacity-30 hover:border-green-500 hover:text-olive-700 transition-all text-sm font-bold shadow-sm"
           >
             {lang === "ar" ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             {currentT.prev}
           </button>
 
-          <div className="px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-black text-gray-500">
-            {currentT.page} <span className="text-green-600 mx-1">{currentPage}</span> {currentT.of} {totalPages}
+          <div className="px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-black text-ink-mute">
+            {currentT.page} <span className="text-olive-700 mx-1">{currentPage}</span> {currentT.of} {totalPages}
           </div>
 
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-lg disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-lg disabled:opacity-30 hover:border-green-500 hover:text-olive-700 transition-all text-sm font-bold shadow-sm"
           >
             {currentT.next}
             {lang === "ar" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}

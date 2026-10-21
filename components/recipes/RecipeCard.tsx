@@ -1,19 +1,10 @@
 "use client";
-import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Clock, Flame } from "lucide-react";
 import { memo } from "react";
 import SafeImage from "@/components/SafeImage";
+import AddToFavButton from "./AddToFavButton";
 import type { Lang, Recipe } from "@/lib/types";
-
-// تحميل الأزرار التفاعلية فقط عند حاجة المستخدم إليها
-const AddToFavButton = dynamic(() => import("./AddToFavButton"), {
-  ssr: false,
-  loading: () => <div className="w-10 h-10 rounded-lg bg-paper-deep" />
-});
-const ViewButton = dynamic(() => import("../ViewButton"), {
-  ssr: false,
-  loading: () => <div className="h-10 rounded-lg bg-paper-deep" />
-});
 
 const RecipeCard = ({ meal, lang, index }: { meal: Recipe; lang: Lang; index: number }) => {
   return (
@@ -30,6 +21,7 @@ const RecipeCard = ({ meal, lang, index }: { meal: Recipe; lang: Lang; index: nu
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           priority={index < 4} // Performance: تحميل فوري لأول 4 كروت
+          fetchPriority={index === 0 ? "high" : undefined}
           quality={80}
           className="object-cover"
         />
@@ -38,9 +30,9 @@ const RecipeCard = ({ meal, lang, index }: { meal: Recipe; lang: Lang; index: nu
       <div className="p-4 flex flex-col flex-1">
         <p className="text-xs text-clay-700 font-semibold">{meal.type[lang]}</p>
 
-        <h3 className="mt-1 font-semibold text-lg text-ink leading-snug line-clamp-2">
+        <h2 className="mt-1 font-semibold text-lg text-ink leading-snug line-clamp-2">
           {meal.title[lang]}
-        </h3>
+        </h2>
 
         <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-soft">
           <span className="inline-flex items-center gap-1.5">
@@ -54,9 +46,10 @@ const RecipeCard = ({ meal, lang, index }: { meal: Recipe; lang: Lang; index: nu
         </p>
 
         <div className="mt-auto pt-4 flex items-center gap-2">
-          <div className="flex-1">
-            <ViewButton id={meal.id} />
-          </div>
+          <Link href={`/recipes/${meal.id}`} className="btn btn-primary flex-1 !py-2 min-h-11">
+            {lang === "ar" ? "عرض الوصفة" : "View recipe"}
+            <span className="sr-only"> — {meal.title[lang]}</span>
+          </Link>
           <AddToFavButton meal={meal} />
         </div>
       </div>

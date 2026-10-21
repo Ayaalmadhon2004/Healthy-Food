@@ -4,7 +4,7 @@ import { useReducer, useEffect, useCallback, useState, useSyncExternalStore, Sus
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/context/LanguageContext";
 import { requestNotificationPermission, showNotification } from "@/utils/notification";
-import { supabase } from "@/lib/supabase/client";
+import { getSupabase } from "@/lib/supabase/client";
 import type { TrackedMeal } from "@/lib/types";
 import type { NewMealInput } from "@/components/mealTracker/AddMealForm";
 
@@ -109,7 +109,7 @@ function TrackerContent() {
 
   // جلب البيانات - تمت إزالة supabase من المصفوفة لأنها Import ثابت
   const loadData = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await (await getSupabase()).auth.getUser();
     if (user) {
       const now = new Date();
       const currentYear = now.getFullYear();
@@ -140,13 +140,11 @@ function TrackerContent() {
   useEffect(() => {
     // Deferred so the state updates inside loadData are not synchronous in the effect body.
     void Promise.resolve().then(loadData);
-    // يفضل استدعاء هذا عند الضغط على زر وليس فوراً لتحسين الـ Best Practices
-    requestNotificationPermission();
   }, [loadData]);
 
   // دالة الإضافة - تم تعديلها لتستقبل البيانات من الفورم مباشرة
   const handleAddMeal = useCallback(async (mealData: NewMealInput) => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await (await getSupabase()).auth.getUser();
     if (!user) return alert("Please log in");
 
     const tempId = Date.now();
@@ -159,6 +157,10 @@ function TrackerContent() {
     };
 
     dispatch({ type: "ADD_MEAL_OPTIMISTIC", payload: optimisticMeal });
+    // Asked here, in response to the user's click, rather than on page load (Lighthouse best practice).
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      await requestNotificationPermission();
+    }
     showNotification(lang === 'ar' ? "تمت الإضافة" : "Added", mealData.name);
 
     try {

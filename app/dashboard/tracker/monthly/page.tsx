@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { getSupabase } from "@/lib/supabase/client";
 import MonthlyDashboard from "@/components/mealTracker/MonthlyDashboard";
 import { 
   getMonthlyGridDataAction, 
@@ -17,7 +17,7 @@ export default function MonthlyAnalyticsPage() {
 
   const fetchMonthlyData = useCallback(async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await (await getSupabase()).auth.getUser();
     
     if (user) {
       const now = new Date();
@@ -49,7 +49,7 @@ export default function MonthlyAnalyticsPage() {
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-primary-light)]">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-gray-500 font-bold">
+          <p className="text-ink-mute font-bold">
             {lang === 'ar' ? "جاري تحميل الإحصائيات..." : "Loading Analytics..."}
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function MonthlyAnalyticsPage() {
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-10 bg-[var(--color-primary-light)]">
+    <div className="min-h-screen p-4 md:p-10 bg-[var(--color-primary-light)]">
       <div className="max-w-6xl mx-auto">
         <MonthlyDashboard 
           data={monthlyData} 
@@ -66,6 +66,6 @@ export default function MonthlyAnalyticsPage() {
           lang={lang} 
         />
       </div>
-    </main>
+    </div>
   );
 }

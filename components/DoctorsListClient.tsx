@@ -1,5 +1,4 @@
-"use client";
-
+// No hooks or handlers here, so this renders on the server and ships no JavaScript of its own.
 import { MapPin, Calendar, Award, Star } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
 import { doctorPhoto } from "@/lib/placeholders";
@@ -22,7 +21,7 @@ export default function DoctorsListClient({ initialDoctors, lang: langProp }: { 
   const isAr = lang === "ar";
 
   return (
-    <main
+    <div
       className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20"
       dir={isAr ? "rtl" : "ltr"}
     >
@@ -105,13 +104,13 @@ export default function DoctorsListClient({ initialDoctors, lang: langProp }: { 
               </ul>
             )}
 
-            <button className="btn btn-quiet mt-6 self-start">
+            <button type="button" className="btn btn-quiet mt-6 self-start min-h-11">
               {isAr ? "احجز موعداً" : "Book an appointment"}
             </button>
           </article>
           );
         })}
       </div>
-    </main>
+    </div>
   );
 }
