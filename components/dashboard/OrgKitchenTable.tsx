@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { deleteKitchenAction } from "@/app/actions/kitchenActions";
 import Swal from "sweetalert2";
-import { pickText, toLang, type KitchenView, type Localized } from "@/lib/types";
+import { pickText, toLang, type KitchenView } from "@/lib/types";
 
 interface OrgKitchenTableProps {
   initialKitchens?: KitchenView[];

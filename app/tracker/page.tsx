@@ -1,7 +1,6 @@
 "use client";
 
-import { useReducer, useEffect, useCallback, useState, Suspense } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useReducer, useEffect, useCallback, useState, useSyncExternalStore, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/context/LanguageContext";
 import { requestNotificationPermission, showNotification } from "@/utils/notification";
@@ -13,7 +12,6 @@ import {
   addMealAction, 
   getMealsAction, 
   deleteMealAction, 
-  getMonthlyGridDataAction,
   getMonthlyStatsAction,
   setCalorieGoalAction 
 } from "@/app/actions/mealActions";
@@ -101,12 +99,13 @@ function reducer(state: TrackerState, action: TrackerAction): TrackerState {
 
 function TrackerContent() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [goal, setGoal] = useState(2000);
   const { lang } = useLanguage();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
 
   // جلب البيانات - تمت إزالة supabase من المصفوفة لأنها Import ثابت
   const loadData = useCallback(async () => {
@@ -139,8 +138,8 @@ function TrackerContent() {
   }, []);
 
   useEffect(() => {
-    setMounted(true);
-    loadData();
+    // Deferred so the state updates inside loadData are not synchronous in the effect body.
+    void Promise.resolve().then(loadData);
     // يفضل استدعاء هذا عند الضغط على زر وليس فوراً لتحسين الـ Best Practices
     requestNotificationPermission();
   }, [loadData]);

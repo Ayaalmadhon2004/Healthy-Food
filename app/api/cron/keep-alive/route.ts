@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       message: "Database is awake!",
       timestamp: new Date().toISOString() 
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ status: "Error", message: "Failed to wake up DB" }, { status: 500 });
   }
 }

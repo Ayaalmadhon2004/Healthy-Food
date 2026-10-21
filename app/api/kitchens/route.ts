@@ -7,7 +7,7 @@ export async function GET() {
     });
     
     return Response.json(kitchens);
-  } catch (error) {
+  } catch {
     return Response.json({ error: "Failed to fetch kitchens" }, { status: 500 });
   }
 }

@@ -122,7 +122,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                     (t.errors as Record<string, string | ((remaining: number) => string)>)[result.error];
                 setMessage(typeof known === "function" ? known(result.remaining ?? 0) : known || t.errorDefault);
             }
-        } catch (err) {
+        } catch {
             setStatus("error");
             setMessage(t.errorDefault);
         } finally {
@@ -142,7 +142,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 setMessage(isAr ? "تم إلغاء الحجز بنجاح" : "Reservation cancelled");
                 setCurrentCount(prev => Math.max(0, prev - (result.quantity || 0)));
             }
-        } catch(err){
+        } catch {
             setMessage(t.errorDefault);
         } finally{
             setLoading(false);

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { pickText, type LocalizedField } from "@/lib/types";
-import { Plus, X, Utensils, MapPin, Clock, Salad, AlertCircle, Users, Phone, ChevronDown } from "lucide-react";
+import { Plus, X, Utensils, MapPin, Clock, Salad, Users, Phone, ChevronDown } from "lucide-react";
 import { addKitchenAction } from "@/app/actions/kitchenActions";
 import { useRouter } from "next/navigation";
 

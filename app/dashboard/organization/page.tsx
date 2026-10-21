@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react"; 
+import { useCallback, useEffect, useState, use } from "react"; 
 import { getKitchensAction } from "@/app/actions/kitchenActions";
 import OrgKitchenTable from "@/components/dashboard/OrgKitchenTable";
 import AddKitchenModal from "@/components/dashboard/AddKitchenModal";
@@ -18,7 +18,7 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
 
   const isAr = lang === "ar";
 
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     setIsLoading(true);
     // تأكدي أن الأكشن يجلب الحقول الجديدة (capacity, contact)
     const result = await getKitchensAction(currentPage, 5);
@@ -29,11 +29,12 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
       });
     }
     setIsLoading(false);
-  };
+  }, [currentPage]);
 
   useEffect(() => {
-    refreshData();
-  }, [currentPage]);
+    // Deferred so the state updates inside refreshData are not synchronous in the effect body.
+    void Promise.resolve().then(refreshData);
+  }, [refreshData]);
 
   const t = {
     ar: { 
