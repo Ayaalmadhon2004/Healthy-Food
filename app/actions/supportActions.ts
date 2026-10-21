@@ -14,7 +14,7 @@ export async function createTicketAction(_prev: SupportActionState, formData: Fo
   const sessionUser = await getSessionUser();
   if (!sessionUser) return { ok: false, error: "unauthorized" };
 
-  const limited = rateLimit(`support:${sessionUser.id}`, { limit: TICKET_LIMIT, windowMs: TICKET_WINDOW_MS });
+  const limited = await rateLimit(`support:${sessionUser.id}`, { limit: TICKET_LIMIT, windowMs: TICKET_WINDOW_MS });
   if (!limited.ok) return { ok: false, error: "rate_limited" };
 
   const parsed = createTicketSchema.safeParse({
