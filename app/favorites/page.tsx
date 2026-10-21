@@ -5,6 +5,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useUserData } from "@/hooks/useUserData";
 import { Heart, Trash2 } from "lucide-react"; // استيراد أيقونة السلة
 import Image from "next/image";
+import { asLocalized } from "@/lib/types";
 
 export default function FavoritesPage() {
   const { lang } = useLanguage();
@@ -27,12 +28,14 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {favItems.map((item) => (
+          {favItems.map((fav) => {
+            const item = { ...fav, img: String(fav.img ?? ""), title: asLocalized(fav.title), time: asLocalized(fav.time), cal: asLocalized(fav.cal) };
+            return (
             <div key={item.id} className="group bg-white rounded-3xl border overflow-hidden hover:shadow-xl transition-all relative">
               
               {/* زر الحذف السريع - سلة المهملات */}
               <button 
-                onClick={() => toggleFavorite(item, user?.id)}
+                onClick={() => toggleFavorite(fav, user?.id)}
                 className="absolute top-4 right-4 z-10 p-3 bg-white/90 backdrop-blur-sm rounded-full text-red-500 shadow-lg hover:bg-red-50 transition-colors"
                 title={isRtl ? "حذف من المفضلات" : "Remove from favorites"}
               >
@@ -51,12 +54,13 @@ export default function FavoritesPage() {
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-2">{item.title[lang]}</h3>
                 <div className="flex gap-4 text-sm text-gray-500">
-                   <span>{item.time?.[lang]}</span>
-                   <span>{item.cal?.[lang]}</span>
+                   <span>{item.time[lang]}</span>
+                   <span>{item.cal[lang]}</span>
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

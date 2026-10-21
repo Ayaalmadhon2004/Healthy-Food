@@ -1,10 +1,11 @@
 import Link from "next/link";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
-import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
+import { Droplet, Bed, Leaf, Activity, HelpCircle, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { asLocalized, toLang } from "@/lib/types";
 
-const IconMap = {
+const IconMap: Record<string, LucideIcon> = {
   Droplet,
   Bed,
   Leaf,
@@ -15,13 +16,13 @@ const IconMap = {
 export const revalidate = 3600;
 
 export const metadata = {
-  title: "Health Tips | NutriFlow",
+  title: "Health Tips",
   description: "Browse practical health and nutrition tips for food security in Gaza.",
 };
 
 export default async function TipsPage() {
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = toLang(cookieStore.get("lang")?.value);
   const isRtl = lang === "ar";
 
   // جلب النصائح (يفضل استخدام select لجلب ما نحتاجه فقط لتقليل الحجم)
@@ -52,7 +53,7 @@ export default async function TipsPage() {
               <article key={item.id} className="group flex flex-col h-full">
                 {/* العنوان الفرعي - تم تغييره لـ h2 من أجل الـ SEO */}
                 <h2 className="mb-4 font-black text-gray-800 text-xl group-hover:text-green-700 transition-colors">
-                  {item.header[lang]}
+                  {asLocalized(item.header)[lang]}
                 </h2>
 
                 <div className="bg-white shadow-sm hover:shadow-2xl transition-all duration-500 rounded-3xl p-7 border border-gray-100 flex flex-col flex-grow relative overflow-hidden">
@@ -70,10 +71,10 @@ export default async function TipsPage() {
                   {/* المحتوى النصي */}
                   <div className="flex-grow space-y-3">
                     <p className="font-extrabold text-gray-900 text-lg leading-snug">
-                      {item.advice[lang]}
+                      {asLocalized(item.advice)[lang]}
                     </p>
                     <p className="text-gray-600 text-sm leading-relaxed pb-6">
-                      {item.details[lang]}
+                      {asLocalized(item.details)[lang]}
                     </p>
                   </div>
 

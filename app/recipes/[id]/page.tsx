@@ -5,40 +5,42 @@ import LogMealButton from "../../../components/LogMealButton";
 import AddToFavButton from "../../../components/recipes/AddToFavButton";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { toLang, toRecipe } from "@/lib/types";
 
-const getRecipe = cache(async (id) => {
-  return prisma.foodRecipe.findUnique({
+const getRecipe = cache(async (id: string) => {
+  const row = await prisma.foodRecipe.findUnique({
     where: { id: parseInt(id) }
   });
+  return row ? toRecipe(row) : null;
 });
 
-export async function generateMetadata({ params }) {
-  const id = params?.id;
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const meal = id ? await getRecipe(id) : null;
-  const cookieStore = cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const cookieStore = await cookies();
+  const lang = toLang(cookieStore.get("lang")?.value);
 
   if (!meal) {
     return {
-      title: lang === "ar" ? "الوصفة غير موجودة | NutriFlow" : "Recipe Not Found | NutriFlow",
+      title: lang === "ar" ? "الوصفة غير موجودة" : "Recipe Not Found",
       description: lang === "ar" ? "الوصفة المطلوبة غير متوفرة حالياً." : "The requested recipe is not available.",
     };
   }
 
   return {
-    title: `${meal.title[lang]} | NutriFlow`,
+    title: `${meal.title[lang]}`,
     description: lang === "ar"
       ? `اكتشف طريقة تحضير ${meal.title[lang]} الصحية والمغذية.`
       : `Discover how to prepare ${meal.title[lang]} as a healthy and nourishing recipe.`,
   };
 }
 
-export default async function RecipePage({ params }) {
-  const id = params?.id;
+export default async function RecipePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   // 1. جلب اللغة في السيرفر
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = toLang(cookieStore.get("lang")?.value);
   const isRtl = lang === "ar";
 
   // 2. جلب الوصفة المحددة
@@ -89,7 +91,7 @@ export default async function RecipePage({ params }) {
                 {lang === "ar" ? "المعلومات الغذائية (للحصة)" : "Nutrition Info (per serving)"}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {Object.entries(meal.nutrition).map(([key, value]) => (
+                {Object.entries(meal.nutrition ?? {}).map(([key, value]) => (
                   <div key={key} className="bg-gray-50 p-3 rounded-xl text-center">
                     <p className="text-gray-500 text-xs capitalize mb-1">
                       {/* ترجمة أسماء المغذيات يدوياً أو تركها كما هي */}
@@ -105,8 +107,8 @@ export default async function RecipePage({ params }) {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
-              <LogMealButton calory={meal.cal[lang]} mealName={meal.title[lang]} className="w-full" />
-              <AddToFavButton meal={meal} className="w-full" />
+              <LogMealButton calory={meal.cal[lang]} mealName={meal.title[lang]} />
+              <AddToFavButton meal={meal} />
             </div>
           </div>
         </div>
@@ -118,7 +120,7 @@ export default async function RecipePage({ params }) {
                {lang === "ar" ? "المكونات" : "Ingredients"}
             </h2>
             <ul className="space-y-4">
-              {meal.ingredients[lang].map((item, i) => (
+              {(meal.ingredients?.[lang] ?? []).map((item, i) => (
                 <li key={i} className="flex items-start gap-3 text-gray-700 text-lg">
                   <input type="checkbox" className="mt-1.5 h-5 w-5 accent-green-600" />
                   <span>{item}</span>
@@ -132,7 +134,7 @@ export default async function RecipePage({ params }) {
                {lang === "ar" ? "طريقة التحضير" : "Instructions"}
             </h2>
             <ol className="space-y-6">
-              {meal.instructions[lang].map((step, i) => (
+              {(meal.instructions?.[lang] ?? []).map((step, i) => (
                 <li key={i} className="flex gap-4 items-start">
                   <span className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
                     {i + 1}

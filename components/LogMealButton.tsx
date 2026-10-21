@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 export default function LogMealButton({ calory, mealName }: { calory: number | string; mealName: string }) {
     const router=useRouter();
     const handleClick = () => {
-    router.push(`/tracker?meal=${mealName}&cal=${calory}`);
+    router.push(`/tracker?meal=${encodeURIComponent(mealName)}&cal=${encodeURIComponent(String(calory))}`);
   };
   return (
     <button 

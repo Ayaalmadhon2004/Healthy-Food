@@ -1,9 +1,10 @@
+import type { ComponentProps } from "react";
 import { cookies } from 'next/headers';
 import { getDictionaryServer } from '@/lib/i18n';
 import LoginClient from './LoginClient';
 
 export const metadata = {
-  title: "Login | NutriFlow",
+  title: "Login",
   description: "Sign in to NutriFlow to manage your meals, reports, and field nutrition tracking.",
 };
 
@@ -12,11 +13,11 @@ export default async function LoginPage() {
   const lang = cookieStore.get('lang')?.value || 'ar';
   
   const fullDict = await getDictionaryServer(lang);
-  const t = fullDict.auth;
+  const t = (fullDict as { auth: ComponentProps<typeof LoginClient>["t"] }).auth;
 
   return (
     <main>
-      <LoginClient t={t} lang={lang} />
+      <LoginClient t={t} />
     </main>
   );
 }
