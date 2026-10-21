@@ -1,13 +1,24 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
-import { getDictionaryServer } from "@/lib/i18n";
+import { getDictionaryServer, getServerLang } from "@/lib/i18n";
+import { localizedMetadata, NO_INDEX } from "@/lib/seo";
+import type { Metadata } from "next";
 import { canManageTickets, TICKET_STATUSES } from "@/lib/validations/support";
 import { updateTicketStatusAction } from "@/app/actions/supportActions";
 import SupportTicketForm from "@/components/SupportTicketForm";
 
-export const metadata = { title: "Support" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedMetadata(
+    "/support",
+    {
+      ar: { title: "الدعم", description: "تواصل مع فريق NutriFlow وتابع طلباتك." },
+      en: { title: "Support", description: "Contact the NutriFlow team and follow your requests." },
+    },
+    NO_INDEX,
+  );
+}
+
 const MAX_TICKETS = 200;
 const DATE_LENGTH = 16;
 
@@ -31,8 +42,7 @@ interface SupportDict {
 }
 
 export default async function SupportPage() {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value === "en" ? "en" : "ar";
+  const lang = await getServerLang();
   const dict = (await getDictionaryServer(lang)) as { support: SupportDict };
   const t = dict.support;
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -40,12 +50,12 @@ export default async function SupportPage() {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     return (
-      <main className="min-h-[60vh] flex items-center justify-center p-6 text-center" dir={dir}>
+      <div className="min-h-[60vh] flex items-center justify-center p-6 text-center" dir={dir}>
         <div className="surface p-8 max-w-sm">
           <p className="text-xl font-medium mb-5 text-ink">{t.login_required}</p>
           <Link href="/login" className="btn btn-primary">{lang === "ar" ? "تسجيل الدخول" : "Sign in"}</Link>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -58,7 +68,7 @@ export default async function SupportPage() {
   });
 
   return (
-    <main className="px-5 md:px-8 pt-10 md:pt-16 pb-20" dir={dir}>
+    <div className="px-5 md:px-8 pt-10 md:pt-16 pb-20" dir={dir}>
       <div className="max-w-2xl mx-auto space-y-10">
         <header>
           <h1 className="text-3xl md:text-4xl font-medium text-ink">{t.title}</h1>
@@ -106,6 +116,6 @@ export default async function SupportPage() {
           ))}
         </section>
       </div>
-    </main>
+    </div>
   );
 }

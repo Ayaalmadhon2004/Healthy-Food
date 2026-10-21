@@ -1,32 +1,34 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import SafeImage from "@/components/SafeImage";
-import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { asLocalized, toLang } from "@/lib/types";
+import { getTips } from "@/lib/data";
+import { getServerLang } from "@/lib/i18n";
+import { localizedMetadata } from "@/lib/seo";
+import { asLocalized } from "@/lib/types";
 
-// تفعيل الكاش لمدة ساعة لتحسين السرعة
-export const revalidate = 3600;
-
-export const metadata = {
-  title: "Health Tips",
-  description: "Browse practical health and nutrition tips for food security in Gaza.",
-};
+export function generateMetadata(): Promise<Metadata> {
+  return localizedMetadata("/tips", {
+    ar: {
+      title: "نصائح صحية",
+      description: "نصائح قصيرة وعملية من أطباء وأخصائيي تغذية عن الماء والغذاء والنوم لعائلات غزة.",
+    },
+    en: {
+      title: "Health tips",
+      description: "Short, practical advice from doctors and dietitians on water, food and sleep for families in Gaza.",
+    },
+  });
+}
 
 export default async function TipsPage() {
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, tips] = await Promise.all([getServerLang(), getTips()]);
   const isRtl = lang === "ar";
-
-  // جلب النصائح (يفضل استخدام select لجلب ما نحتاجه فقط لتقليل الحجم)
-  const tips = await prisma.healthTip.findMany();
 
   return (
     <div
       className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20"
       dir={isRtl ? "rtl" : "ltr"}
     >
-      <main>
+      <div>
         {/* العناوين الرئيسية */}
         <header className="mb-12 md:mb-14 max-w-2xl">
           <h1 className="text-3xl md:text-5xl font-medium text-ink">
@@ -63,6 +65,7 @@ export default async function TipsPage() {
                     fill
                     sizes={featured ? "(min-width: 1024px) 40vw, 100vw" : "(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw"}
                     priority={featured}
+                    fetchPriority={featured ? "high" : undefined}
                     className="object-cover"
                   />
                 </div>
@@ -79,21 +82,19 @@ export default async function TipsPage() {
                     {asLocalized(item.details)[lang]}
                   </p>
 
-                  <ErrorBoundaryWrapper message="Link error">
-                    <Link
-                      className="text-link mt-auto pt-5 self-start"
-                      href={`/tips/${item.id}`}
-                    >
-                      {lang === "ar" ? "اقرأ النصيحة كاملة" : "Read the full tip"}
-                      <span className="sr-only"> — {title}</span>
-                    </Link>
-                  </ErrorBoundaryWrapper>
+                  <Link
+                    className="text-link mt-auto pt-5 self-start inline-flex items-center min-h-11"
+                    href={`/tips/${item.id}`}
+                  >
+                    {lang === "ar" ? "اقرأ النصيحة كاملة" : "Read the full tip"}
+                    <span className="sr-only"> — {title}</span>
+                  </Link>
                 </div>
               </article>
             );
           })}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

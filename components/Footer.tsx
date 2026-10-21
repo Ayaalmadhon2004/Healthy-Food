@@ -1,11 +1,9 @@
-"use client";
-
 import Link from "next/link";
-import { useLanguage } from "@/context/LanguageContext";
 import Logo from "@/components/Logo";
+import type { Lang } from "@/lib/types";
 
-export default function Footer() {
-  const { lang } = useLanguage();
+// A server component: the footer is static text and links, so it ships no JavaScript.
+export default function Footer({ lang }: { lang: Lang }) {
   const isRtl = lang === "ar";
 
   const t = {
@@ -51,7 +49,7 @@ export default function Footer() {
 
           {columns.map((col) => (
             <div key={col.title.en}>
-              <h3 className="text-sm font-semibold text-ink mb-3">{col.title[lang]}</h3>
+              <h2 className="text-sm font-semibold text-ink mb-3">{col.title[lang]}</h2>
               <ul className="space-y-2 text-[0.9375rem]">
                 {col.links.map((l) => (
                   <li key={l.href}>

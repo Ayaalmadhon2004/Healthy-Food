@@ -1,13 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { ArrowRight } from "lucide-react";
 import HomeAnimatedSections from "@/components/HomeAnimatedSections";
 import SafeImage from "@/components/SafeImage";
+import JsonLd from "@/components/JsonLd";
+import { getServerLang } from "@/lib/i18n";
+import { getSiteUrl, SITE_NAME } from "@/lib/site";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function LandingPage() {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "en";
+  const lang = await getServerLang();
   const isAr = lang === "ar";
+  const siteUrl = getSiteUrl().origin;
 
   const t = {
     kicker: isAr ? "غزة" : "Gaza",
@@ -41,6 +46,32 @@ export default async function LandingPage() {
 
   return (
     <div className="w-full overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": `${siteUrl}/#organization`,
+              name: SITE_NAME,
+              url: siteUrl,
+              logo: `${siteUrl}/icons/icon-512x512.png`,
+              description: isAr
+                ? "منصة وجبات ووصفات ونصائح صحية للعائلات في غزة."
+                : "Meals, recipes and health advice for families in Gaza.",
+              areaServed: { "@type": "Place", name: "Gaza" },
+            },
+            {
+              "@type": "WebSite",
+              "@id": `${siteUrl}/#website`,
+              url: siteUrl,
+              name: SITE_NAME,
+              inLanguage: ["ar", "en"],
+              publisher: { "@id": `${siteUrl}/#organization` },
+            },
+          ],
+        }}
+      />
 
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-20 pb-14 md:pb-24 grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-16 items-center">
@@ -70,6 +101,7 @@ export default async function LandingPage() {
             width={600}
             height={600}
             priority
+            fetchPriority="high"
             sizes="(min-width: 1024px) 40vw, 90vw"
             className="w-full h-auto"
           />

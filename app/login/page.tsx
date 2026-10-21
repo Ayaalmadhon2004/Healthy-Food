@@ -1,23 +1,20 @@
 import type { ComponentProps } from "react";
-import { cookies } from 'next/headers';
-import { getDictionaryServer } from '@/lib/i18n';
+import type { Metadata } from "next";
+import { getDictionaryServer, getServerLang } from '@/lib/i18n';
+import { localizedMetadata } from "@/lib/seo";
 import LoginClient from './LoginClient';
 
-export const metadata = {
-  title: "Login",
-  description: "Sign in to NutriFlow to manage your meals, reports, and field nutrition tracking.",
-};
+export function generateMetadata(): Promise<Metadata> {
+  return localizedMetadata("/login", {
+    ar: { title: "تسجيل الدخول", description: "سجّل دخولك إلى NutriFlow لمتابعة وجباتك وحجوزاتك وبلاغاتك." },
+    en: { title: "Sign in", description: "Sign in to NutriFlow to follow your meals, reservations and reports." },
+  });
+}
 
 export default async function LoginPage() {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get('lang')?.value || 'ar';
-  
+  const lang = await getServerLang();
   const fullDict = await getDictionaryServer(lang);
   const t = (fullDict as { auth: ComponentProps<typeof LoginClient>["t"] }).auth;
 
-  return (
-    <main>
-      <LoginClient t={t} />
-    </main>
-  );
+  return <LoginClient t={t} />;
 }

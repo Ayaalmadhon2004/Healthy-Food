@@ -1,21 +1,20 @@
 {
+  "id": "/",
   "name": "NutriFlow",
   "short_name": "NutriFlow",
+  "description": "Meals, recipes and health advice for families in Gaza.",
+  "lang": "ar",
+  "dir": "auto",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
-  "description": "Healthy recipes and meals built with Next.js.",
+  "orientation": "portrait-primary",
+  "background_color": "#f6f0e3",
+  "theme_color": "#f6f0e3",
+  "categories": ["health", "food", "lifestyle"],
   "icons": [
-    {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

@@ -1,69 +1,47 @@
 import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
-import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { asLocalized, toLang } from "@/lib/types";
+import { getTip, parseId } from "@/lib/data";
+import { getServerLang } from "@/lib/i18n";
+import { asLocalized } from "@/lib/types";
 
-// توليد المسارات الثابتة (Next.js Static Generation)
-const getTip = cache(async (id: string) => {
-  return prisma.healthTip.findUnique({
-    where: { id: parseInt(id) },
-  });
+// Pages are rendered per request (the language is a cookie), so there is nothing to
+// pre-generate; generateStaticParams used to query the database at build time and made
+// `next build` fail whenever the database was unreachable.
+const loadTip = cache(async (id: string) => {
+  const numericId = parseId(id);
+  return numericId === null ? null : getTip(numericId);
 });
 
-export async function generateStaticParams() {
-  const tips = await prisma.healthTip.findMany();
-  return tips.map((tip) => ({
-    id: tip.id.toString(),
-  }));
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const tip = id ? await getTip(id) : null;
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [tip, lang] = await Promise.all([loadTip(id), getServerLang()]);
 
   if (!tip) {
-    return {
-      title: lang === "ar" ? "النصيحة غير موجودة" : "Tip Not Found",
-      description: lang === "ar" ? "النصيحة المطلوبة غير متوفرة." : "The requested tip is unavailable.",
-    };
+    return { title: lang === "ar" ? "النصيحة غير موجودة" : "Tip not found", robots: { index: false } };
   }
 
+  const title = asLocalized(tip.header)[lang];
+  const description = asLocalized(tip.advice)[lang] || asLocalized(tip.details)[lang];
+  const path = `/tips/${tip.id}`;
+
   return {
-    title: `${asLocalized(tip.header)[lang]}`,
-    description: lang === "ar"
-      ? `اقرأ المزيد عن ${asLocalized(tip.header)[lang]} والنصيحة الصحية المتكاملة.`
-      : `Read more about ${asLocalized(tip.header)[lang]} and the complete health advice.`,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: "article", title, description, url: path, locale: lang === "ar" ? "ar_AR" : "en_US" },
   };
 }
 
 export default async function TipDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  // 1. جلب اللغة من الكوكيز
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, tip] = await Promise.all([getServerLang(), loadTip(id)]);
   const isRtl = lang === "ar";
 
-  // 2. جلب النصيحة المحددة من قاعدة البيانات مباشرة
-  const tip = id ? await getTip(id) : null;
-
-  if (!tip || !id) {
-    return (
-      <div className="max-w-xl mx-auto px-5 py-24 text-center" dir={isRtl ? "rtl" : "ltr"}>
-        <h1 className="text-2xl font-medium text-ink">
-          {lang === "ar" ? "لم نجد هذه النصيحة" : "We could not find that tip"}
-        </h1>
-        <Link href="/tips" className="text-link mt-6 inline-block">
-          {lang === "ar" ? "كل النصائح" : "All tips"}
-        </Link>
-      </div>
-    );
-  }
+  if (!tip) notFound();
 
   const title = asLocalized(tip.header)[lang];
   const moreDetails = asLocalized(tip.moreDetails)[lang];
@@ -72,7 +50,7 @@ export default async function TipDetails({ params }: { params: Promise<{ id: str
     <div className="max-w-3xl mx-auto px-5 md:px-8 pt-8 md:pt-12 pb-20" dir={isRtl ? "rtl" : "ltr"}>
       <Link
         href="/tips"
-        className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-olive-800"
+        className="inline-flex items-center gap-2 min-h-11 text-sm font-medium text-ink-soft hover:text-olive-800"
       >
         <ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" className={isRtl ? "rotate-180" : ""} />
         {lang === "ar" ? "العودة إلى النصائح" : "Back to tips"}
@@ -87,6 +65,7 @@ export default async function TipDetails({ params }: { params: Promise<{ id: str
             alt={title}
             fill
             priority
+            fetchPriority="high"
             sizes="(min-width: 768px) 768px, 100vw"
             className="object-cover"
           />

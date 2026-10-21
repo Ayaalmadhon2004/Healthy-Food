@@ -1,19 +1,26 @@
-import { prisma } from "@/lib/prisma";
-import FilterButtons from "../../components/recipes/FilterButtons";
-import { cookies } from "next/headers";
-import { toLang, toRecipe } from "@/lib/types";
+import type { Metadata } from "next";
+import FilterButtons from "@/components/recipes/FilterButtons";
+import { getServerLang } from "@/lib/i18n";
+import { localizedMetadata } from "@/lib/seo";
+import { getRecipes } from "@/lib/data";
+import { toRecipe } from "@/lib/types";
 
-export const metadata = {
-  title: "Browse Recipes",
-  description: "Explore healthy recipes crafted for field nutrition and Gaza kitchen support.",
-};
+export function generateMetadata(): Promise<Metadata> {
+  return localizedMetadata("/recipes", {
+    ar: {
+      title: "الوصفات",
+      description: "وصفات بسيطة من مكونات متوفرة، لكل منها وقت التحضير والسعرات والقيمة الغذائية.",
+    },
+    en: {
+      title: "Recipes",
+      description: "Simple dishes made from ingredients that are available, each with cooking time, calories and a nutrition breakdown.",
+    },
+  });
+}
 
 export default async function RecipesPage() {
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, recipes] = await Promise.all([getServerLang(), getRecipes()]);
   const isRtl = lang === "ar";
-
-  const recipes = await prisma.foodRecipe.findMany();
 
   return (
     <div className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20" dir={isRtl ? "rtl" : "ltr"}>

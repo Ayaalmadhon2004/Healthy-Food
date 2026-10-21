@@ -1,68 +1,89 @@
 import { cache } from "react";
-import Link from "next/link";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Clock, Flame, Users } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
 import BackButton from "../../../components/BackButton";
 import LogMealButton from "../../../components/LogMealButton";
 import AddToFavButton from "../../../components/recipes/AddToFavButton";
-import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { toLang, toRecipe, type Localized } from "@/lib/types";
+import JsonLd from "@/components/JsonLd";
+import { getRecipe, parseId } from "@/lib/data";
+import { getServerLang } from "@/lib/i18n";
+import { getSiteUrl } from "@/lib/site";
+import { toRecipe, type Localized } from "@/lib/types";
 
-const getRecipe = cache(async (id: string) => {
-  const row = await prisma.foodRecipe.findUnique({
-    where: { id: parseInt(id) }
-  });
+const loadRecipe = cache(async (id: string) => {
+  const numericId = parseId(id);
+  if (numericId === null) return null;
+  const row = await getRecipe(numericId);
   return row ? toRecipe(row) : null;
 });
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const meal = id ? await getRecipe(id) : null;
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [meal, lang] = await Promise.all([loadRecipe(id), getServerLang()]);
 
   if (!meal) {
-    return {
-      title: lang === "ar" ? "الوصفة غير موجودة" : "Recipe Not Found",
-      description: lang === "ar" ? "الوصفة المطلوبة غير متوفرة حالياً." : "The requested recipe is not available.",
-    };
+    return { title: lang === "ar" ? "الوصفة غير موجودة" : "Recipe not found", robots: { index: false } };
   }
 
+  const title = meal.title[lang];
+  const description =
+    lang === "ar"
+      ? `طريقة تحضير ${title}: ${meal.time.ar}، ${meal.cal.ar}، مع المكونات والخطوات والقيمة الغذائية.`
+      : `How to make ${title}: ${meal.time.en}, ${meal.cal.en}, with ingredients, steps and nutrition.`;
+  const path = `/recipes/${meal.id}`;
+
   return {
-    title: `${meal.title[lang]}`,
-    description: lang === "ar"
-      ? `اكتشف طريقة تحضير ${meal.title[lang]} الصحية والمغذية.`
-      : `Discover how to prepare ${meal.title[lang]} as a healthy and nourishing recipe.`,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: path,
+      locale: lang === "ar" ? "ar_AR" : "en_US",
+      images: meal.img ? [{ url: meal.img, alt: title }] : undefined,
+    },
   };
+}
+
+// "15 min" -> "PT15M" for schema.org. Uses the English text, which always carries the number.
+function toIsoDuration(text: string): string | undefined {
+  const m = /(\d+)\s*(?:min|m)\b/i.exec(text);
+  return m ? `PT${m[1]}M` : undefined;
 }
 
 export default async function RecipePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // 1. جلب اللغة في السيرفر
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, meal] = await Promise.all([getServerLang(), loadRecipe(id)]);
   const isRtl = lang === "ar";
 
-  // 2. جلب الوصفة المحددة
-  const meal = id ? await getRecipe(id) : null;
+  if (!meal) notFound();
 
-  if (!meal || !id) {
-    return (
-      <div className="max-w-xl mx-auto px-5 py-24 text-center" dir={isRtl ? "rtl" : "ltr"}>
-        <h1 className="text-2xl font-medium text-ink">
-          {lang === "ar" ? "لم نجد هذه الوصفة" : "We could not find that recipe"}
-        </h1>
-        <p className="mt-3 text-ink-soft">
-          {lang === "ar" ? "ربما أُزيلت أو تغيّر رابطها." : "It may have been removed, or the link has changed."}
-        </p>
-        <Link href="/recipes" className="text-link mt-6 inline-block">
-          {lang === "ar" ? "كل الوصفات" : "See all recipes"}
-        </Link>
-      </div>
-    );
-  }
+  const siteUrl = getSiteUrl().origin;
+  const recipeLd = {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    name: meal.title[lang],
+    inLanguage: lang,
+    image: meal.img ? [new URL(meal.img, siteUrl).toString()] : undefined,
+    recipeCategory: meal.type[lang],
+    totalTime: toIsoDuration(meal.time.en),
+    recipeYield: lang === "ar" ? "شخصان" : "2 servings",
+    recipeIngredient: meal.ingredients?.[lang] ?? [],
+    recipeInstructions: (meal.instructions?.[lang] ?? []).map((text) => ({ "@type": "HowToStep", text })),
+    nutrition: {
+      "@type": "NutritionInformation",
+      calories: meal.cal[lang],
+      proteinContent: meal.nutrition?.protein?.[lang],
+      carbohydrateContent: meal.nutrition?.carbs?.[lang],
+      fatContent: meal.nutrition?.fat?.[lang],
+      fiberContent: meal.nutrition?.fiber?.[lang],
+    },
+  };
 
   const nutritionLabels: Record<string, Localized> = {
     calories: { en: "Calories", ar: "سعرات" },
@@ -79,6 +100,7 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
 
   return (
     <div dir={isRtl ? "rtl" : "ltr"}>
+      <JsonLd data={recipeLd} />
       <div className="max-w-6xl mx-auto px-5 md:px-8 pt-8 pb-20">
         <BackButton />
 
@@ -91,6 +113,7 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
               alt={meal.title[lang]}
               fill
               priority
+              fetchPriority="high"
               sizes="(min-width: 768px) 50vw, 100vw"
               className="object-cover"
             />

@@ -1,23 +1,26 @@
-import { cookies, headers } from "next/headers";
+import type { Metadata } from "next";
+import { getServerLang } from "@/lib/i18n";
+import { localizedMetadata, NO_INDEX } from "@/lib/seo";
 import { createSupabaseServerClient } from "@/lib/supabase/server"; 
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import ReportForm from "@/components/ReportForm"; // استيراد المكون الذي أنشأناه
 
-export const metadata = {
-  title: "Report Area",
-  description: "Submit a community report on underserved Gaza areas that need urgent food security assistance.",
-};
+export function generateMetadata(): Promise<Metadata> {
+  return localizedMetadata(
+    "/report-area",
+    {
+      ar: { title: "بلّغ عن منطقة محرومة", description: "أرسل بلاغاً عن حي أو مخيّم لا يصله الطعام ليصل إليه فريقنا الميداني." },
+      en: { title: "Report an underserved area", description: "Tell us about a neighbourhood or camp that is not getting food so our field teams can reach it." },
+    },
+    NO_INDEX,
+  );
+}
 
 export default async function ReportAreaPage() {
-  // 1. جلب اللغة من الإعدادات (الكوكيز أو الهيدرز)
-  const cookieStore = await cookies();
-  const allHeaders = await headers();
-  const lang = cookieStore.get("lang")?.value || allHeaders.get("x-custom-lang") || "ar";
+  // 1. اللغة من الكوكيز، والكلاينت من سوبابيز (Server Side) بالتوازي
+  const [lang, supabase] = await Promise.all([getServerLang(), createSupabaseServerClient()]);
   const isAr = lang === "ar";
-
-  // 2. جلب الكلاينت والمستخدم من سوبابيز (Server Side)
-  const supabase = await createSupabaseServerClient();
   
   if (!supabase) {
     return (
@@ -46,7 +49,7 @@ export default async function ReportAreaPage() {
   }
 
   return (
-    <main
+    <div
       className="max-w-2xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20"
       dir={isAr ? "rtl" : "ltr"}
     >
@@ -74,6 +77,6 @@ export default async function ReportAreaPage() {
         {/* استدعاء مكون الفورم (Client Component) وتمرير البيانات */}
         <ReportForm userId={user.id} isAr={isAr} />
       </div>
-    </main>
+    </div>
   );
 }

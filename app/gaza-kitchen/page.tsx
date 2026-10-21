@@ -1,4 +1,4 @@
-import { headers, cookies } from "next/headers";
+import type { Metadata } from "next";
 import KitchensFilterClient from "./KitchensFilterClient";
 import NutritionSectionClient from "@/components/NutritionSection";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
@@ -6,16 +6,28 @@ import { getKitchensAction } from "@/app/actions/kitchenActions";
 import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import SafeImage from "@/components/SafeImage";
-import { toLang, type KitchenView } from "@/lib/types";
+import { getServerLang } from "@/lib/i18n";
+import { localizedMetadata } from "@/lib/seo";
+import type { KitchenView } from "@/lib/types";
+
+export function generateMetadata(): Promise<Metadata> {
+  return localizedMetadata("/gaza-kitchen", {
+    ar: {
+      title: "المطابخ المجتمعية في غزة",
+      description: "وجبات مجانية تُقدَّم كل يوم: موعد التوزيع، وقائمة اليوم، وحجز وجبة الغد في المطابخ المجتمعية.",
+    },
+    en: {
+      title: "Community kitchens in Gaza",
+      description: "Free meals served every day: distribution times, today's menu, and reserving tomorrow's meal at community kitchens.",
+    },
+  });
+}
 
 export default async function Page() {
-  const cookieStore = await cookies();
-  const allHeaders = await headers();
-
-  const lang = toLang(cookieStore.get("lang")?.value || allHeaders.get("x-custom-lang"));
+  // Language and kitchens are independent, so they are fetched together.
+  const [lang, result] = await Promise.all([getServerLang(), getKitchensAction()]);
   const isAr = lang === "ar";
 
-  const result = await getKitchensAction();
   const kitchens = (result.success ? result.kitchens : []) as unknown as KitchenView[];
 
   return (
