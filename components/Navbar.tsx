@@ -12,12 +12,14 @@ import NavbarLinks from "./NavbarLinks";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   
-  // ← استخرج loading هنا
-  const { user, loading, clearUser } = useUserData(); 
+  const { user, hint, loading, clearUser } = useUserData();
+  // Never block the navbar on the session check: show the cached identity
+  // (or the signed-out buttons) right away and correct it when the check lands.
+  const shown = user ?? (loading ? hint : null);
   
   const router = useRouter();
   const favItems = useFavStore((state) => state.favItems);
-  const resolvedRole = user?.role || "USER";
+  const resolvedRole = shown?.role || "USER";
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -41,7 +43,6 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8">
             <NavbarLinks 
               userRole={resolvedRole} 
-              loading={loading}        // ← مرر loading الحقيقي
               className="text-sm font-semibold text-gray-600" 
             />
 
@@ -54,13 +55,10 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* عرض حالة التحميل أو تسجيل الدخول */}
-            {loading ? (
-              <div className="w-8 h-8 rounded-full border-2 border-green-600 border-t-transparent animate-spin" />
-            ) : user ? (
+            {shown ? (
               <div className="flex items-center gap-4">
                 <span className="text-sm font-bold text-gray-700">
-                  {user.name || user.email?.split('@')[0]}
+                  {shown.name || shown.email?.split('@')[0]}
                 </span>
                 <button aria-label="Log out" onClick={logout} className="text-gray-400 hover:text-red-600 transition-colors">
                   <LogOut size={18} />
@@ -85,11 +83,10 @@ export default function Navbar() {
           <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 p-6 flex flex-col gap-6">
             <NavbarLinks 
               userRole={resolvedRole} 
-              loading={loading}        // ← مرر loading هنا أيضاً
               onClick={() => setOpen(false)} 
               className="text-lg font-bold text-gray-800" 
             />
-            {user && (
+            {shown && (
                <button onClick={logout} className="flex items-center gap-2 text-red-600 font-bold">
                   <LogOut size={20} /> Logout
                </button>

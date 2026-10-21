@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useUserData } from "@/hooks/useUserData";
+import { readUserHint, useUserData } from "@/hooks/useUserData";
 
 export function UserInitializer() {
   const fetchUser = useUserData((state) => state.fetchUser);
   const listenToAuth = useUserData((state) => state.listenToAuth);
+  const setHint = useUserData((state) => state.setHint);
   const idleCallbackId = useRef<number | null>(null);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export function UserInitializer() {
       }
     };
 
+    setHint(readUserHint());
     scheduleAuthFetch();
     const subscription = listenToAuth();
 
@@ -36,7 +38,7 @@ export function UserInitializer() {
       }
       subscription.unsubscribe();
     };
-  }, [fetchUser, listenToAuth]);
+  }, [fetchUser, listenToAuth, setHint]);
 
   return null;
 }

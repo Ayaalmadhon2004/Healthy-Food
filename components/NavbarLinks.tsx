@@ -2,27 +2,16 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
-import { LayoutDashboard, HeartPulse, Stethoscope, ClipboardList, Languages, Loader2 } from "lucide-react";
+import { LayoutDashboard, HeartPulse, Stethoscope, ClipboardList, Languages } from "lucide-react";
 
 interface NavbarLinksProps {
   className?: string;
   userRole?: string | null;
-  loading?: boolean;
   onClick?: () => void;
 }
 
-export default function NavbarLinks({ className, userRole, loading, onClick }: NavbarLinksProps) { // أضيفي loading هنا
+export default function NavbarLinks({ className, userRole, onClick }: NavbarLinksProps) {
   const { lang, changeLanguage } = useLanguage();
-
-  // 1. إذا كان النظام لا يزال يحمل، لا تعرضي الروابط المتغيرة (Dashboard)
-  // لمنع الوميض والقفز بين "المفكرة" و "لوحة التحكم"
-  if (loading) {
-    return (
-      <div className="flex items-center px-4">
-        <Loader2 size={16} className="animate-spin text-gray-300" />
-      </div>
-    );
-  }
 
   const normalizedRole = userRole?.toUpperCase().trim();
   const isOrg = normalizedRole === "ADMIN" || normalizedRole === "ORG";
@@ -69,7 +58,7 @@ export default function NavbarLinks({ className, userRole, loading, onClick }: N
 
   return (
     <>
-      {/* رابط الداشبورد أصبح الآن مستقراً لأنه يعتمد على تحميل البيانات */}
+      
       <Link 
         href="/dashboard" 
         onClick={onClick}
