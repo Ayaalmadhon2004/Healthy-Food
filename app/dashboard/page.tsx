@@ -7,6 +7,8 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { getAllReportsAction } from "@/app/actions/reportActions";
+import { getDashboardStatsAction } from "@/app/actions/statsActions";
+import type { DashboardStats } from "@/lib/dashboardStats";
 
 interface StatCardProps {
   title: string;
@@ -36,6 +38,7 @@ export default function DashboardHome() {
 
   const [reports, setReports] = useState<AreaReportRow[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [orgStats, setOrgStats] = useState<DashboardStats | null>(null);
 
   // تأمين استخراج البيانات
   const userRole = user?.role?.toUpperCase()?.trim(); 
@@ -45,8 +48,9 @@ export default function DashboardHome() {
     if (userRole === "ORG" || userRole === "ADMIN") {
       const fetchReports = async () => {
         setReportsLoading(true);
-        const result = await getAllReportsAction();
+        const [result, statsResult] = await Promise.all([getAllReportsAction(), getDashboardStatsAction()]);
         if (result.success && result.reports) setReports(result.reports);
+        if (statsResult.success) setOrgStats(statsResult.stats);
         setReportsLoading(false);
       };
       fetchReports();
@@ -65,14 +69,13 @@ export default function DashboardHome() {
 
   // 2. واجهة الأدوار الإدارية (ORG / ADMIN / DOCTOR)
   if (userRole === "ORG" || userRole === "ADMIN" || userRole === "DOCTOR") {
-    const stats = userRole === "ORG" || userRole === "ADMIN" ? [
-      { title: isAr ? "الوجبات الموزعة" : "Meals distributed", value: "1,240" },
-      { title: isAr ? "السعة التشغيلية" : "Kitchen capacity", value: "90%" },
-      { title: isAr ? "بلاغات المناطق" : "Area reports", value: reports.length.toString() },
-    ] : [
-      { title: isAr ? "إجمالي المرضى" : "Total patients", value: "48" },
-      { title: isAr ? "مواعيد اليوم" : "Today's appointments", value: "6" },
-      { title: isAr ? "تنبيهات صحية" : "Health alerts", value: "3" },
+    // Numbers come from the database. There is no patient or appointment data for doctors yet,
+    // so their dashboard shows no figures rather than made-up ones.
+    const dash = "—";
+    const stats = userRole === "DOCTOR" ? [] : [
+      { title: isAr ? "وجبات محجوزة لغد" : "Meals reserved for tomorrow", value: orgStats ? orgStats.reservedTomorrow.toLocaleString(isAr ? "ar" : "en") : dash },
+      { title: isAr ? "السعة المحجوزة لغد" : "Capacity reserved for tomorrow", value: orgStats?.capacityUsedPercent != null ? `${orgStats.capacityUsedPercent}%` : dash },
+      { title: isAr ? "بلاغات المناطق" : "Area reports", value: orgStats ? orgStats.areaReports.toLocaleString(isAr ? "ar" : "en") : dash },
     ];
 
     return (
@@ -82,15 +85,17 @@ export default function DashboardHome() {
             {isAr ? `لوحة التحكم: ${userName}` : `${userName}'s dashboard`}
           </h1>
           <p className="text-ink-soft text-lg mt-2">
-            {isAr ? "ملخص سريع لأرقامك الحالية." : "A quick summary of where things stand."}
+            {isAr ? "ملخص سريع للوضع الحالي." : "A quick summary of where things stand."}
           </p>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 mb-14">
-          {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} isAr={isAr} />
-          ))}
-        </div>
+        {stats.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 mb-14">
+            {stats.map((stat, index) => (
+              <StatCard key={index} {...stat} isAr={isAr} />
+            ))}
+          </div>
+        )}
 
         {(userRole === "ORG" || userRole === "ADMIN") && (
           <div className="space-y-6 text-start">
