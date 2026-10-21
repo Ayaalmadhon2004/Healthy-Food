@@ -33,5 +33,5 @@
     "app/doctors/page.jsx",
     "app/api/doctors/route.js"
 , "components/kitchen/MealRegistration.jsx"  ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "app/sw.ts", "public/sw.js", "public/workbox-*.js", "public/swe-worker-*.js"]
 }

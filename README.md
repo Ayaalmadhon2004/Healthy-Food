@@ -102,7 +102,7 @@ The **Gaza Kitchen Community** module helps families locate and reserve free mea
 * **Database and ORM:** PostgreSQL with **Prisma 7**
 * **Auth:** Supabase Auth (session cookies), roles `USER` / `ORG` / `ADMIN`
 * **State and validation:** Zustand, Zod
-* **Other:** Recharts, Lucide React, PWA (next-pwa)
+* **Other:** Recharts, Lucide React, PWA (Serwist via `@serwist/next`; service worker source in `app/sw.ts`, generated `public/sw.js` is gitignored and built by `npm run build`, disabled in dev)
 
 ---
 
