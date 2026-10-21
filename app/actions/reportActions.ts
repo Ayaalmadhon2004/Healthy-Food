@@ -69,3 +69,34 @@ export async function getAllReportsAction() {
     return { success: false, error: (await getServerMessages()).reportsFetchFailed };
   }
 }
+
+export const REPORT_STATUSES = ["pending", "seen", "investigated"] as const;
+export type ReportStatus = (typeof REPORT_STATUSES)[number];
+
+export function isReportStatus(value: unknown): value is ReportStatus {
+  return typeof value === "string" && (REPORT_STATUSES as readonly string[]).includes(value);
+}
+
+export async function updateReportStatusAction(
+  reportId: number,
+  status: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || !isOrgRole(sessionUser.role)) {
+    return { success: false, error: (await getServerMessages()).unauthorized };
+  }
+  if (!Number.isInteger(reportId) || !isReportStatus(status)) {
+    return { success: false, error: (await getServerMessages()).invalidData };
+  }
+
+  try {
+    await prisma.areaReport.update({ where: { id: reportId }, data: { status } });
+  } catch (error) {
+    console.error("Report status update failed:", error);
+    return { success: false, error: (await getServerMessages()).reportSaveFailed };
+  }
+
+  revalidatePath("/dashboard/reports");
+  revalidatePath("/dashboard");
+  return { success: true };
+}

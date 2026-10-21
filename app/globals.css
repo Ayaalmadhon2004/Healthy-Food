@@ -556,7 +556,7 @@ i { font-style: normal !important; }
     transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
   }
   .chip:hover { background: var(--color-paper-deep); color: var(--color-ink); }
-  .chip[aria-pressed="true"] { background: var(--color-olive-800); border-color: var(--color-olive-800); color: var(--color-white); }
+  .chip[aria-pressed="true"], .chip[aria-current="page"] { background: var(--color-olive-800); border-color: var(--color-olive-800); color: var(--color-white); }
 }
 
 /* Touch screens: keep tap targets at least 44px tall (WCAG 2.5.5) without changing the desktop look. */

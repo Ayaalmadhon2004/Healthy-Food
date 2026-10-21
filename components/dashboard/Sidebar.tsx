@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Activity, Calendar, Building2, Stethoscope, LifeBuoy } from "lucide-react";
+import { LayoutDashboard, Activity, Calendar, Building2, Stethoscope, LifeBuoy, ClipboardList } from "lucide-react";
 
 export default function Sidebar({ userRole, lang }: { userRole?: string | null; lang: string }) {
   const pathname = usePathname();
@@ -11,8 +11,8 @@ export default function Sidebar({ userRole, lang }: { userRole?: string | null; 
   const normalizedRole = userRole ? userRole.toUpperCase().trim() : "GUEST";
 
   const allTranslations = {
-    ar: { menu: "القائمة", overview: "نظرة عامة", daily: "المتتبع اليومي", monthly: "العرض الشهري", organization: "إدارة المطبخ", patients: "قائمة المرضى", support: "الدعم" },
-    en: { menu: "Menu", overview: "Overview", daily: "Daily Tracker", monthly: "Monthly View", organization: "Organization", patients: "Patients List", support: "Support" }
+    ar: { menu: "القائمة", overview: "نظرة عامة", daily: "المتتبع اليومي", monthly: "العرض الشهري", organization: "إدارة المطبخ", reports: "بلاغات المناطق", patients: "قائمة المرضى", support: "الدعم" },
+    en: { menu: "Menu", overview: "Overview", daily: "Daily Tracker", monthly: "Monthly View", organization: "Organization", reports: "Area Reports", patients: "Patients List", support: "Support" }
   };
 
   const t = allTranslations[lang as keyof typeof allTranslations] || allTranslations.en;
@@ -22,6 +22,7 @@ export default function Sidebar({ userRole, lang }: { userRole?: string | null; 
     { href: "/dashboard/tracker", label: t.daily, icon: <Activity size={20} />, roles: ["USER"] },
     { href: "/dashboard/tracker/monthly", label: t.monthly, icon: <Calendar size={20} />, roles: ["USER"] },
     { href: "/dashboard/organization", label: t.organization, icon: <Building2 size={20} />, roles: ["ORG", "ADMIN"] },
+    { href: "/dashboard/reports", label: t.reports, icon: <ClipboardList size={20} />, roles: ["ORG", "ADMIN"] },
     { href: "/dashboard/patients", label: t.patients, icon: <Stethoscope size={20} />, roles: ["DOCTOR"] },
     { href: "/support", label: t.support, icon: <LifeBuoy size={20} />, roles: ["USER"] }
   ];

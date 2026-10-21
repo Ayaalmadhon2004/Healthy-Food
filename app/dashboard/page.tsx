@@ -20,6 +20,13 @@ interface AreaReportRow {
   id: number;
   areaName: string;
   description: string;
+  status: string;
+}
+
+function reportStatusLabel(status: string, isAr: boolean): string {
+  if (status === "seen") return isAr ? "تمت المشاهدة" : "Seen";
+  if (status === "investigated") return isAr ? "تم التحقق" : "Investigated";
+  return isAr ? "قيد المراجعة" : "Pending";
 }
 
 const StatCard = ({ title, value, isAr }: StatCardProps) => (
@@ -125,7 +132,7 @@ export default function DashboardHome() {
                           <td className="px-5 py-4 font-medium text-ink">{report.areaName}</td>
                           <td className="px-5 py-4 text-ink-soft max-w-xs truncate">{report.description}</td>
                           <td className="px-5 py-4">
-                            <span className="text-sm font-medium text-clay-700">{isAr ? "قيد المراجعة" : "Pending"}</span>
+                            <span className="text-sm font-medium text-clay-700">{reportStatusLabel(report.status, isAr)}</span>
                           </td>
                           <td className="px-5 py-4 text-end">
                             <ArrowRight size={18} strokeWidth={1.75} className={`text-ink-mute ${isAr ? "rotate-180" : ""}`} aria-hidden="true" />
