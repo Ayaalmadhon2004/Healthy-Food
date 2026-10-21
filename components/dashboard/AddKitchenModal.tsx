@@ -21,7 +21,7 @@ interface AddKitchenModalProps {
   onSuccess?: () => void | Promise<void>;
 }
 
-export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess }: AddKitchenModalProps) {
+export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess }: AddKitchenModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [nameInput, setNameInput] = useState(""); 

@@ -43,7 +43,7 @@ export function validateCapacityInput(raw: unknown): number | null {
 }
 
 // Text for display; keeps the localized label of legacy { en, ar } values.
-export function formatCapacity(value: unknown, lang: string = "ar"): string {
+export function formatCapacity(value: unknown, lang: string = "en"): string {
   const labels = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
   const label = labels?.[lang];
   if (typeof label === "string" && label) return label;

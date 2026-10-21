@@ -10,7 +10,7 @@ interface LanguageContextValue {
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
-  lang: "ar",
+  lang: "en",
   changeLanguage: () => {},
 });
 

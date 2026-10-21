@@ -3,7 +3,7 @@
   "name": "NutriFlow",
   "short_name": "NutriFlow",
   "description": "Meals, recipes and health advice for families in Gaza.",
-  "lang": "ar",
+  "lang": "en",
   "dir": "auto",
   "start_url": "/",
   "scope": "/",

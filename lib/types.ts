@@ -3,7 +3,7 @@ export type Lang = "ar" | "en";
 export type Localized = Record<Lang, string>;
 
 export function toLang(value: string | null | undefined): Lang {
-  return value === "en" ? "en" : "ar";
+  return value === "ar" ? "ar" : "en";
 }
 
 // A recipe row as returned by Prisma and shown in the UI.

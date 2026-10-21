@@ -17,7 +17,7 @@ interface OrgKitchenTableProps {
 
 export default function OrgKitchenTable({ 
   initialKitchens = [], 
-  lang = "ar", 
+  lang = "en", 
   totalPages = 1, 
   currentPage = 1 
 }: OrgKitchenTableProps) {
@@ -72,7 +72,7 @@ export default function OrgKitchenTable({
   };
 
   // إصلاح 2: التأكد من اختيار اللغة بشكل صارم
-  const currentT = t[lang] || t["ar"];
+  const currentT = t[lang] || t["en"];
 
   const getText = (field: KitchenView["name"], language: string) => pickText(field, toLang(language));
 
