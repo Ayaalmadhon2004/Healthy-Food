@@ -5,6 +5,7 @@ import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import { getKitchensAction } from "@/app/actions/kitchenActions";
 import { MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { whatsappLink } from "@/lib/contact";
 import SafeImage from "@/components/SafeImage";
 import { getServerLang } from "@/lib/i18n";
 import { localizedMetadata } from "@/lib/seo";
@@ -72,7 +73,7 @@ export default async function Page() {
             </p>
           </div>
           <a
-            href="https://wa.me/970598509088"
+            href={whatsappLink()}
             target="_blank"
             rel="noopener noreferrer"
             className="btn bg-white text-olive-900 hover:bg-olive-100 self-start !px-5 !py-3"
