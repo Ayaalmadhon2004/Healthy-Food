@@ -5,6 +5,7 @@ import type { Localized } from "@/lib/types";
 import { parseCapacity } from "@/lib/capacity";
 import ImagePreview from "@/components/dashboard/ImagePreview";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 import { updateKitchenAction } from "@/app/actions/kitchenActions";
 import { Save, Utensils, MapPin, Clock, Globe, Users, Phone, ChevronDown, ImageIcon } from "lucide-react";
 
@@ -30,6 +31,7 @@ export interface EditableKitchen {
 
 export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKitchen; lang: string }) {
   const router = useRouter();
+  const { path } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   const isAr = lang === "ar";
@@ -90,7 +92,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
     const result = await updateKitchenAction(kitchen.id, formData);
 
     if (result.success) {
-      router.push("/dashboard/organization"); 
+      router.push(path("/dashboard/organization"));
       router.refresh(); 
     } else {
       alert(result.error || (isAr ? "حدث خطأ أثناء التحديث" : "Error updating kitchen"));
@@ -222,7 +224,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
         </button>
         <button 
           type="button"
-          onClick={() => router.push("/dashboard/organization")}
+          onClick={() => router.push(path("/dashboard/organization"))}
           className="px-8 py-4 bg-gray-100 text-ink-mute rounded-lg font-bold hover:bg-gray-200 transition-all"
         >
           {t.cancel}

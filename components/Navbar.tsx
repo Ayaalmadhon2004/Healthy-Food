@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Heart, LogOut, X } from "lucide-react"; 
 import { getSupabase } from "@/lib/supabase/client";
@@ -11,11 +11,12 @@ import NavbarLinks from "./NavbarLinks";
 import Logo from "./Logo";
 import NotificationBell from "./NotificationBell";
 import { useLanguage } from "@/context/LanguageContext";
+import { stripLocale } from "@/lib/i18n-routing";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const { lang } = useLanguage();
+  const { lang, path } = useLanguage();
   
   const { user, hint, loading, clearUser } = useUserData();
   // Never block the navbar on the session check: show the cached identity
@@ -23,7 +24,7 @@ export default function Navbar() {
   const shown = user ?? (loading ? hint : null);
   
   const router = useRouter();
-  const onFavorites = usePathname() === "/favorites";
+  const onFavorites = stripLocale(usePathname()) === "/favorites";
   const favItems = useFavStore((state) => state.favItems);
   const resolvedRole = shown?.role || "USER";
 
@@ -45,7 +46,7 @@ export default function Navbar() {
     await supabase.auth.signOut();
     clearUser();
     setOpen(false);
-    router.push("/login");
+    router.push(path("/login"));
   };
 
   const t = lang === "ar"

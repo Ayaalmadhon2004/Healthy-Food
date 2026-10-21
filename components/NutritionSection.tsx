@@ -1,6 +1,5 @@
 import { getNutritionGuide } from "@/lib/data";
-import { getServerLang } from "@/lib/i18n";
-import type { Localized } from "@/lib/types";
+import type { Lang, Localized } from "@/lib/types";
 
 interface GuideSection {
   color: string;
@@ -33,8 +32,8 @@ const ACCENTS: Record<string, string> = {
   default: "border-line-strong",
 };
 
-export default async function NutritionSection() {
-  const [lang, guideData] = await Promise.all([getServerLang(), getNutritionGuide()]);
+export default async function NutritionSection({ lang }: { lang: Lang }) {
+  const guideData = await getNutritionGuide();
   const isRtl = lang === "ar";
 
   if (!guideData || !guideData.content) return null;

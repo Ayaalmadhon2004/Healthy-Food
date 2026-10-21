@@ -1,6 +1,6 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalized } from "@/lib/revalidate";
 import { getSessionUser } from "@/lib/auth";
 import { rateLimit } from "@/lib/rateLimit";
 import { canManageTickets, createTicketSchema, updateTicketStatusSchema } from "@/lib/validations/support";
@@ -32,7 +32,7 @@ export async function createTicketAction(_prev: SupportActionState, formData: Fo
     return { ok: false, error: "failed" };
   }
 
-  revalidatePath("/support");
+  revalidateLocalized("/support");
   return { ok: true };
 }
 
@@ -55,5 +55,5 @@ export async function updateTicketStatusAction(formData: FormData): Promise<void
     console.error("Support status error:", error);
     return;
   }
-  revalidatePath("/support");
+  revalidateLocalized("/support");
 }

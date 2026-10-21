@@ -49,7 +49,7 @@ describe("kitchen management (real Postgres)", { skip: !hasDatabase && "DATABASE
       assert.deepEqual(added.kitchen.name, { ar: `مطبخ-${token}`, en: `Kitchen-${token}` });
       assert.deepEqual(added.kitchen.region, { ar: "رفح", en: "Rafah" });
       assert.equal(added.kitchen.capacity, 120);
-      assert.deepEqual(revalidated().sort(), ["/dashboard/organization", "/gaza-kitchen"]);
+      assert.deepEqual(revalidated().sort(), ["/ar/dashboard/organization", "/ar/gaza-kitchen", "/en/dashboard/organization", "/en/gaza-kitchen"]);
 
       const updated = await updateKitchenAction(String(added.kitchen.id), validForm(token, { nameEn: "Renamed", capacity: "٢٠٠", contact: "" }));
       assert.equal(updated.success, true);

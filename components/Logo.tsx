@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 
 // A bowl with a sprout. Drawn with slightly uneven curves on purpose.
 export function LogoMark({ size = 32, className = "" }: { size?: number; className?: string }) {

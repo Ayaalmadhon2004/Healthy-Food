@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { usePathname } from "next/navigation";
+import { otherLocale, stripLocale, switchLocalePath } from "@/lib/i18n-routing";
 import { useLanguage } from "@/context/LanguageContext";
 import { LayoutDashboard, HeartPulse, Stethoscope, Languages } from "lucide-react";
 
@@ -14,7 +15,8 @@ interface NavbarLinksProps {
 
 export default function NavbarLinks({ className, userRole, onClick, mobile = false }: NavbarLinksProps) {
   const { lang, changeLanguage } = useLanguage();
-  const pathname = usePathname();
+  const rawPath = usePathname();
+  const pathname = stripLocale(rawPath);
 
   const normalizedRole = userRole?.toUpperCase().trim();
   const isOrg = normalizedRole === "ADMIN" || normalizedRole === "ORG";
@@ -94,15 +96,23 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
       {link("/gaza-kitchen", t.kitchen)}
 
       <div className={mobile ? "pt-4" : "flex items-center"}>
-        <button
-          type="button"
-          onClick={() => changeLanguage(lang === 'ar' ? 'en' : 'ar')}
-          lang={lang === "ar" ? "en" : "ar"}
+        {/* A real link to the same page in the other language (no-JS and crawler friendly); the click
+            also remembers the choice and keeps the query string and hash. */}
+        <a
+          href={switchLocalePath(rawPath, otherLocale(lang))}
+          hrefLang={otherLocale(lang)}
+          lang={otherLocale(lang)}
+          onClick={(e) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+            e.preventDefault();
+            changeLanguage(otherLocale(lang));
+            onClick?.();
+          }}
           className="inline-flex items-center gap-2 px-3 min-h-10 rounded-md border border-line-strong text-sm text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
         >
           <Languages size={15} strokeWidth={1.75} aria-hidden="true" />
           <span>{t.langName}</span>
-        </button>
+        </a>
       </div>
     </>
   );

@@ -2,13 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalized } from "@/lib/revalidate";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
 import { getServerMessages } from "@/lib/i18n";
 import { getCapacityLimit, validateCapacityInput } from "@/lib/capacity";
 import { getReservationTargetDate } from "@/lib/dates";
 import { parseImageUrl } from "@/lib/imageUrl";
-import { asLocalizedField, type KitchenView } from "@/lib/types";
+import { asLocalizedField, type KitchenView, type Lang } from "@/lib/types";
 
 const REGION_MAP: Record<string, { ar: string; en: string }> = {
   "North": { ar: "الشمال", en: "North" },
@@ -33,7 +33,7 @@ function field(formData: FormData, key: string): string {
 }
 
 // 3. جلب المطابخ (مع Pagination)
-export async function getKitchensAction(page: number = 1, limit: number = 5) {
+export async function getKitchensAction(page: number = 1, limit: number = 5, lang?: Lang) {
   try {
     const skip = (page - 1) * limit;
 
@@ -77,7 +77,7 @@ export async function getKitchensAction(page: number = 1, limit: number = 5) {
     };
   } catch (error) {
     console.error("Fetch Kitchens Error:", error);
-    return { success: false, error: (await getServerMessages()).kitchensLoadFailed };
+    return { success: false, error: (await getServerMessages(lang)).kitchensLoadFailed };
   }
 }
 
@@ -132,7 +132,7 @@ export async function addKitchenAction(formData: FormData) {
       },
     });
 
-    KITCHEN_PATHS.forEach((path) => revalidatePath(path));
+    KITCHEN_PATHS.forEach((path) => revalidateLocalized(path));
     return { success: true, kitchen: newKitchen };
   } catch (error) {
     console.error("Prisma Create Error:", error);
@@ -176,7 +176,7 @@ export async function updateKitchenAction(kitchenId: number | string, formData: 
       data: updatedData
     });
 
-    KITCHEN_PATHS.forEach((path) => revalidatePath(path));
+    KITCHEN_PATHS.forEach((path) => revalidateLocalized(path));
     return { success: true, kitchen: updatedKitchen };
   } catch (error) {
     console.error("Update Kitchen Error:", error);
@@ -194,7 +194,7 @@ export async function deleteKitchenAction(kitchenId: number | string) {
       where: { id: Number(kitchenId) }
     });
 
-    KITCHEN_PATHS.forEach((path) => revalidatePath(path));
+    KITCHEN_PATHS.forEach((path) => revalidateLocalized(path));
     return { success: true };
   } catch (error) {
     console.error("Delete Error:", error);

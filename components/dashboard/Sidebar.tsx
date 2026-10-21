@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { usePathname } from "next/navigation";
+import { stripLocale } from "@/lib/i18n-routing";
 import { LayoutDashboard, Activity, Calendar, Building2, Stethoscope, LifeBuoy, ClipboardList, CalendarCheck, UserCog } from "lucide-react";
 
 export default function Sidebar({ userRole, lang }: { userRole?: string | null; lang: string }) {
-  const pathname = usePathname();
+  const pathname = stripLocale(usePathname());
   const isAr = lang === "ar";
 
   const normalizedRole = userRole ? userRole.toUpperCase().trim() : "GUEST";

@@ -3,11 +3,13 @@
 import { submitAreaReportAction } from "@/app/actions/reportActions";
 import { useState, type FormEvent } from "react";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation"; // الخطوة الأهم
+import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function ReportForm({ userId, isAr }: { userId: string; isAr: boolean }) {
   const [loading, setLoading] = useState(false);
-  const router = useRouter(); 
+  const router = useRouter();
+  const { path } = useLanguage();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); 
@@ -17,7 +19,7 @@ export default function ReportForm({ userId, isAr }: { userId: string; isAr: boo
 
     try {
       await submitAreaReportAction(formData);
-      router.push("/dashboard/tracker?success=true");
+      router.push(path("/dashboard/tracker?success=true"));
       router.refresh();
     } catch (error) {
       console.error("Submission failed:", error);

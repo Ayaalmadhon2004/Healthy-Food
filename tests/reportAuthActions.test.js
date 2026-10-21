@@ -63,8 +63,8 @@ describe("reportActions (real Postgres)", { skip: !hasDatabase && "DATABASE_URL 
     resetRevalidated();
     // Exactly at the limits.
     const result = await submit(form({ areaName: "x".repeat(200), description: "y".repeat(2000) }));
-    assert.deepEqual(result, { redirected: "/dashboard?success=true" });
-    assert.ok(revalidated().includes("/dashboard"));
+    assert.deepEqual(result, { redirected: "/en/dashboard?success=true" });
+    assert.ok(revalidated().includes("/en/dashboard") && revalidated().includes("/ar/dashboard"));
 
     const rows = await prisma.areaReport.findMany({ where: { userId: user.id } });
     assert.equal(rows.length, 1);

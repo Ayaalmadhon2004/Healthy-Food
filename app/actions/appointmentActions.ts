@@ -1,6 +1,6 @@
 "use server";
 import { Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalized } from "@/lib/revalidate";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { getServerMessages } from "@/lib/i18n";
@@ -15,9 +15,9 @@ import {
 type Result = { success: true } | { success: false; error: string };
 
 function refresh() {
-  revalidatePath("/dashboard/patients");
-  revalidatePath("/dashboard/appointments");
-  revalidatePath("/dashboard");
+  revalidateLocalized("/dashboard/patients");
+  revalidateLocalized("/dashboard/appointments");
+  revalidateLocalized("/dashboard");
 }
 
 // A signed-in user asks a doctor for a visit on a given day.
@@ -162,7 +162,7 @@ export async function linkDoctorAccountAction(doctorId: number, email: string): 
     return { success: false, error: m.appointmentSaveFailed };
   }
 
-  revalidatePath("/dashboard/doctors");
+  revalidateLocalized("/dashboard/doctors");
   return { success: true };
 }
 

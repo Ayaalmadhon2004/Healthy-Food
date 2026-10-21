@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Cookies from "js-cookie";
-import { toLang } from "@/lib/types";
 import { readUserHint, useUserData } from "@/hooks/useUserData";
 import { useFavStore } from "@/store/useFavStore";
 
@@ -13,25 +11,14 @@ function mightBeSignedIn(hintPresent: boolean): boolean {
   return document.cookie.split("; ").some((c) => c.startsWith("sb-") && c.includes("-auth-token"));
 }
 
-// Public pages may be shown again from the back/forward cache or the HTTP cache (see next.config.ts),
-// which brings back the page as it was left: in the old language and with the old signed-in state.
-// Bring both up to date when that happens. A normal load always matches, so this does nothing then.
+// Public pages may be shown again from the back/forward cache (see next.config.ts), which brings back
+// the page as it was left, including the signed-in state of the navbar. Bring that up to date when it
+// happens. The language needs no such check: it is part of the URL, so a restored page is always in
+// the right language.
 function useRefreshOnRestore() {
   useEffect(() => {
-    const langIsStale = () => toLang(Cookies.get("lang")) !== toLang(document.documentElement.lang);
-
-    if (langIsStale()) {
-      window.location.reload();
-      return;
-    }
-
     const onPageShow = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
-      if (langIsStale()) {
-        window.location.reload();
-        return;
-      }
-
       const { user, fetchUser, clearUser } = useUserData.getState();
       const signedIn = mightBeSignedIn(readUserHint() !== null);
       if (signedIn && !user) void fetchUser();

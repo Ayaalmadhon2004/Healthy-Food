@@ -4,9 +4,9 @@ import { useLanguage } from "@/context/LanguageContext";
 
 export default function LogMealButton({ calory, mealName }: { calory: number | string; mealName: string }) {
     const router=useRouter();
-    const { lang } = useLanguage();
+    const { lang, path } = useLanguage();
     const handleClick = () => {
-    router.push(`/tracker?meal=${encodeURIComponent(mealName)}&cal=${encodeURIComponent(String(calory))}`);
+    router.push(path(`/tracker?meal=${encodeURIComponent(mealName)}&cal=${encodeURIComponent(String(calory))}`));
   };
   return (
     <button

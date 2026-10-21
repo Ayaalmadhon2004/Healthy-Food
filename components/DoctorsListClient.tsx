@@ -1,5 +1,5 @@
 // No hooks or handlers here, so this renders on the server and ships no JavaScript of its own.
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { MapPin, Calendar, Award, Star } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
 import { whatsappLink } from "@/lib/contact";

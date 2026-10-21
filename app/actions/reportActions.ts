@@ -1,9 +1,10 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalized } from "@/lib/revalidate";
 import { redirect } from "next/navigation";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
-import { getServerMessages } from "@/lib/i18n";
+import { getRequestLang, getServerMessages } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n-routing";
 import { isReportStatus } from "@/lib/reportStatus";
 
 export async function submitAreaReportAction(formData: FormData): Promise<{ error: string } | undefined> {
@@ -38,8 +39,8 @@ export async function submitAreaReportAction(formData: FormData): Promise<{ erro
   }
 
   if (success) {
-    revalidatePath("/dashboard");
-    redirect("/dashboard?success=true");
+    revalidateLocalized("/dashboard");
+    redirect(localePath(await getRequestLang(), "/dashboard?success=true"));
   }
 }
 
@@ -90,7 +91,7 @@ export async function updateReportStatusAction(
     return { success: false, error: (await getServerMessages()).reportSaveFailed };
   }
 
-  revalidatePath("/dashboard/reports");
-  revalidatePath("/dashboard");
+  revalidateLocalized("/dashboard/reports");
+  revalidateLocalized("/dashboard");
   return { success: true };
 }
