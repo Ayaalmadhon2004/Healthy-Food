@@ -456,6 +456,11 @@ html[lang="ar"] button, html[lang="ar"] input, html[lang="ar"] textarea, html[la
 html[lang="ar"] body { line-height: 1.75; }
 html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3 { line-height: 1.45; }
 
+/* Large numerals set in Poppins Medium; the 500 file is not preloaded (see app/layout.tsx) */
+.font-display.font-medium {
+  font-family: var(--font-headings-medium), var(--font-headings), var(--font-main), ui-sans-serif, system-ui, sans-serif;
+}
+
 i { font-style: normal !important; }
 
 ::selection { background: #d9dfb9; color: var(--color-ink); }

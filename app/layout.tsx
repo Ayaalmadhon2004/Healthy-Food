@@ -19,13 +19,22 @@ const inter = localFont({
   display: "swap",
 });
 
+// Headings are always weight 600 (the h1-h6 rule in globals.css wins over font-* utilities), so
+// that is the only Poppins file preloaded. Weight 500 only appears on a few large numerals
+// (.font-display.font-medium) and is fetched when one of them is on the page.
 const poppins = localFont({
-  src: [
-    { path: "./fonts/poppins-latin-500-normal.woff2", weight: "500", style: "normal" },
-    { path: "./fonts/poppins-latin-600-normal.woff2", weight: "600", style: "normal" },
-  ],
+  src: "./fonts/poppins-latin-600-normal.woff2",
+  weight: "600",
   variable: "--font-headings",
   display: "swap",
+});
+
+const poppinsMedium = localFont({
+  src: "./fonts/poppins-latin-500-normal.woff2",
+  weight: "500",
+  variable: "--font-headings-medium",
+  display: "swap",
+  preload: false,
 });
 
 // The site only uses weights 400 to 600 (Tailwind's bold/extrabold/black are mapped to 600 in
@@ -97,7 +106,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html
       lang={lang}
       dir={lang === "ar" ? "rtl" : "ltr"}
-      className={`${inter.variable} ${poppins.variable} ${cairo.variable}`}
+      className={`${inter.variable} ${poppins.variable} ${poppinsMedium.variable} ${cairo.variable}`}
     >
       <body className="min-h-screen bg-paper text-ink antialiased">
         <a
