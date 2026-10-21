@@ -212,6 +212,7 @@ export async function reserveMealAction(_userId: unknown, kitchenId: number | st
 
     if (!userId) return { error: "LOGIN_REQUIRED" };
     if (!Number.isInteger(qty) || qty < 1 || qty > 20) return { error: "INVALID_QUANTITY" };
+    if (!Number.isInteger(kId)) return { error: "KITCHEN_NOT_FOUND" };
 
     const kitchen = await prisma.kitchen.findUnique({
       where: { id: kId }

@@ -6,9 +6,9 @@ export function createLoginSchema(m: ServerMessages) {
   return z.object({
     email: z
       .string()
+      .trim()
       .min(1, m.emailRequired)
       .email(m.emailInvalidAddress)
-      .trim()
       .toLowerCase(),
     password: z
       .string()
@@ -25,9 +25,9 @@ export function createSignupSchema(m: ServerMessages) {
       .trim(),
     email: z
       .string()
+      .trim()
       .min(1, m.emailRequired)
       .email(m.emailInvalidFormat)
-      .trim()
       .toLowerCase(),
     password: z
       .string()

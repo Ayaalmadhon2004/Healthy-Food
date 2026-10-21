@@ -118,7 +118,10 @@ describe("auth validation schemas", () => {
     const ok = loginSchema.safeParse({ email: "Aya@Example.COM", password: "x" });
     assert.equal(ok.success, true);
     assert.equal(ok.data.email, "aya@example.com");
-    for (const input of [{}, { email: "", password: "x" }, { email: "nope", password: "x" }, { email: "a@b.co", password: "" }]) {
+    const padded = loginSchema.safeParse({ email: "  Aya@Example.COM \n", password: "x" });
+    assert.ok(padded.success, "surrounding whitespace is trimmed, not rejected");
+    assert.equal(padded.data.email, "aya@example.com");
+    for (const input of [{}, { email: "", password: "x" }, { email: "   ", password: "x" }, { email: "nope", password: "x" }, { email: "a@b.co", password: "" }]) {
       assert.equal(loginSchema.safeParse(input).success, false, JSON.stringify(input));
     }
   });
@@ -129,6 +132,7 @@ describe("auth validation schemas", () => {
     assert.equal(ok.success, true);
     assert.equal(ok.data.name, "Aya");
     assert.equal(ok.data.email, "aya@example.com");
+    assert.ok(signupSchema.safeParse({ ...base, email: " aya@example.com " }).success, "padded signup email is trimmed");
 
     const bad = [
       { name: "A" },
