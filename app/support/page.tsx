@@ -1,13 +1,24 @@
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
-import { getDictionaryServer } from "@/lib/i18n";
+import { getDictionaryServer, getServerLang } from "@/lib/i18n";
+import { localizedMetadata, NO_INDEX } from "@/lib/seo";
+import type { Metadata } from "next";
 import { canManageTickets, TICKET_STATUSES } from "@/lib/validations/support";
 import { updateTicketStatusAction } from "@/app/actions/supportActions";
 import SupportTicketForm from "@/components/SupportTicketForm";
 
-export const metadata = { title: "Support" };
+export function generateMetadata(): Promise<Metadata> {
+  return localizedMetadata(
+    "/support",
+    {
+      ar: { title: "الدعم", description: "تواصل مع فريق NutriFlow وتابع طلباتك." },
+      en: { title: "Support", description: "Contact the NutriFlow team and follow your requests." },
+    },
+    NO_INDEX,
+  );
+}
+
 const MAX_TICKETS = 200;
 const DATE_LENGTH = 16;
 
@@ -31,8 +42,7 @@ interface SupportDict {
 }
 
 export default async function SupportPage() {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value === "en" ? "en" : "ar";
+  const lang = await getServerLang();
   const dict = (await getDictionaryServer(lang)) as { support: SupportDict };
   const t = dict.support;
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -40,12 +50,12 @@ export default async function SupportPage() {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     return (
-      <main className="min-h-screen flex items-center justify-center p-6 bg-gray-50 text-center" dir={dir}>
-        <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100 max-w-sm">
-          <p className="text-xl font-bold mb-6 text-gray-800">{t.login_required}</p>
-          <Link href="/login" className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold inline-block">Login</Link>
+      <div className="min-h-[60vh] flex items-center justify-center p-6 text-center" dir={dir}>
+        <div className="surface p-8 max-w-sm">
+          <p className="text-xl font-medium mb-5 text-ink">{t.login_required}</p>
+          <Link href="/login" className="btn btn-primary">{lang === "ar" ? "تسجيل الدخول" : "Sign in"}</Link>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -58,11 +68,11 @@ export default async function SupportPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] p-6" dir={dir}>
-      <div className="max-w-2xl mx-auto space-y-8">
+    <div className="px-5 md:px-8 pt-10 md:pt-16 pb-20" dir={dir}>
+      <div className="max-w-2xl mx-auto space-y-10">
         <header>
-          <h1 className="text-3xl font-black text-gray-900">{t.title}</h1>
-          <p className="text-gray-500 mt-1">{t.subtitle}</p>
+          <h1 className="text-3xl md:text-4xl font-medium text-ink">{t.title}</h1>
+          <p className="text-ink-soft text-lg mt-3 leading-relaxed">{t.subtitle}</p>
         </header>
 
         <SupportTicketForm
@@ -77,26 +87,26 @@ export default async function SupportPage() {
         />
 
         <section className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-800">{isAdmin ? t.all_tickets : t.my_tickets}</h2>
-          {tickets.length === 0 && <p className="text-gray-400">{t.empty}</p>}
+          <h2 className="text-xl font-semibold text-ink pb-2 border-b border-line-strong">{isAdmin ? t.all_tickets : t.my_tickets}</h2>
+          {tickets.length === 0 && <p className="text-ink-mute">{t.empty}</p>}
           {tickets.map((ticket) => (
-            <article key={ticket.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-2">
+            <article key={ticket.id} className="surface p-5 space-y-2">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="font-bold text-gray-900 break-words">{ticket.subject}</h3>
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 whitespace-nowrap">
+                <h3 className="font-semibold text-ink break-words">{ticket.subject}</h3>
+                <span className="text-sm font-medium text-olive-800 whitespace-nowrap flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-current" aria-hidden="true" />
                   {t.status[ticket.status] ?? ticket.status}
                 </span>
               </div>
               {isAdmin && (
-                <p className="text-xs text-gray-400">{t.from}: {ticket.user.name} ({ticket.user.email})</p>
+                <p className="text-sm text-ink-mute">{t.from}: {ticket.user.name} ({ticket.user.email})</p>
               )}
-              <p className="text-sm text-gray-600 whitespace-pre-wrap break-words">{ticket.message}</p>
-              <p className="text-xs text-gray-400">{ticket.createdAt.toISOString().slice(0, DATE_LENGTH).replace("T", " ")} UTC</p>
+              <p className="text-ink-soft whitespace-pre-wrap break-words">{ticket.message}</p>
+              <p className="text-sm text-ink-mute">{ticket.createdAt.toISOString().slice(0, DATE_LENGTH).replace("T", " ")} UTC</p>
               {isAdmin && (
                 <form action={updateTicketStatusAction} className="flex flex-wrap gap-2 pt-1">
                   <input type="hidden" name="ticketId" value={ticket.id} />
                   {TICKET_STATUSES.filter((s) => s !== ticket.status).map((s) => (
-                    <button key={s} type="submit" name="status" value={s} className="text-xs font-bold px-3 py-1 rounded-lg border border-gray-200 hover:bg-gray-50">
+                    <button key={s} type="submit" name="status" value={s} className="text-sm font-medium px-3 py-1 rounded-md border border-line-strong hover:bg-paper-deep">
                       {t.status[s]}
                     </button>
                   ))}
@@ -106,6 +116,6 @@ export default async function SupportPage() {
           ))}
         </section>
       </div>
-    </main>
+    </div>
   );
 }

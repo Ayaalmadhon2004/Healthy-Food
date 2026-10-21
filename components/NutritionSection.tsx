@@ -1,6 +1,6 @@
-import {prisma} from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { toLang, type Localized } from "@/lib/types";
+import { getNutritionGuide } from "@/lib/data";
+import { getServerLang } from "@/lib/i18n";
+import type { Localized } from "@/lib/types";
 
 interface GuideSection {
   color: string;
@@ -22,55 +22,58 @@ interface GuideContent {
   stretching: { title: Localized; subtitle: Localized; steps: GuideStep[] };
 }
 
+// Left-rule colour for each section, keyed by the `color` stored with the content.
+const ACCENTS: Record<string, string> = {
+  green: "border-olive-600",
+  orange: "border-clay-500",
+  blue: "border-sea-500",
+  yellow: "border-ochre-500",
+  red: "border-brick-500",
+  purple: "border-plum-400",
+  default: "border-line-strong",
+};
+
 export default async function NutritionSection() {
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, guideData] = await Promise.all([getServerLang(), getNutritionGuide()]);
   const isRtl = lang === "ar";
 
-  const guideData = await prisma.nutritionGuide.findFirst();
-  
   if (!guideData || !guideData.content) return null;
   
   const { header, sections, stretching } = guideData.content as unknown as GuideContent;
 
   return (
-    <section 
-      className="max-w-5xl mx-auto px-6 py-12" 
+    <section
+      className="border-t border-line-strong pt-12 md:pt-16"
       dir={isRtl ? "rtl" : "ltr"}
+      aria-labelledby="nutrition-guide-title"
     >
       {/* Header */}
-      <div className="text-center mb-12">
-        <span className="inline-block bg-green-100 text-green-700 font-medium px-4 py-1 rounded-full text-sm">
-          {header.badge[lang]}
-        </span>
-        <h1 className="text-3xl font-bold mt-4 text-gray-900">
+      <div className="max-w-2xl mb-10 md:mb-14">
+        <p className="kicker">{header.badge[lang]}</p>
+        <h2 id="nutrition-guide-title" className="mt-2 text-3xl md:text-4xl font-medium text-ink">
           {header.title[lang]}
-        </h1>
-        <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+        </h2>
+        <p className="text-ink-soft text-lg mt-4 leading-relaxed">
           {header.subtitle[lang]}
         </p>
       </div>
 
-      {/* Sections */}
-      <div className="grid gap-6 md:grid-cols-3">
+      {/* Sections: two columns reads better than three once there are six of them */}
+      <div className="grid gap-x-12 gap-y-10 md:grid-cols-2">
         {sections.map((sec, index) => (
           <article
             key={index}
-            className={`p-6 rounded-xl border ${
-              sec.color === "green" ? "bg-green-50 border-green-100" :
-              sec.color === "orange" ? "bg-orange-50 border-orange-100" :
-              "bg-blue-50 border-blue-100"
-            }`}
+            className={`border-s-4 ps-5 ${ACCENTS[sec.color] ?? ACCENTS.default}`}
           >
-            <h2 className="text-xl font-bold text-gray-800">{sec.title[lang]}</h2>
-            <p className="mt-2 text-gray-700 text-sm leading-relaxed">
+            <h3 className="text-xl font-semibold text-ink">{sec.title[lang]}</h3>
+            <p className="mt-2 text-ink-soft leading-relaxed">
               {sec.description[lang]}
             </p>
 
-            <h4 className="mt-6 font-bold text-gray-800 text-xs uppercase tracking-wider">
+            <h4 className="mt-5 text-sm font-semibold text-ink">
               {sec.listTitle[lang]}
             </h4>
-            <ul className={`mt-2 space-y-2 text-gray-700 text-sm list-disc ${isRtl ? "pr-5" : "pl-5"}`}>
+            <ul className={`mt-2 space-y-1.5 text-ink-soft list-disc marker:text-ink-mute ${isRtl ? "pr-5" : "pl-5"}`}>
               {sec.items.map((item, i) => (
                 <li key={i}>{item[lang]}</li>
               ))}
@@ -79,26 +82,31 @@ export default async function NutritionSection() {
         ))}
       </div>
 
-      {/* Stretching Meals */}
-      <div className="mt-12 bg-gray-50 p-8 rounded-2xl border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-900">{stretching.title[lang]}</h2>
-        <p className="text-gray-600 mt-1">{stretching.subtitle[lang]}</p>
+      {/* Stretching meals */}
+      <div className="mt-16 md:mt-20 bg-paper-deep rounded-xl border border-line p-6 md:p-10">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl md:text-3xl font-medium text-ink">{stretching.title[lang]}</h2>
+          <p className="text-ink-soft mt-2 text-lg">{stretching.subtitle[lang]}</p>
+        </div>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
+        <ol className="mt-8 grid gap-x-12 gap-y-6 md:grid-cols-2 list-none">
           {stretching.steps.map((step) => (
-            <div key={step.number} className="flex gap-4 items-start">
-              <span className="shrink-0 bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-lg font-bold">
+            <li key={step.number} className="flex gap-4 items-start">
+              <span
+                className="shrink-0 w-9 text-end font-display text-2xl font-medium leading-none text-clay-700 tabular-nums pt-0.5"
+                aria-hidden="true"
+              >
                 {step.number}
               </span>
-              <div>
-                <h3 className="font-bold text-gray-800">{step.title[lang]}</h3>
-                <p className="text-gray-600 text-sm mt-1 leading-relaxed">
+              <div className="border-b border-line pb-5 flex-1">
+                <h3 className="font-semibold text-ink">{step.title[lang]}</h3>
+                <p className="text-ink-soft mt-1 leading-relaxed">
                   {step.text[lang]}
                 </p>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );

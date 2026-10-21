@@ -47,12 +47,12 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
     const t = useMemo(() => {
         const translations = {
             ar: {
-                title: "📅 وجبة غداً",
-                subtitle: "نظام الحجز المسبق",
+                title: "وجبة الغد",
+                subtitle: "احجز مسبقاً",
                 remaining: "متبقي",
                 meal: "وجبة",
                 familySize: "عدد أفراد الأسرة:",
-                description: "يساعدنا الحجز المسبق على توزيع الوجبات بعدالة وضمان عدم إهدار أي طعام.",
+                description: "الحجز المسبق يساعد المطبخ على توزيع الوجبات بعدل، ولا يضيع منها شيء.",
                 reserveBtn: "احجز الوجبات لغدًا",
                 loading: "جاري الحجز...",
                 full: "عذراً، اكتمل العدد",
@@ -69,12 +69,12 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 }
             },
             en: {
-                title: "📅 Tomorrow's Meal",
-                subtitle: "Pre-order System",
+                title: "Tomorrow's meal",
+                subtitle: "Reserve ahead",
                 remaining: "Remaining",
                 meal: "meals",
                 familySize: "Family members:",
-                description: "Pre-ordering helps us distribute meals fairly and ensure no food is wasted.",
+                description: "Reserving ahead lets the kitchen share meals fairly, and nothing goes to waste.",
                 reserveBtn: "Reserve meals for tomorrow",
                 loading: "Reserving...",
                 full: "Sorry, fully booked",
@@ -150,88 +150,93 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
     }
 
     return (
-        <div 
-            className={`bg-white p-6 rounded-3xl shadow-xl border border-green-100 flex flex-col gap-4 max-w-md w-full transition-all duration-300 ${isAr ? 'rtl' : 'ltr'}`} 
+        <div
+            className="flex flex-col gap-4 w-full"
             dir={isAr ? 'rtl' : 'ltr'}
         >
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-baseline gap-3">
                 <div className="flex flex-col">
-                    <h3 className="font-bold text-xl text-gray-800 flex items-center gap-2">
+                    <h3 className="font-semibold text-lg text-ink">
                         {t.title}
                     </h3>
-                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                    <span className="text-xs text-ink-mute">
                         {t.subtitle}
                     </span>
                 </div>
-                <div className="flex flex-col items-end">
-                    <span className={`text-sm font-bold px-3 py-1 rounded-full border transition-colors ${
-                        remaining === 0 ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                    }`}>
-                        {t.remaining} {remaining} {t.meal}
-                    </span>
-                </div>
+                <span className={`text-sm font-medium ${remaining === 0 ? 'text-brick-700' : 'text-olive-800'}`}>
+                    {t.remaining} {remaining} {t.meal}
+                </span>
             </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden border border-gray-50 p-[2px]">
-                <div 
-                    className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                        percentage > 90 ? 'bg-rose-500' : 'bg-emerald-500'
-                    }`} 
+            {/* Progress bar */}
+            <div
+                className="w-full bg-paper-deep h-2 rounded-sm overflow-hidden"
+                role="progressbar"
+                aria-label={`${t.title}: ${t.remaining} ${remaining} ${t.meal}`}
+                aria-valuemin={0}
+                aria-valuemax={limit}
+                aria-valuenow={Math.min(currentCount, limit)}
+            >
+                <div
+                    className={`h-full transition-[width] duration-500 ease-out ${
+                        percentage > 90 ? 'bg-brick-600' : 'bg-olive-600'
+                    }`}
                     style={{ width: `${percentage}%` }}
                 />
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <span className="text-sm font-bold text-gray-700">{t.familySize}</span>
-                <div className="flex items-center gap-4">
-                    <button 
+            <div className="flex items-center justify-between py-3 border-y border-line">
+                <span className="text-sm font-medium text-ink">{t.familySize}</span>
+                <div className="flex items-center gap-3">
+                    <button
                         onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                        className="w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center text-xl font-bold hover:bg-gray-100 active:scale-90 transition-all"
+                        aria-label={isAr ? "أقل" : "Fewer"}
+                        className="w-9 h-9 rounded-md bg-white border border-line-strong flex items-center justify-center text-lg hover:bg-paper-deep transition-colors"
                     >
                         -
                     </button>
-                    <span className="text-xl font-black text-emerald-600 min-w-[20px] text-center">
+                    <span className="text-lg font-semibold text-ink min-w-[1.5rem] text-center tabular-nums">
                         {quantity}
                     </span>
-                    <button 
+                    <button
                         onClick={() => setQuantity(prev => Math.min(10, prev + 1))} // حد أقصى 10 أفراد
-                        className="w-10 h-10 rounded-xl bg-white border border-gray-200 shadow-sm flex items-center justify-center text-xl font-bold hover:bg-gray-100 active:scale-90 transition-all"
+                        aria-label={isAr ? "أكثر" : "More"}
+                        className="w-9 h-9 rounded-md bg-white border border-line-strong flex items-center justify-center text-lg hover:bg-paper-deep transition-colors"
                     >
                         +
                     </button>
                 </div>
             </div>
 
-            <p className="text-gray-500 text-[13px] leading-relaxed italic">
+            <p className="text-ink-mute text-[0.8125rem] leading-relaxed">
                 {t.description}
             </p>
 
             {message && (
-                <div className={`p-4 rounded-2xl text-sm font-bold animate-in slide-in-from-top-2 duration-300 ${
-                    status === "success" 
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-100" 
-                        : "bg-rose-50 text-rose-700 border border-rose-100"
+                <div role="status" className={`px-3 py-2.5 rounded-md text-sm font-medium border ${
+                    status === "success"
+                        ? "bg-olive-50 text-olive-900 border-olive-200"
+                        : "bg-brick-50 text-brick-800 border-brick-200"
                 }`}>
                     {message}
                 </div>
             )}
 
             {isReserved ? (
-                <button 
+                <button
                     onClick={handleCancel}
                     disabled={loading}
-                    className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition"
+                    className="btn btn-quiet w-full !text-brick-700 !border-brick-300"
                 >
-                    {loading ? "..." : (isAr ? "إلغاء الحجز" : "Cancel Reservation")}
+                    {loading ? "..." : (isAr ? "إلغاء الحجز" : "Cancel reservation")}
                 </button>
                 ) : (
-                <button 
+                <button
                     onClick={handleReserve}
                     disabled={loading}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition"
+                    className="btn btn-primary w-full"
                 >
-                    {loading ? "..." : (isAr ? "حجز الآن" : "Reserve Now")}
+                    {loading ? "..." : (isAr ? "احجز الآن" : "Reserve now")}
                 </button>
                 )}
                 </div>

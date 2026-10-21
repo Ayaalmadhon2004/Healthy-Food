@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { pickText, type LocalizedField } from "@/lib/types";
 import { Plus, X, Utensils, MapPin, Clock, Salad, Users, Phone, ChevronDown } from "lucide-react";
 import { addKitchenAction } from "@/app/actions/kitchenActions";
@@ -21,7 +21,7 @@ interface AddKitchenModalProps {
   onSuccess?: () => void | Promise<void>;
 }
 
-export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess }: AddKitchenModalProps) {
+export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess }: AddKitchenModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [nameInput, setNameInput] = useState(""); 
@@ -65,6 +65,16 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
   };
 
   const t = translations[lang as keyof typeof translations] || translations.ar;
+
+  // Escape closes the dialog.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
   const isAr = lang === "ar";
 
   const isDuplicate = kitchens.some(k => {
@@ -98,23 +108,24 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
   return (
     <>
       <button 
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="bg-green-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-green-700 transition-all shadow-lg active:scale-95 text-sm"
+        className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-green-700 transition-all shadow-sm text-sm"
       >
         <Plus size={20} />
         {t.btn}
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-8">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-ink/50 p-4 overflow-y-auto">
+          <div role="dialog" aria-modal="true" aria-labelledby="add-kitchen-title" className="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
             
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-xl font-black flex items-center gap-2 text-gray-800">
-                <Utensils className="text-green-600" /> {t.title}
+              <h2 id="add-kitchen-title" className="text-xl font-black flex items-center gap-2 text-gray-800">
+                <Utensils className="text-olive-700" /> {t.title}
               </h2>
-              <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-200 rounded-full text-gray-400">
-                <X size={20} />
+              <button type="button" aria-label={t.cancel ?? "Close"} onClick={() => setIsOpen(false)} className="p-2 min-w-11 min-h-11 inline-flex items-center justify-center hover:bg-gray-200 rounded-full text-ink-mute">
+                <X size={20} aria-hidden="true" />
               </button>
             </div>
 
@@ -122,29 +133,29 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
               
               {/* اسم المطبخ - عربي */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center justify-between">
+                <label htmlFor="add-kitchen-nameAr" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center justify-between">
                   <span className="flex items-center gap-1"><Utensils size={12} /> {t.nameAr}</span>
-                  {isDuplicate && <span className="text-red-500 animate-pulse">{t.duplicateWarn}</span>}
+                  {isDuplicate && <span className="text-brick-600 animate-pulse">{t.duplicateWarn}</span>}
                 </label>
-                <input name="nameAr" required className="form-input" placeholder="مثال: مطبخ الأمل" onChange={(e) => setNameInput(e.target.value)} />
+                <input id="add-kitchen-nameAr" name="nameAr" required className="form-input" placeholder="مثال: مطبخ الأمل" onChange={(e) => setNameInput(e.target.value)} />
               </div>
 
               {/* اسم المطبخ - إنجليزي */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                <label htmlFor="add-kitchen-nameEn" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1">
                   <Utensils size={12} /> {t.nameEn}
                 </label>
-                <input name="nameEn" required className="form-input" placeholder="e.g. Al-Amal Kitchen" />
+                <input id="add-kitchen-nameEn" name="nameEn" required className="form-input" placeholder="e.g. Al-Amal Kitchen" />
               </div>
 
               {/* المنطقة (قائمة خيارات) */}
               <div className="md:col-span-2 space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                <label htmlFor="add-kitchen-regionId" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1">
                   <MapPin size={12} /> {t.region}
                 </label>
                 <div className="relative group">
                   <select 
-                    name="regionId" // نرسل الـ ID للسيرفر ليعرف أي منطقة تم اختيارها
+                    id="add-kitchen-regionId" name="regionId" // نرسل الـ ID للسيرفر ليعرف أي منطقة تم اختيارها
                     required 
                     className="form-input appearance-none cursor-pointer pr-10"
                   >
@@ -155,51 +166,51 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={18} className={`absolute ${isAr ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none group-hover:text-green-600 transition-colors`} />
+                  <ChevronDown size={18} className={`absolute ${isAr ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none group-hover:text-olive-700 transition-colors`} />
                 </div>
               </div>
 
               {/* السعة */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                <label htmlFor="add-kitchen-capacity" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1">
                   <Users size={12} /> {t.capacity}
                 </label>
-                <input type="number" name="capacity" required min="1" max="100000" step="1" className="form-input" placeholder="500" />
+                <input type="number" id="add-kitchen-capacity" name="capacity" required min="1" max="100000" step="1" className="form-input" placeholder="500" />
               </div>
 
               {/* التواصل */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                <label htmlFor="add-kitchen-contact" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1">
                   <Phone size={12} /> {t.contact}
                 </label>
-                <input type="text" name="contact" required className="form-input text-left" dir="ltr" placeholder="059XXXXXXXX" />
+                <input type="text" id="add-kitchen-contact" name="contact" required className="form-input text-left" dir="ltr" placeholder="059XXXXXXXX" />
               </div>
 
               {/* وجبة اليوم - عربي وإنجليزي */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1"><Salad size={12} /> {t.mealAr}</label>
-                <input name="mealAr" required className="form-input" placeholder="مثال: أرز مع دجاج" />
+                <label htmlFor="add-kitchen-mealAr" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1"><Salad size={12} /> {t.mealAr}</label>
+                <input id="add-kitchen-mealAr" name="mealAr" required className="form-input" placeholder="مثال: أرز مع دجاج" />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1"><Salad size={12} /> {t.mealEn}</label>
-                <input name="mealEn" required className="form-input" placeholder="e.g. Rice with Chicken" />
+                <label htmlFor="add-kitchen-mealEn" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1"><Salad size={12} /> {t.mealEn}</label>
+                <input id="add-kitchen-mealEn" name="mealEn" required className="form-input" placeholder="e.g. Rice with Chicken" />
               </div>
 
               {/* وقت التوزيع - عربي وإنجليزي */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1"><Clock size={12} /> {t.timeAr}</label>
-                <input name="timeAr" required className="form-input" placeholder="مثال: 12:00 ظهراً" />
+                <label htmlFor="add-kitchen-timeAr" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1"><Clock size={12} /> {t.timeAr}</label>
+                <input id="add-kitchen-timeAr" name="timeAr" required className="form-input" placeholder="مثال: 12:00 ظهراً" />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1"><Clock size={12} /> {t.timeEn}</label>
-                <input name="timeEn" required className="form-input" placeholder="e.g. 12:00 PM" />
+                <label htmlFor="add-kitchen-timeEn" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1"><Clock size={12} /> {t.timeEn}</label>
+                <input id="add-kitchen-timeEn" name="timeEn" required className="form-input" placeholder="e.g. 12:00 PM" />
               </div>
 
               <div className="md:col-span-2 flex gap-3 mt-4">
-                <button type="submit" disabled={loading} className="flex-1 bg-green-600 text-white p-4 rounded-2xl font-bold hover:bg-green-700 transition-all disabled:opacity-50 shadow-lg shadow-green-100">
+                <button type="submit" disabled={loading} className="flex-1 bg-green-600 text-white p-4 rounded-lg font-bold hover:bg-green-700 transition-all disabled:opacity-50 shadow-sm shadow-green-100">
                   {loading ? "..." : t.save}
                 </button>
-                <button type="button" onClick={() => setIsOpen(false)} className="px-8 bg-gray-100 text-gray-500 rounded-2xl font-bold hover:bg-gray-200">
+                <button type="button" onClick={() => setIsOpen(false)} className="px-8 bg-gray-100 text-ink-mute rounded-lg font-bold hover:bg-gray-200">
                   {t.cancel}
                 </button>
               </div>

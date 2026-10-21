@@ -1,7 +1,7 @@
 {
   "auth": {
-    "login_title": "تسجيل الدخول لـ NutriFlow",
-    "login_subtitle": "مرحباً بك مجدداً",
+    "login_title": "أهلاً بعودتك",
+    "login_subtitle": "سجّل دخولك إلى حسابك في نيوتروفلو.",
     "email_label": "البريد الإلكتروني",
     "password_label": "كلمة المرور",
     "email_placeholder": "you@example.com",
@@ -31,16 +31,16 @@
   },
   "support": {
     "title": "الدعم",
-    "subtitle": "أرسل لنا رسالة وتابع تذاكرك.",
+    "subtitle": "اكتب لنا ما حدث. نردّ عليك هنا، وتتابع حالة كل طلب في الأسفل.",
     "subject_label": "الموضوع",
     "message_label": "الرسالة",
-    "submit": "إرسال التذكرة",
+    "submit": "إرسال",
     "submitting": "جاري الإرسال...",
     "my_tickets": "تذاكري",
     "all_tickets": "جميع التذاكر",
     "empty": "لا توجد تذاكر بعد.",
     "sent": "تم إرسال تذكرتك.",
-    "login_required": "يرجى تسجيل الدخول للتواصل مع الدعم.",
+    "login_required": "سجّل دخولك أولاً للتواصل مع الدعم.",
     "from": "من",
     "status": {
       "OPEN": "مفتوحة",

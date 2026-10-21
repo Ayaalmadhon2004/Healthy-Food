@@ -25,55 +25,54 @@ const AddMealForm = memo(({ onAdd }: { onAdd: (meal: NewMealInput) => void }) =>
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]"> 
-      {/* أضفنا min-h لتقليل الـ Layout Shift (CLS) المذكور في تقريرك */}
-      
-      <h3 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">
-        {lang === 'ar' ? "إضافة وجبة" : "Add Meal"}
+    <div className="surface p-6">
+      <h3 className="text-lg font-semibold mb-5 text-ink pb-2 border-b border-line">
+        {lang === 'ar' ? "أضف وجبة" : "Add a meal"}
       </h3>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* حقل اسم الطعام مع Label مخفي للمكفوفين (Accessibility) */}
+        {/* حقل اسم الطعام */}
         <div>
-          <label htmlFor="foodName" className="sr-only">
-            {lang === 'ar' ? "اسم الطعام" : "Food Name"}
+          <label htmlFor="foodName" className="label">
+            {lang === 'ar' ? "اسم الطعام" : "Food"}
           </label>
           <input
             id="foodName"
             type="text"
             value={mealName}
             onChange={(e) => setMealName(e.target.value)}
-            placeholder={lang === 'ar' ? "اسم الطعام (مثلاً: سلطة)" : "Food Name (e.g. Salad)"}
-            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none transition-all text-gray-900"
+            placeholder={lang === 'ar' ? "مثلاً: شوربة عدس" : "e.g. Lentil soup"}
+            className="field"
           />
         </div>
 
         <div className="flex gap-4">
-          {/* حقل السعرات مع Label */}
+          {/* حقل السعرات */}
           <div className="flex-1">
-            <label htmlFor="calInput" className="block text-xs font-bold text-gray-600 mb-1 ml-1">
+            <label htmlFor="calInput" className="label">
               {lang === 'ar' ? "السعرات" : "Calories"}
             </label>
             <input
               id="calInput"
               type="number"
+              inputMode="numeric"
               value={calories}
               onChange={(e) => setCalories(e.target.value)}
               placeholder="0"
-              className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none text-gray-900"
+              className="field"
             />
           </div>
 
-          {/* قائمة النوع مع Label (لحل خطأ Accessibility في تقريرك) */}
+          {/* قائمة النوع */}
           <div className="flex-1">
-            <label htmlFor="mealType" className="block text-xs font-bold text-gray-600 mb-1 ml-1">
-              {lang === 'ar' ? "النوع" : "Type"}
+            <label htmlFor="mealType" className="label">
+              {lang === 'ar' ? "الوجبة" : "Meal"}
             </label>
             <select
               id="mealType"
               value={option}
               onChange={(e) => setOption(e.target.value)}
-              className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-600 outline-none text-gray-900 appearance-none"
+              className="field"
             >
               <option value="Breakfast">{lang === 'ar' ? "فطور" : "Breakfast"}</option>
               <option value="Lunch">{lang === 'ar' ? "غداء" : "Lunch"}</option>
@@ -83,11 +82,11 @@ const AddMealForm = memo(({ onAdd }: { onAdd: (meal: NewMealInput) => void }) =>
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-green-700 hover:bg-green-800 text-white font-black py-4 rounded-xl shadow-md transition-all active:scale-95 mt-2"
+        <button
+          type="submit"
+          className="btn btn-primary w-full !py-3 mt-2"
         >
-          {lang === 'ar' ? "+ إضافة الآن" : "+ Add Now"}
+          {lang === 'ar' ? "أضف" : "Add"}
         </button>
       </form>
     </div>

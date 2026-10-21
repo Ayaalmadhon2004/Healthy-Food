@@ -1,10 +1,8 @@
 // utils/notification.ts
 
 export const requestNotificationPermission = async () => {
-  if (!("Notification" in window)) {
-    alert("هذا المتصفح لا يدعم الإشعارات");
-    return false;
-  }
+  // Browsers without notification support simply skip them; an alert() here would be noise.
+  if (!("Notification" in window)) return false;
   
   const permission = await Notification.requestPermission();
   return permission === "granted";

@@ -18,7 +18,7 @@ export async function getDictionaryClient() {
   const locale = document.cookie
     .split("; ")
     .find((row) => row.startsWith("lang="))
-    ?.split("=")[1] || "ar";
+    ?.split("=")[1] || "en";
 
   if (locale === "ar") {
     return import("@/locales/ar.json").then((m) => m.default);
@@ -28,7 +28,7 @@ export async function getDictionaryClient() {
 
 export type ServerMessages = typeof en.server;
 
-// Language of the current request, from the `lang` cookie (Arabic by default).
+// Language of the current request, from the `lang` cookie (English by default).
 export async function getServerLang(): Promise<Lang> {
   const cookieStore = await cookies();
   return toLang(cookieStore.get("lang")?.value);

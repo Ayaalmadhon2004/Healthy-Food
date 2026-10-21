@@ -1,126 +1,99 @@
 import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Droplet, Bed, Leaf, Activity, HelpCircle, type LucideIcon } from "lucide-react";
-import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { asLocalized, toLang } from "@/lib/types";
+import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import SafeImage from "@/components/SafeImage";
+import { getTip, parseId } from "@/lib/data";
+import { getServerLang } from "@/lib/i18n";
+import { asLocalized } from "@/lib/types";
 
-const IconMap: Record<string, LucideIcon> = {
-  Droplet,
-  Bed,
-  Leaf,
-  Activity,
-};
-
-// توليد المسارات الثابتة (Next.js Static Generation)
-const getTip = cache(async (id: string) => {
-  return prisma.healthTip.findUnique({
-    where: { id: parseInt(id) },
-  });
+// Pages are rendered per request (the language is a cookie), so there is nothing to
+// pre-generate; generateStaticParams used to query the database at build time and made
+// `next build` fail whenever the database was unreachable.
+const loadTip = cache(async (id: string) => {
+  const numericId = parseId(id);
+  return numericId === null ? null : getTip(numericId);
 });
 
-export async function generateStaticParams() {
-  const tips = await prisma.healthTip.findMany();
-  return tips.map((tip) => ({
-    id: tip.id.toString(),
-  }));
-}
-
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const tip = id ? await getTip(id) : null;
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [tip, lang] = await Promise.all([loadTip(id), getServerLang()]);
 
   if (!tip) {
-    return {
-      title: lang === "ar" ? "النصيحة غير موجودة" : "Tip Not Found",
-      description: lang === "ar" ? "النصيحة المطلوبة غير متوفرة." : "The requested tip is unavailable.",
-    };
+    return { title: lang === "ar" ? "النصيحة غير موجودة" : "Tip not found", robots: { index: false } };
   }
 
+  const title = asLocalized(tip.header)[lang];
+  const description = asLocalized(tip.advice)[lang] || asLocalized(tip.details)[lang];
+  const path = `/tips/${tip.id}`;
+
   return {
-    title: `${asLocalized(tip.header)[lang]}`,
-    description: lang === "ar"
-      ? `اقرأ المزيد عن ${asLocalized(tip.header)[lang]} والنصيحة الصحية المتكاملة.`
-      : `Read more about ${asLocalized(tip.header)[lang]} and the complete health advice.`,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: "article", title, description, url: path, locale: lang === "ar" ? "ar_AR" : "en_US" },
   };
 }
 
 export default async function TipDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  // 1. جلب اللغة من الكوكيز
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, tip] = await Promise.all([getServerLang(), loadTip(id)]);
   const isRtl = lang === "ar";
 
-  // 2. جلب النصيحة المحددة من قاعدة البيانات مباشرة
-  const tip = id ? await getTip(id) : null;
+  if (!tip) notFound();
 
-  if (!tip || !id) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500 text-lg md:text-xl font-bold">
-          {lang === "ar" ? "النصيحة غير موجودة" : "Tip not found"}
-        </p>
-      </div>
-    );
-  }
-
-  const IconComponent = IconMap[tip.iconName] || HelpCircle;
+  const title = asLocalized(tip.header)[lang];
+  const moreDetails = asLocalized(tip.moreDetails)[lang];
 
   return (
-    <div 
-      className="min-h-screen bg-gradient-to-br from-[#eef7f0] to-[#f6f6f6] p-4 md:p-6 lg:p-10"
-      dir={isRtl ? "rtl" : "ltr"}
-    >
-      <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-3xl p-6 md:p-12 border border-gray-100">
+    <div className="max-w-3xl mx-auto px-5 md:px-8 pt-8 md:pt-12 pb-20" dir={isRtl ? "rtl" : "ltr"}>
+      <Link
+        href="/tips"
+        className="inline-flex items-center gap-2 min-h-11 text-sm font-medium text-ink-soft hover:text-olive-800"
+      >
+        <ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" className={isRtl ? "rotate-180" : ""} />
+        {lang === "ar" ? "العودة إلى النصائح" : "Back to tips"}
+      </Link>
 
-        {/* Icon Display */}
-        <div className="text-green-600 mb-8 flex justify-center">
-          <div className="p-5 bg-green-50 rounded-full shadow-inner">
-            <IconComponent size={64} strokeWidth={1.5} />
-          </div>
+      <article className="mt-6">
+        <div className="relative aspect-[5/2] overflow-hidden rounded-lg border border-line bg-paper-deep">
+          <SafeImage
+            kind="tip"
+            seed={tip.id}
+            hint={tip.iconName}
+            alt={title}
+            fill
+            priority
+            fetchPriority="high"
+            sizes="(min-width: 768px) 768px, 100vw"
+            className="object-cover"
+          />
         </div>
 
-        {/* Header */}
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 text-center leading-tight">
-          {asLocalized(tip.header)[lang]}
+        <h1 className="mt-8 text-3xl md:text-4xl font-medium text-ink">
+          {title}
         </h1>
 
-        {/* Advice */}
-        <p className="text-lg sm:text-xl md:text-2xl mt-6 text-green-700 font-medium leading-relaxed text-center">
+        <p className="mt-5 text-xl md:text-2xl text-olive-900 leading-snug border-s-2 border-clay-500 ps-5">
           {asLocalized(tip.advice)[lang]}
         </p>
 
-        {/* Details */}
-        <p className="text-gray-500 mt-6 leading-relaxed text-center text-base sm:text-lg md:text-xl max-w-2xl mx-auto">
+        <p className="mt-6 text-ink-soft text-lg leading-relaxed">
           {asLocalized(tip.details)[lang]}
         </p>
 
-        {/* More Details Section */}
-        <div className="mt-10 md:mt-12 bg-[#fdfcf9] rounded-2xl p-6 md:p-10 border border-gray-100 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">
-            {lang === "ar" ? "تفاصيل إضافية" : "More Details"}
-          </h2>
-          <p className="text-gray-700 leading-loose whitespace-pre-line text-sm sm:text-base md:text-lg">
-            {asLocalized(tip.moreDetails)[lang]}
-          </p>
-        </div>
-
-        {/* Back Button */}
-        <div className="mt-10 md:mt-14 flex justify-center">
-          <Link
-            href="/tips"
-            className="group flex items-center gap-2 px-8 py-4 rounded-2xl bg-gray-900 text-white font-bold hover:bg-green-600 transition-all duration-300 shadow-lg active:scale-95"
-          >
-            <span className={isRtl ? "rotate-180" : ""}>←</span>
-            {lang === "ar" ? "العودة للنصائح" : "Back to Tips"}
-          </Link>
-        </div>
-      </div>
+        {moreDetails && (
+          <section className="mt-10 pt-8 border-t border-line-strong">
+            <h2 className="text-xl font-semibold text-ink mb-3">
+              {lang === "ar" ? "للتوسّع" : "In more detail"}
+            </h2>
+            <p className="text-ink leading-loose whitespace-pre-line text-[1.0625rem]">
+              {moreDetails}
+            </p>
+          </section>
+        )}
+      </article>
     </div>
   );
 }

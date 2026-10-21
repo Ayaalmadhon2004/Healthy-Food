@@ -58,10 +58,10 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8" dir={isAr ? "rtl" : "ltr"}>
       
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
         <div>
           <h1 className="text-3xl font-black text-gray-900">{currentT.title}</h1>
-          <p className="text-gray-500 text-sm mt-1">{currentT.desc}</p>
+          <p className="text-ink-mute text-sm mt-1">{currentT.desc}</p>
         </div>
 
         <AddKitchenModal 
@@ -75,7 +75,7 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
       {!isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-3xl flex items-center gap-4">
-            <div className="bg-emerald-600 p-3 rounded-2xl text-white">
+            <div className="bg-emerald-600 p-3 rounded-lg text-white">
               <Users size={24} />
             </div>
             <div>
@@ -87,7 +87,7 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
           </div>
           
           <div className="bg-blue-50 border border-blue-100 p-5 rounded-3xl flex items-center gap-4">
-            <div className="bg-blue-600 p-3 rounded-2xl text-white">
+            <div className="bg-blue-600 p-3 rounded-lg text-white">
               <Phone size={24} />
             </div>
             <div>
@@ -99,11 +99,11 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
       )}
 
       {/* 3. جدول البيانات الرئيسي */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden transition-all duration-500">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-500">
         {isLoading ? (
           <div className="p-32 text-center flex flex-col items-center gap-4">
              <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
-             <p className="text-gray-400 font-bold">{isAr ? "جاري جلب بيانات المطابخ..." : "Fetching kitchen data..."}</p>
+             <p className="text-ink-mute font-bold">{isAr ? "جاري جلب بيانات المطابخ..." : "Fetching kitchen data..."}</p>
           </div>
         ) : (
           <OrgKitchenTable 
@@ -117,8 +117,8 @@ export default function OrganizationPage({ searchParams }: { searchParams: Promi
 
       {/* 4. قسم ملاحظات إدارة السعة */}
       <footer className="bg-gray-50 p-6 rounded-3xl border border-dashed border-gray-200 flex items-start gap-3">
-        <Info size={20} className="text-gray-400 mt-1 shrink-0" />
-        <p className="text-sm text-gray-500 leading-relaxed">
+        <Info size={20} className="text-ink-mute mt-1 shrink-0" />
+        <p className="text-sm text-ink-mute leading-relaxed">
           {isAr 
             ? "تأكد من تحديث أرقام التواصل وسعة الوجبات بشكل دوري لضمان وصول المساعدات للأهالي بدقة." 
             : "Ensure contact numbers and meal capacities are updated regularly to guarantee accurate aid delivery."}

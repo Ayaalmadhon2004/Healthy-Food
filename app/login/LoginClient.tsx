@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { AlertCircle } from "lucide-react"
+import { LogoMark } from "@/components/Logo"
 import { useUserData } from "@/hooks/useUserData" // تأكد من المسار الصحيح
 import { useFavStore } from "@/store/useFavStore" // تأكد من المسار الصحيح
 
@@ -53,17 +54,17 @@ export default function LoginClient({ t }: { t: AuthText }) {
                 return
             }
 
-            // ✅ 1. تحديث بيانات المستخدم في الستور فوراً
+            // 1. تحديث بيانات المستخدم في الستور فوراً
             if (data.user) {
                 setUser(data.user)
             }
 
-            // ✅ 2. تحديث المفضلات فوراً لكي تظهر في الـ Navbar
+            // 2. تحديث المفضلات فوراً لكي تظهر في الـ Navbar
             if (data.favorites) {
                 setFavItems(data.favorites)
             }
 
-            // ✅ 3. التوجه للـ Dashboard أو الصفحة الرئيسية
+            // 3. التوجه للـ Dashboard أو الصفحة الرئيسية
             router.push("/") 
             router.refresh()
             
@@ -75,48 +76,49 @@ export default function LoginClient({ t }: { t: AuthText }) {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-green-50 px-4 py-12">
+        <div className="min-h-[calc(100vh-4rem)] flex items-start md:items-center justify-center px-5 py-12 md:py-16">
             <div className="w-full max-w-md">
-                <div className="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.login_title}</h1>
-                        <p className="text-gray-600">{t.login_subtitle}</p>
-                    </div>
+                <div className="surface p-7 md:p-9">
+                    <LogoMark size={36} />
+                    <h1 className="mt-5 text-2xl md:text-3xl font-medium text-ink">{t.login_title}</h1>
+                    <p className="mt-1.5 text-ink-soft">{t.login_subtitle}</p>
 
                     {error && (
-                        <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 flex gap-3 items-start">
-                            <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={18} />
-                            <p className="text-sm text-red-700">{error}</p>
+                        <div role="alert" className="mt-6 px-3.5 py-3 rounded-md bg-brick-50 border border-brick-200 flex gap-3 items-start">
+                            <AlertCircle className="text-brick-700 flex-shrink-0 mt-0.5" size={18} strokeWidth={1.75} />
+                            <p className="text-sm text-brick-800">{error}</p>
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="mt-7 space-y-5">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="email" className="label">
                                 {t.email_label}
                             </label>
                             <input
                                 id="email"
                                 type="email"
+                                autoComplete="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                                className="field"
                                 placeholder={t.email_placeholder}
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="password" className="label">
                                 {t.password_label}
                             </label>
                             <input
                                 id="password"
                                 type="password"
+                                autoComplete="current-password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                                className="field"
                                 placeholder={t.password_placeholder}
                             />
                         </div>
@@ -124,20 +126,18 @@ export default function LoginClient({ t }: { t: AuthText }) {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md"
+                            className="btn btn-primary w-full !py-3"
                         >
                             {isLoading ? t.signing_in : t.login_button}
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600">
-                            {t.no_account}{" "}
-                            <Link href="/signup" className="text-green-600 hover:text-green-700 font-semibold hover:underline">
-                                {t.create_account}
-                            </Link>
-                        </p>
-                    </div>
+                    <p className="mt-6 text-sm text-ink-soft">
+                        {t.no_account}{" "}
+                        <Link href="/signup" className="text-link">
+                            {t.create_account}
+                        </Link>
+                    </p>
                 </div>
             </div>
         </div>

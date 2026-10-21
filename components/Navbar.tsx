@@ -1,103 +1,140 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, Heart, LogOut, X } from "lucide-react"; 
-import { supabase } from "@/lib/supabase/client";
+import { getSupabase } from "@/lib/supabase/client";
 import { useFavStore } from "@/store/useFavStore";
 import { useUserData } from "@/hooks/useUserData";
 import NavbarLinks from "./NavbarLinks";
+import Logo from "./Logo";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const { lang } = useLanguage();
   
-  // ← استخرج loading هنا
-  const { user, loading, clearUser } = useUserData(); 
+  const { user, hint, loading, clearUser } = useUserData();
+  // Never block the navbar on the session check: show the cached identity
+  // (or the signed-out buttons) right away and correct it when the check lands.
+  const shown = user ?? (loading ? hint : null);
   
   const router = useRouter();
+  const onFavorites = usePathname() === "/favorites";
   const favItems = useFavStore((state) => state.favItems);
-  const resolvedRole = user?.role || "USER";
+  const resolvedRole = shown?.role || "USER";
+
+  // Escape closes the mobile menu and hands focus back to the button that opened it.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   const logout = async () => {
+    const supabase = await getSupabase();
     await supabase.auth.signOut();
     clearUser();
     setOpen(false);
     router.push("/login");
   };
 
+  const t = lang === "ar"
+    ? { signIn: "تسجيل الدخول", signUp: "إنشاء حساب", logout: "تسجيل الخروج", favorites: "المفضلة", menu: "القائمة الرئيسية", toggle: "فتح أو إغلاق القائمة" }
+    : { signIn: "Sign in", signUp: "Create account", logout: "Log out", favorites: "Favorites", menu: "Main navigation", toggle: "Open or close the menu" };
+
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center text-white font-bold">NF</div>
-            <span className="text-xl font-black text-gray-900">NutriFlow</span>
-          </Link>
+      <header className="fixed top-0 left-0 w-full bg-paper border-b border-line z-50">
+      <nav aria-label={t.menu}>
+        <div className="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            <NavbarLinks 
-              userRole={resolvedRole} 
-              loading={loading}        // ← مرر loading الحقيقي
-              className="text-sm font-semibold text-gray-600" 
+          <Logo />
+
+          {/* Desktop navigation */}
+          <div className="hidden md:flex items-center gap-6">
+            <NavbarLinks
+              userRole={resolvedRole}
+              className="text-[0.9375rem] text-ink-soft hover:text-ink"
             />
 
-            <Link href="/favorites" aria-label="Favorites" className="relative text-gray-700 hover:text-red-500 p-2">
-              <Heart className={`w-6 h-6 ${favItems.length > 0 ? "fill-red-500 text-red-500" : ""}`} />
+            <Link href="/favorites" aria-current={onFavorites ? "page" : undefined} aria-label={favItems.length > 0 ? `${t.favorites} (${favItems.length})` : t.favorites} className="relative inline-flex items-center justify-center w-11 h-11 -mx-2 text-ink-soft hover:text-clay-700">
+              <Heart aria-hidden="true" className={`w-5 h-5 ${favItems.length > 0 ? "fill-clay-600 text-clay-600" : ""}`} strokeWidth={1.75} />
               {favItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black border-2 border-white">
+                <span aria-hidden="true" className="absolute top-1 end-0 min-w-[1.125rem] h-[1.125rem] px-1 rounded-full bg-clay-700 text-white flex items-center justify-center text-[0.6875rem] font-semibold leading-none">
                   {favItems.length}
                 </span>
               )}
             </Link>
 
-            {/* عرض حالة التحميل أو تسجيل الدخول */}
-            {loading ? (
-              <div className="w-8 h-8 rounded-full border-2 border-green-600 border-t-transparent animate-spin" />
-            ) : user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-bold text-gray-700">
-                  {user.name || user.email?.split('@')[0]}
+            {shown ? (
+              <div className="flex items-center gap-4 ps-6 border-s border-line">
+                <span className="text-[0.9375rem] font-medium text-ink">
+                  {shown.name || shown.email?.split('@')[0]}
                 </span>
-                <button aria-label="Log out" onClick={logout} className="text-gray-400 hover:text-red-600 transition-colors">
-                  <LogOut size={18} />
+                <button aria-label={t.logout} onClick={logout} className="inline-flex items-center justify-center w-11 h-11 -m-2 text-ink-mute hover:text-clay-700 transition-colors">
+                  <LogOut size={18} strokeWidth={1.75} aria-hidden="true" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-4">
-                <Link href="/login" className="text-sm font-bold">Sign In</Link>
-                <Link href="/signup" className="px-5 py-2 rounded-xl text-white bg-green-600 font-bold text-sm">Sign Up</Link>
+              <div className="flex items-center gap-4 ps-6 border-s border-line">
+                <Link href="/login" className="inline-flex items-center min-h-11 text-[0.9375rem] font-medium text-ink hover:text-olive-700">{t.signIn}</Link>
+                <Link href="/signup" className="btn btn-primary !py-1.5 min-h-10">{t.signUp}</Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Button */}
-          <button aria-label="Toggle navigation menu" className="md:hidden p-2 text-gray-600" onClick={() => setOpen(!open)}>
-            {open ? <X size={28} /> : <Menu size={28} />}
+          {/* Mobile button */}
+          <button
+            ref={toggleRef}
+            type="button"
+            aria-label={t.toggle}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            className="md:hidden inline-flex items-center justify-center w-11 h-11 -me-2 text-ink"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X size={26} strokeWidth={1.75} aria-hidden="true" /> : <Menu size={26} strokeWidth={1.75} aria-hidden="true" />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile menu */}
         {open && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 p-6 flex flex-col gap-6">
-            <NavbarLinks 
-              userRole={resolvedRole} 
-              loading={loading}        // ← مرر loading هنا أيضاً
-              onClick={() => setOpen(false)} 
-              className="text-lg font-bold text-gray-800" 
+          <div id="mobile-menu" className="md:hidden absolute top-full left-0 w-full bg-paper border-b border-line px-5 pt-2 pb-5 flex flex-col [&>a]:py-3 [&>a]:border-b [&>a]:border-line">
+            <NavbarLinks
+              userRole={resolvedRole}
+              onClick={() => setOpen(false)}
+              className="text-base text-ink"
+              mobile
             />
-            {user && (
-               <button onClick={logout} className="flex items-center gap-2 text-red-600 font-bold">
-                  <LogOut size={20} /> Logout
-               </button>
-            )}
+            <Link href="/favorites" onClick={() => setOpen(false)} aria-current={onFavorites ? "page" : undefined} className="text-base text-ink">
+              {t.favorites}{favItems.length > 0 ? ` (${favItems.length})` : ""}
+            </Link>
+            <div className="pt-4 flex items-center gap-3">
+              {shown ? (
+                <button onClick={logout} className="btn btn-quiet">
+                  <LogOut size={18} strokeWidth={1.75} aria-hidden="true" /> {t.logout}
+                </button>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setOpen(false)} className="btn btn-quiet">{t.signIn}</Link>
+                  <Link href="/signup" onClick={() => setOpen(false)} className="btn btn-primary">{t.signUp}</Link>
+                </>
+              )}
+            </div>
           </div>
         )}
       </nav>
-      <div className="h-[72px]"></div>
+      </header>
+      <div className="h-16" aria-hidden="true"></div>
     </>
   );
 }

@@ -1,28 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
-import { LayoutDashboard, HeartPulse, Stethoscope, ClipboardList, Languages, Loader2 } from "lucide-react";
+import { LayoutDashboard, HeartPulse, Stethoscope, Languages } from "lucide-react";
 
 interface NavbarLinksProps {
   className?: string;
   userRole?: string | null;
-  loading?: boolean;
   onClick?: () => void;
+  mobile?: boolean;
 }
 
-export default function NavbarLinks({ className, userRole, loading, onClick }: NavbarLinksProps) { // أضيفي loading هنا
+export default function NavbarLinks({ className, userRole, onClick, mobile = false }: NavbarLinksProps) {
   const { lang, changeLanguage } = useLanguage();
-
-  // 1. إذا كان النظام لا يزال يحمل، لا تعرضي الروابط المتغيرة (Dashboard)
-  // لمنع الوميض والقفز بين "المفكرة" و "لوحة التحكم"
-  if (loading) {
-    return (
-      <div className="flex items-center px-4">
-        <Loader2 size={16} className="animate-spin text-gray-300" />
-      </div>
-    );
-  }
+  const pathname = usePathname();
 
   const normalizedRole = userRole?.toUpperCase().trim();
   const isOrg = normalizedRole === "ADMIN" || normalizedRole === "ORG";
@@ -34,7 +26,7 @@ export default function NavbarLinks({ className, userRole, loading, onClick }: N
       orgDashboard: "لوحة التحكم",
       doctorDashboard: "بوابة الطبيب",
       recipes: "الوصفات",
-      tracker: "متبع الوجبات",
+      tracker: "متابعة الوجبات",
       tips: "نصائح صحية",
       doctors: "الأطباء",
       kitchen: "مطبخ غزة",
@@ -60,47 +52,56 @@ export default function NavbarLinks({ className, userRole, loading, onClick }: N
   const t = content[lang] || content.ar;
 
   const getDashboardLinkInfo = () => {
-    if (isOrg) return { label: t.orgDashboard, icon: <LayoutDashboard size={16} /> };
-    if (isDoctor) return { label: t.doctorDashboard, icon: <Stethoscope size={16} /> };
-    return { label: t.userDashboard, icon: <HeartPulse size={16} /> };
+    if (isOrg) return { label: t.orgDashboard, icon: <LayoutDashboard size={16} strokeWidth={1.75} aria-hidden="true" /> };
+    if (isDoctor) return { label: t.doctorDashboard, icon: <Stethoscope size={16} strokeWidth={1.75} aria-hidden="true" /> };
+    return { label: t.userDashboard, icon: <HeartPulse size={16} strokeWidth={1.75} aria-hidden="true" /> };
   };
 
   const dashInfo = getDashboardLinkInfo();
 
+  const link = (href: string, label: string, extra = "") => {
+    const active = pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        aria-current={active ? "page" : undefined}
+        className={`${className} ${extra} inline-flex items-center min-h-11 ${active ? "!text-ink font-semibold underline decoration-clay-500 decoration-2 underline-offset-[10px]" : ""}`}
+      >
+        {label}
+      </Link>
+    );
+  };
+
   return (
     <>
-      {/* رابط الداشبورد أصبح الآن مستقراً لأنه يعتمد على تحميل البيانات */}
-      <Link 
-        href="/dashboard" 
+      <Link
+        href="/dashboard"
         onClick={onClick}
-        className={`${className} flex items-center gap-1.5 font-bold text-[var(--color-primary)]`}
+        aria-current={pathname === "/dashboard" ? "page" : undefined}
+        className={`${className} inline-flex items-center gap-1.5 min-h-11 !text-olive-800 font-semibold`}
       >
         {dashInfo.icon}
         {dashInfo.label}
       </Link>
 
-      {isOrg && (
-        <Link href="/dashboard/reports" onClick={onClick} className={`${className} flex items-center gap-1`}>
-          <ClipboardList size={16} className="text-gray-400" />
-          {t.reports}
-        </Link>
-      )}
+      {isOrg && link("/dashboard/reports", t.reports)}
 
-      {/* بقية الروابط الثابتة */}
-      <Link href="/recipes" onClick={onClick} className={className}>{t.recipes}</Link>
-      <Link href="/tracker" onClick={onClick} className={className}>{t.tracker}</Link>
-      <Link href="/tips" onClick={onClick} className={className}>{t.tips}</Link>
-      <Link href="/doctors" onClick={onClick} className={className}>{t.doctors}</Link>
-      <Link href="/gaza-kitchen" onClick={onClick} className={className}>{t.kitchen}</Link>
-      
-      {/* زر اللغة */}
-      <div className="flex items-center ml-4 mr-2 border-l border-gray-100 pl-4 h-6 my-auto">
-        <button 
+      {link("/recipes", t.recipes)}
+      {link("/tracker", t.tracker)}
+      {link("/tips", t.tips)}
+      {link("/doctors", t.doctors)}
+      {link("/gaza-kitchen", t.kitchen)}
+
+      <div className={mobile ? "pt-4" : "flex items-center"}>
+        <button
+          type="button"
           onClick={() => changeLanguage(lang === 'ar' ? 'en' : 'ar')}
-          className="group relative flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 hover:border-[var(--color-primary)] transition-all shadow-sm"
+          lang={lang === "ar" ? "en" : "ar"}
+          className="inline-flex items-center gap-2 px-3 min-h-10 rounded-md border border-line-strong text-sm text-ink-soft hover:text-ink hover:bg-paper-deep transition-colors"
         >
-          <Languages size={16} className="text-gray-400 group-hover:text-[var(--color-primary)]" />
-          <span className="text-xs font-bold text-gray-600 uppercase">{t.shortLang}</span>
+          <Languages size={15} strokeWidth={1.75} aria-hidden="true" />
+          <span>{t.langName}</span>
         </button>
       </div>
     </>

@@ -24,30 +24,23 @@ const MealItem = memo(({ meal, onDelete, lang }: MealItemProps) => {
   const translatedOption = optionTranslations[meal.mealType || meal.option || ""]?.[lang] || meal.option;
 
   return (
-    <div className="p-6 border rounded-2xl mb-2 bg-white border-gray-100 shadow-sm transition-all hover:shadow-md animate-in fade-in slide-in-from-bottom-2">
-      <div className="flex justify-between items-center">
-        <strong className="text-lg md:text-xl text-gray-800 font-bold">
-          {translatedOption} 
-          <span className="text-sm font-normal text-gray-500 mx-2">
-            ({meal.calories} {lang === "ar" ? "سعرة" : "Cal"})
-          </span>
-        </strong>
+    <li className="flex items-center justify-between gap-4 py-4 border-b border-line">
+      <div className="min-w-0">
+        <p className="text-sm text-ink-mute">
+          {translatedOption} <span className="tabular-nums">· {meal.calories} {lang === "ar" ? "سعرة" : "cal"}</span>
+        </p>
+        <p className="text-lg font-medium text-ink break-words">{meal.foodName}</p>
       </div>
 
-      <div className="bg-green-50/50 p-5 rounded-xl flex justify-between items-center w-full mt-4 border border-green-100/50">
-        <span className="text-green-800 font-bold">
-          {meal.foodName}
-        </span>
-
-        <button
-          onClick={() => onDelete(meal.id)}
-          className="p-2 hover:bg-red-50 rounded-full transition-colors group"
-          title={lang === "ar" ? "حذف" : "Delete"}
-        >
-          <Trash size={20} className="text-red-500 group-hover:text-red-700" />
-        </button>
-      </div>
-    </div>
+      <button
+        onClick={() => onDelete(meal.id)}
+        className="p-2 rounded-md text-ink-mute hover:text-brick-700 hover:bg-brick-50 transition-colors shrink-0"
+        title={lang === "ar" ? "حذف" : "Delete"}
+        aria-label={lang === "ar" ? "حذف" : "Delete"}
+      >
+        <Trash size={18} strokeWidth={1.75} />
+      </button>
+    </li>
   );
 });
 
@@ -59,34 +52,32 @@ const MealList = memo(({ meals, onDelete }: { meals: TrackedMeal[]; onDelete: (i
   const isRtl = lang === "ar";
 
   const t: Record<string, Localized> = {
-    title: { en: "Meals Added", ar: "الوجبات المضافة" },
-    empty: { en: "No meals added yet.", ar: "لم يتم إضافة وجبات بعد." },
+    title: { en: "Today's meals", ar: "وجبات اليوم" },
+    empty: { en: "Nothing logged yet. Add your first meal above.", ar: "لم تسجّل شيئاً بعد. أضف أول وجبة من النموذج." },
   };
 
   return (
     <div className="mt-10" dir={isRtl ? "rtl" : "ltr"}>
-      <h2 className="text-2xl font-black mb-6 text-gray-900 flex items-center gap-3">
+      <h2 className="text-2xl font-medium mb-2 text-ink">
         {t.title[lang]}
-        <span className="bg-green-100 text-green-700 text-sm font-bold py-1 px-3 rounded-full">
-          {meals.length}
-        </span>
+        <span className="text-ink-mute text-lg ms-2 tabular-nums">{meals.length}</span>
       </h2>
 
       {meals.length === 0 ? (
-        <div className="text-center py-16 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-200 text-gray-400 font-medium">
+        <p className="py-10 text-ink-soft border-t border-line-strong">
           {t.empty[lang]}
-        </div>
+        </p>
       ) : (
-        <div className="space-y-4">
+        <ul className="border-t border-line-strong">
           {meals.map((meal) => (
-            <MealItem 
-              key={meal.id} 
-              meal={meal} 
-              onDelete={onDelete} 
-              lang={lang} 
+            <MealItem
+              key={meal.id}
+              meal={meal}
+              onDelete={onDelete}
+              lang={lang}
             />
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

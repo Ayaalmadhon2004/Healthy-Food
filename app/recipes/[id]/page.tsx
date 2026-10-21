@@ -1,149 +1,191 @@
 import { cache } from "react";
-import Image from "next/image";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { Clock, Flame, Users } from "lucide-react";
+import SafeImage from "@/components/SafeImage";
 import BackButton from "../../../components/BackButton";
 import LogMealButton from "../../../components/LogMealButton";
 import AddToFavButton from "../../../components/recipes/AddToFavButton";
-import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { toLang, toRecipe } from "@/lib/types";
+import JsonLd from "@/components/JsonLd";
+import { getRecipe, parseId } from "@/lib/data";
+import { getServerLang } from "@/lib/i18n";
+import { getSiteUrl } from "@/lib/site";
+import { toRecipe, type Localized } from "@/lib/types";
 
-const getRecipe = cache(async (id: string) => {
-  const row = await prisma.foodRecipe.findUnique({
-    where: { id: parseInt(id) }
-  });
+const loadRecipe = cache(async (id: string) => {
+  const numericId = parseId(id);
+  if (numericId === null) return null;
+  const row = await getRecipe(numericId);
   return row ? toRecipe(row) : null;
 });
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const meal = id ? await getRecipe(id) : null;
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [meal, lang] = await Promise.all([loadRecipe(id), getServerLang()]);
 
   if (!meal) {
-    return {
-      title: lang === "ar" ? "الوصفة غير موجودة" : "Recipe Not Found",
-      description: lang === "ar" ? "الوصفة المطلوبة غير متوفرة حالياً." : "The requested recipe is not available.",
-    };
+    return { title: lang === "ar" ? "الوصفة غير موجودة" : "Recipe not found", robots: { index: false } };
   }
 
+  const title = meal.title[lang];
+  const description =
+    lang === "ar"
+      ? `طريقة تحضير ${title}: ${meal.time.ar}، ${meal.cal.ar}، مع المكونات والخطوات والقيمة الغذائية.`
+      : `How to make ${title}: ${meal.time.en}, ${meal.cal.en}, with ingredients, steps and nutrition.`;
+  const path = `/recipes/${meal.id}`;
+
   return {
-    title: `${meal.title[lang]}`,
-    description: lang === "ar"
-      ? `اكتشف طريقة تحضير ${meal.title[lang]} الصحية والمغذية.`
-      : `Discover how to prepare ${meal.title[lang]} as a healthy and nourishing recipe.`,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: path,
+      locale: lang === "ar" ? "ar_AR" : "en_US",
+      images: meal.img ? [{ url: meal.img, alt: title }] : undefined,
+    },
   };
+}
+
+// "15 min" -> "PT15M" for schema.org. Uses the English text, which always carries the number.
+function toIsoDuration(text: string): string | undefined {
+  const m = /(\d+)\s*(?:min|m)\b/i.exec(text);
+  return m ? `PT${m[1]}M` : undefined;
 }
 
 export default async function RecipePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // 1. جلب اللغة في السيرفر
-  const cookieStore = await cookies();
-  const lang = toLang(cookieStore.get("lang")?.value);
+  const [lang, meal] = await Promise.all([getServerLang(), loadRecipe(id)]);
   const isRtl = lang === "ar";
 
-  // 2. جلب الوصفة المحددة
-  const meal = id ? await getRecipe(id) : null;
+  if (!meal) notFound();
 
-  if (!meal || !id) {
-    return (
-      <div className="p-10 text-center text-red-600 text-2xl bg-[var(--bg-main)]">
-        {lang === "ar" ? "الوصفة غير موجودة ❌" : "Recipe Not Found ❌"}
-      </div>
-    );
-  }
+  const siteUrl = getSiteUrl().origin;
+  const recipeLd = {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    name: meal.title[lang],
+    inLanguage: lang,
+    image: meal.img ? [new URL(meal.img, siteUrl).toString()] : undefined,
+    recipeCategory: meal.type[lang],
+    totalTime: toIsoDuration(meal.time.en),
+    recipeYield: lang === "ar" ? "شخصان" : "2 servings",
+    recipeIngredient: meal.ingredients?.[lang] ?? [],
+    recipeInstructions: (meal.instructions?.[lang] ?? []).map((text) => ({ "@type": "HowToStep", text })),
+    nutrition: {
+      "@type": "NutritionInformation",
+      calories: meal.cal[lang],
+      proteinContent: meal.nutrition?.protein?.[lang],
+      carbohydrateContent: meal.nutrition?.carbs?.[lang],
+      fatContent: meal.nutrition?.fat?.[lang],
+      fiberContent: meal.nutrition?.fiber?.[lang],
+    },
+  };
+
+  const nutritionLabels: Record<string, Localized> = {
+    calories: { en: "Calories", ar: "سعرات" },
+    protein: { en: "Protein", ar: "بروتين" },
+    carbs: { en: "Carbs", ar: "كربوهيدرات" },
+    fat: { en: "Fat", ar: "دهون" },
+    fiber: { en: "Fiber", ar: "ألياف" },
+    sugar: { en: "Sugar", ar: "سكر" },
+    sodium: { en: "Sodium", ar: "صوديوم" },
+    iron: { en: "Iron", ar: "حديد" },
+  };
+  const labelFor = (key: string) =>
+    nutritionLabels[key]?.[lang] ?? key.charAt(0).toUpperCase() + key.slice(1);
 
   return (
-    <div className="bg-[var(--bg-main)] min-h-screen" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="max-w-6xl mx-auto p-6 mt-1">
+    <div dir={isRtl ? "rtl" : "ltr"}>
+      <JsonLd data={recipeLd} />
+      <div className="max-w-6xl mx-auto px-5 md:px-8 pt-8 pb-20">
         <BackButton />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-6">
-          <Image
-            src={meal.img}
-            alt={meal.title[lang]}
-            width={500}
-            height={400}
-            className="rounded-3xl shadow-lg object-cover w-full h-[300px] md:h-[450px]"
-          />
-          
+
+        <div className="grid grid-cols-1 md:grid-cols-[1.05fr_1fr] gap-8 md:gap-14 mt-6">
+          <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg border border-line bg-paper-deep">
+            <SafeImage
+              src={meal.img}
+              kind="dish"
+              seed={meal.id}
+              alt={meal.title[lang]}
+              fill
+              priority
+              fetchPriority="high"
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </div>
+
           <div>
-            <p className="text-green-600 uppercase font-bold text-sm tracking-widest">
-              {meal.type[lang]}
+            <p className="kicker">{meal.type[lang]}</p>
+            <h1 className="text-3xl md:text-4xl font-medium text-ink mt-2">{meal.title[lang]}</h1>
+
+            <p className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-5 text-ink-soft">
+              <span className="inline-flex items-center gap-2"><Clock size={17} strokeWidth={1.75} className="text-ink-mute" aria-hidden="true" />{meal.time[lang]}</span>
+              <span className="inline-flex items-center gap-2"><Flame size={17} strokeWidth={1.75} className="text-ink-mute" aria-hidden="true" />{meal.cal[lang]}</span>
+              <span className="inline-flex items-center gap-2"><Users size={17} strokeWidth={1.75} className="text-ink-mute" aria-hidden="true" />{lang === "ar" ? "تكفي شخصين" : "Serves 2"}</span>
             </p>
-            <h1 className="text-4xl font-black mt-2 text-gray-900">{meal.title[lang]}</h1>
-            <p className="text-gray-600 mt-4 text-lg leading-relaxed">
-              {lang === "ar" 
-                ? "وصفة مغذية ولذيذة مليئة بالنكهات والمكونات الصحية لتقوية جسمك." 
-                : "A nutritious and delicious recipe packed with flavor and healthy ingredients to fuel your body."}
-            </p>
 
-            <div className="flex items-center gap-6 mt-8 text-gray-700 font-medium">
-              <span className="flex items-center gap-2">⏱ {meal.time[lang]}</span>
-              <span className="flex items-center gap-2">🔥 {meal.cal[lang]}</span>
-              <span className="flex items-center gap-2">👤 {lang === "ar" ? "تكفي لـ 2" : "Serves 2"}</span>
-            </div>
+            {/* Nutrition */}
+            {Object.keys(meal.nutrition ?? {}).length > 0 && (
+              <section className="mt-8" aria-labelledby="nutrition-heading">
+                <h2 id="nutrition-heading" className="text-base font-semibold text-ink pb-2 border-b border-line-strong">
+                  {lang === "ar" ? "القيمة الغذائية للحصة الواحدة" : "Nutrition per serving"}
+                </h2>
+                <dl className="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-4 mt-4">
+                  {Object.entries(meal.nutrition ?? {}).map(([key, value]) => (
+                    <div key={key}>
+                      <dt className="text-sm text-ink-mute">{labelFor(key)}</dt>
+                      <dd className="text-xl font-semibold text-ink tabular-nums">{value[lang]}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
 
-            {/* Nutrition Info Card */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-8">
-              <h3 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">
-                {lang === "ar" ? "المعلومات الغذائية (للحصة)" : "Nutrition Info (per serving)"}
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {Object.entries(meal.nutrition ?? {}).map(([key, value]) => (
-                  <div key={key} className="bg-gray-50 p-3 rounded-xl text-center">
-                    <p className="text-gray-500 text-xs capitalize mb-1">
-                      {/* ترجمة أسماء المغذيات يدوياً أو تركها كما هي */}
-                      {key === "protein" && (lang === "ar" ? "بروتين" : "Protein")}
-                      {key === "carbs" && (lang === "ar" ? "كربوهيدرات" : "Carbs")}
-                      {key === "fat" && (lang === "ar" ? "دهون" : "Fat")}
-                      {key === "fiber" && (lang === "ar" ? "ألياف" : "Fiber")}
-                    </p>
-                    <p className="font-black text-gray-900">{value[lang]}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
+            <div className="flex flex-wrap items-center gap-3 mt-8">
               <LogMealButton calory={meal.cal[lang]} mealName={meal.title[lang]} />
               <AddToFavButton meal={meal} />
             </div>
           </div>
         </div>
 
-        {/* Ingredients & Instructions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-14">
-          <div className="bg-white shadow-xl p-8 rounded-3xl border border-gray-50">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-               {lang === "ar" ? "المكونات" : "Ingredients"}
+        {/* Ingredients and method */}
+        <div className="grid grid-cols-1 md:grid-cols-[0.8fr_1.2fr] gap-10 md:gap-16 mt-14 md:mt-20 pt-10 border-t border-line-strong">
+          <section>
+            <h2 className="text-2xl font-medium text-ink mb-5">
+              {lang === "ar" ? "المكونات" : "Ingredients"}
             </h2>
-            <ul className="space-y-4">
+            <ul className="divide-y divide-line">
               {(meal.ingredients?.[lang] ?? []).map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-gray-700 text-lg">
-                  <input type="checkbox" className="mt-1.5 h-5 w-5 accent-green-600" />
-                  <span>{item}</span>
+                <li key={i}>
+                  <label className="flex items-start gap-3 py-2.5 text-ink cursor-pointer has-[:checked]:text-ink-mute has-[:checked]:line-through">
+                    <input type="checkbox" className="mt-1.5 h-4 w-4 accent-olive-700" />
+                    <span>{item}</span>
+                  </label>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
 
-          <div className="bg-white shadow-xl p-8 rounded-3xl border border-gray-50">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-               {lang === "ar" ? "طريقة التحضير" : "Instructions"}
+          <section>
+            <h2 className="text-2xl font-medium text-ink mb-5">
+              {lang === "ar" ? "طريقة التحضير" : "Method"}
             </h2>
             <ol className="space-y-6">
               {(meal.instructions?.[lang] ?? []).map((step, i) => (
                 <li key={i} className="flex gap-4 items-start">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
+                  <span className="shrink-0 w-8 text-end font-display text-2xl font-medium leading-none text-clay-700 tabular-nums pt-1" aria-hidden="true">
                     {i + 1}
                   </span>
-                  <p className="text-gray-700 leading-relaxed text-lg">{step}</p>
+                  <p className="text-ink leading-relaxed text-[1.0625rem]">{step}</p>
                 </li>
               ))}
             </ol>
-          </div>
+          </section>
         </div>
       </div>
     </div>

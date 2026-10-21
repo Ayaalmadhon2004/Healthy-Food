@@ -60,6 +60,11 @@ export const useFavStore = create<FavState>()(
 
       clearAllFavorites: () => set({ favItems: [] }),
     }),
-    { name: "nutriflow-favs" }
+    {
+      name: "nutriflow-favs",
+      // Hydrated after the first render (see UserInitializer) so the markup the browser
+      // builds matches the server-rendered HTML instead of flashing a hydration mismatch.
+      skipHydration: true,
+    }
   )
 );

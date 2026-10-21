@@ -1,126 +1,186 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { cookies } from "next/headers";
+import { ArrowRight } from "lucide-react";
 import HomeAnimatedSections from "@/components/HomeAnimatedSections";
-import { 
-  Utensils, Heart, MapPin, Users, ArrowRight, ChevronDown
-} from "lucide-react";
+import SafeImage from "@/components/SafeImage";
+import JsonLd from "@/components/JsonLd";
+import { getServerLang } from "@/lib/i18n";
+import { getSiteUrl, SITE_NAME } from "@/lib/site";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function LandingPage() {
-  const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "en";
+  const lang = await getServerLang();
   const isAr = lang === "ar";
+  const siteUrl = getSiteUrl().origin;
 
   const t = {
-    heroTag: isAr ? "من قلب غزة .. نبض الصمود" : "From the heart of Gaza.. Pulse of Resilience",
-    heroTitle: isAr ? "غزة نبض" : "GAZA PULSE",
-    heroSub: isAr ? "أول منصة تفاعلية ذكية لتعزيز الأمن الغذائي الميداني وتحليل الاحتياجات الصحية في قطاع غزة." : "The first interactive AI platform to enhance field food security and health needs in the Gaza Strip.",
-    explore: isAr ? "استكشف الوصفات" : "Explore Recipes",
-    dashboard: isAr ? "لوحة التحكم" : "Control Dashboard",
-    stats: [
-      { label: isAr ? "وجبة ميدانية" : "Field Meals", val: "+50K", icon: <Utensils /> },
-      { label: isAr ? "وصفة بديلة" : "Alternative Recipes", val: "120", icon: <Heart /> },
-      { label: isAr ? "نقطة توزيع" : "Distribution Points", val: "24", icon: <MapPin /> },
-      { label: isAr ? "متطوع نشط" : "Active Volunteers", val: "+300", icon: <Users /> },
-    ]
+    kicker: isAr ? "غزة" : "Gaza",
+    title: isAr ? "طعام صحي لكل بيت في غزة، بما هو متوفر." : "Eating well in Gaza, with what you have.",
+    sub: isAr
+      ? "اعرف أين تُوزَّع الوجبات اليوم، واطبخ من مكونات موجودة فعلاً، واسأل طبيباً حين يقلقك شيء."
+      : "See where meals are served today, cook from ingredients that are actually available, and ask a doctor when something worries you.",
+    primary: isAr ? "ابحث عن مطبخ قريب" : "Find a kitchen",
+    secondary: isAr ? "تصفّح الوصفات" : "Browse recipes",
+    featuredLabel: isAr ? "من الوصفات" : "From the recipes",
+    featuredTitle: isAr ? "شوربة العدس" : "Lentil soup",
+    featuredText: isAr
+      ? "العدس يُخزَّن طويلاً، وسعره قليل، وفيه بروتين وحديد. تكفيك قدر واحدة وبصلة وقليل من الزيت."
+      : "Lentils keep for months, cost little, and give you protein and iron. All you need is one pot, an onion and a little oil.",
+    featuredLink: isAr ? "كل الوصفات" : "All recipes",
+    tipsTitle: isAr ? "نصائح قصيرة من أطباء، بالعربية." : "Short advice from doctors, in plain language.",
+    tipsText: isAr
+      ? "كم ماءً نشرب؟ ماذا نُطعم الطفل حين يقل الطعام؟ كيف ننام أفضل في الخيمة؟ كتبها أطباء وأخصائيو تغذية، وتقرؤها في دقيقتين."
+      : "How much water to drink, what to feed a child when food is short, how to sleep better in a tent. Written by doctors and dietitians, and quick to read.",
+    tipsLink: isAr ? "اقرأ النصائح" : "Read the tips",
+    doctorsLink: isAr ? "تعرّف على الأطباء" : "Meet the doctors",
+    joinTitle: isAr ? "هناك شوارع لم يصلها الطعام بعد." : "Some streets still aren't being reached.",
+    joinText: isAr
+      ? "إذا كنت متطوعاً أو تدير مطبخاً، سجّل معنا. وإذا رأيت حياً محروماً، بلّغنا ليصل إليه الفريق."
+      : "If you volunteer or run a kitchen, sign up with us. If you know a neighbourhood that is going without, tell us so teams can go there.",
+    join: isAr ? "إنشاء حساب" : "Create an account",
+    report: isAr ? "بلّغ عن منطقة" : "Report an area",
   };
 
- 
+  const arrow = <ArrowRight size={18} strokeWidth={1.75} className={isAr ? "rotate-180" : ""} aria-hidden="true" />;
 
   return (
-    <div className={`w-full overflow-hidden bg-white ${isAr ? "font-arabic" : "font-sans"}`} dir={isAr ? "rtl" : "ltr"}>
-      
-      {/* SECTION 1: HERO (THE WOW START) */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-green-50/50 to-white -z-10" />
-        <div className="max-w-7xl mx-auto text-center">
-          <span className="inline-block px-5 py-2 rounded-full bg-green-100 text-green-700 text-sm font-black mb-8 uppercase tracking-widest">
-            {t.heroTag}
-          </span>
-          <h1 className="text-7xl md:text-[10rem] font-black leading-none mb-8 tracking-tighter text-gray-900">
-            {t.heroTitle}<span className="text-green-600">.</span>
+    <div className="w-full overflow-hidden" dir={isAr ? "rtl" : "ltr"}>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": `${siteUrl}/#organization`,
+              name: SITE_NAME,
+              url: siteUrl,
+              logo: `${siteUrl}/icons/icon-512x512.png`,
+              description: isAr
+                ? "منصة وجبات ووصفات ونصائح صحية للعائلات في غزة."
+                : "Meals, recipes and health advice for families in Gaza.",
+              areaServed: { "@type": "Place", name: "Gaza" },
+            },
+            {
+              "@type": "WebSite",
+              "@id": `${siteUrl}/#website`,
+              url: siteUrl,
+              name: SITE_NAME,
+              inLanguage: ["ar", "en"],
+              publisher: { "@id": `${siteUrl}/#organization` },
+            },
+          ],
+        }}
+      />
+
+      {/* Hero */}
+      <section className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-20 pb-14 md:pb-24 grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-16 items-center">
+        <div>
+          <p className="kicker settle">{t.kicker}</p>
+          <h1 className="settle-2 mt-3 text-4xl sm:text-5xl lg:text-[3.5rem] font-medium leading-[1.12] text-ink max-w-[18ch]">
+            {t.title}
           </h1>
-          <p className="max-w-3xl mx-auto text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed">
-            {t.heroSub}
+          <p className="settle-3 mt-6 text-lg md:text-xl text-ink-soft leading-relaxed max-w-xl">
+            {t.sub}
           </p>
-          <div className="flex flex-wrap justify-center gap-6">
-            <Link href="/recipes" className="group px-10 py-5 bg-green-600 text-white rounded-2xl font-bold text-lg shadow-2xl shadow-green-200 flex items-center gap-3 hover:bg-green-700 transition-all">
-              {t.explore} <ArrowRight className={isAr ? "rotate-180" : ""} />
+          <div className="settle-3 mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <Link href="/gaza-kitchen" className="btn btn-primary !px-6 !py-3 !text-base">
+              {t.primary} {arrow}
             </Link>
-            <Link href="/dashboard" className="px-10 py-5 bg-white border-2 border-gray-100 text-gray-900 rounded-2xl font-bold text-lg hover:border-green-600 transition-all">
-              {t.dashboard}
+            <Link href="/recipes" className="text-link">
+              {t.secondary}
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-10 text-gray-300 animate-bounce">
-          <ChevronDown size={40} />
+
+        <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+          <SafeImage
+            src="/assets/placeholders/hero-tray.svg"
+            alt={isAr ? "صينية طعام مشتركة تتوسطها أطباق صغيرة وغصن زيتون" : "A shared tray of food with small dishes around it and an olive branch"}
+            kind="dish"
+            width={600}
+            height={600}
+            priority
+            fetchPriority="high"
+            sizes="(min-width: 1024px) 40vw, 90vw"
+            className="w-full h-auto"
+          />
         </div>
       </section>
 
-      {/* SECTION 2: LIVE METRICS (REAL-TIME IMPACT) */}
-      <HomeAnimatedSections stats={t.stats} isAr={isAr} />
+      <div className="band" aria-hidden="true" />
 
-      {/* SECTION 4: ALTERNATIVE RECIPES (THE KITCHEN) */}
-      <section className="py-32 bg-green-50 px-6">
-        <div className="max-w-7xl mx-auto">
-           <div className="text-center mb-20">
-              <h2 className="text-5xl font-black mb-6">{isAr ? "مطبخ غزة البديل" : "Gaza's Alternative Kitchen"}</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">{isAr ? "وصفات تعتمد على المكونات المتوفرة في وقت الأزمات لضمان التغذية السليمة." : "Recipes based on available ingredients during crises to ensure proper nutrition."}</p>
-           </div>
-           <div className="grid md:grid-cols-3 gap-8">
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="bg-white rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl transition-all group">
-                   <div className="h-48 w-full bg-gray-100 rounded-2xl mb-6 overflow-hidden">
-                      <div className="w-full h-full bg-green-200 animate-pulse" />
-                   </div>
-                   <h4 className="text-2xl font-bold mb-3">{isAr ? "وصفة مجدرة بالعدس" : "Lentil Mujadara"}</h4>
-                   <p className="text-gray-500 mb-6 text-sm">Rich in protein, uses minimal water.</p>
-                   <button className="text-green-600 font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
-                     {isAr ? "عرض التفاصيل" : "View Details"} <ArrowRight size={18} />
-                   </button>
-                </div>
-              ))}
-           </div>
+      {/* Where to start + field reports */}
+      <HomeAnimatedSections isAr={isAr} />
+
+      {/* Featured recipe: one dish, given room */}
+      <section className="bg-paper-deep border-y border-line">
+        <div className="max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 grid md:grid-cols-[1fr_1.1fr] gap-10 md:gap-16 items-center">
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-line bg-paper">
+            <SafeImage
+              src="/assets/Lentil Soup.jpg"
+              alt={isAr ? "وعاء شوربة عدس ساخنة" : "A bowl of hot lentil soup"}
+              kind="dish"
+              seed="lentil-soup"
+              fill
+              sizes="(min-width: 768px) 45vw, 100vw"
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <p className="kicker">{t.featuredLabel}</p>
+            <h2 className="mt-2 text-3xl md:text-4xl font-medium text-ink">{t.featuredTitle}</h2>
+            <p className="mt-4 text-lg text-ink-soft leading-relaxed max-w-lg">{t.featuredText}</p>
+            <Link href="/recipes" className="text-link mt-6 inline-flex items-center gap-2">
+              {t.featuredLink} {arrow}
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* SECTION 5: DOCTORS & TIPS (HEALTH GUIDANCE) */}
-      <section className="py-32 px-6 bg-white">
-         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
-            <div className="order-2 lg:order-1 grid grid-cols-2 gap-6">
-               <div className="space-y-6">
-                  <div className="h-64 bg-green-600 rounded-3xl" />
-                  <div className="h-48 bg-gray-900 rounded-3xl" />
-               </div>
-               <div className="space-y-6 pt-12">
-                  <div className="h-48 bg-gray-100 rounded-3xl" />
-                  <div className="h-64 bg-green-100 rounded-3xl" />
-               </div>
+      {/* Doctors and tips */}
+      <section className="max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="order-2 lg:order-1 grid grid-cols-2 gap-4 sm:gap-5">
+          <div className="space-y-4 sm:space-y-5">
+            <div className="relative aspect-[5/3] overflow-hidden rounded-lg border border-line">
+              <SafeImage src="/assets/placeholders/tip-water.svg" alt="" kind="tip" hint="Droplet" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
             </div>
-            <div className="order-1 lg:order-2">
-               <h2 className="text-5xl font-black mb-8 leading-tight">{isAr ? "إرشادات طبية على مدار الساعة" : "24/7 Medical Guidance"}</h2>
-               <p className="text-xl text-gray-600 mb-12">{isAr ? "نخبة من الأطباء المتخصصين يقدمون نصائح صحية يومية للتعامل مع سوء التغذية." : "Elite specialized doctors provide daily health tips to handle malnutrition."}</p>
-               <Link href="/tips" className="text-lg font-bold underline underline-offset-8 decoration-green-600">
-                  {isAr ? "تصفح النصائح الصحية" : "Browse Health Tips"}
-               </Link>
+            <div className="relative aspect-square overflow-hidden rounded-lg border border-line">
+              <SafeImage src="/assets/placeholders/tip-rest.svg" alt="" kind="tip" hint="Bed" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
             </div>
-         </div>
+          </div>
+          <div className="space-y-4 sm:space-y-5 pt-10 sm:pt-14">
+            <div className="relative aspect-square overflow-hidden rounded-lg border border-line">
+              <SafeImage src="/assets/placeholders/tip-leaf.svg" alt="" kind="tip" hint="Leaf" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
+            </div>
+            <div className="relative aspect-[5/3] overflow-hidden rounded-lg border border-line">
+              <SafeImage src="/assets/placeholders/tip-move.svg" alt="" kind="tip" hint="Activity" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
+            </div>
+          </div>
+        </div>
+        <div className="order-1 lg:order-2">
+          <h2 className="text-3xl md:text-4xl font-medium text-ink max-w-[20ch]">{t.tipsTitle}</h2>
+          <p className="mt-5 text-lg text-ink-soft leading-relaxed max-w-lg">{t.tipsText}</p>
+          <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
+            <Link href="/tips" className="text-link">{t.tipsLink}</Link>
+            <Link href="/doctors" className="text-link">{t.doctorsLink}</Link>
+          </div>
+        </div>
       </section>
 
-      {/* SECTION 6: THE CALL (JOIN THE RESILIENCE) */}
-      <section className="py-20 px-6">
-         <div className="max-w-7xl mx-auto bg-green-600 rounded-[4rem] p-16 text-center text-white relative overflow-hidden">
-            <h2 className="text-5xl md:text-7xl font-black mb-8 relative z-10">{isAr ? "كن جزءاً من النبض" : "Be Part of the Pulse"}</h2>
-            <p className="text-xl opacity-90 mb-12 max-w-2xl mx-auto relative z-10">{isAr ? "سجل الآن كمتطوع أو منظمة للمساهمة في دعم أهالينا في غزة." : "Register now as a volunteer or organization to contribute in supporting our people in Gaza."}</p>
-            <div className="flex justify-center gap-6 relative z-10">
-               <Link href="/signup" className="px-12 py-5 bg-white text-green-700 rounded-2xl font-black hover:scale-105 transition-transform">
-                  {isAr ? "انضم إلينا" : "Join Us"}
-               </Link>
-            </div>
-            {/* Abstract Background Shapes */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-         </div>
+      {/* Call to join */}
+      <section className="px-5 md:px-8 pb-6">
+        <div className="max-w-7xl mx-auto bg-olive-800 text-white rounded-xl px-6 md:px-14 py-12 md:py-16 grid md:grid-cols-[1.2fr_1fr] gap-8 items-end">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-medium text-white max-w-[22ch]">{t.joinTitle}</h2>
+            <p className="mt-4 text-olive-100 text-lg leading-relaxed max-w-xl">{t.joinText}</p>
+          </div>
+          <div className="flex flex-wrap gap-3 md:justify-end">
+            <Link href="/signup" className="btn bg-white text-olive-900 hover:bg-olive-100 !px-6 !py-3">{t.join}</Link>
+            <Link href="/report-area" className="btn border-olive-300 text-white hover:bg-olive-700 !px-6 !py-3">{t.report}</Link>
+          </div>
+        </div>
       </section>
-
     </div>
   );
 }

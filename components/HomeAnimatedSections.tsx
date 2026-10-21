@@ -1,59 +1,92 @@
-import type { ReactNode } from "react";
-import { Activity, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import SafeImage from "@/components/SafeImage";
 
-interface Stat {
-  icon: ReactNode;
-  val: string | number;
-  label: string;
-}
+// The home page's two content sections: a ruled list of where to start, and a
+// short account of how field reports are used. Despite the file name there is
+// no client-side animation here any more.
+export default function HomeAnimatedSections({ isAr }: { isAr: boolean }) {
+  const places = [
+    {
+      href: "/gaza-kitchen",
+      title: isAr ? "المطابخ المجتمعية" : "Community kitchens",
+      text: isAr ? "أين تُقدَّم الوجبات اليوم، ومتى، وكم مكاناً بقي." : "Where meals are served today, at what time, and how many places are left.",
+    },
+    {
+      href: "/recipes",
+      title: isAr ? "وصفات من مكونات قليلة" : "Recipes for short supplies",
+      text: isAr ? "عدس وطحين وبقوليات معلّبة: أطباق تُطيل عمر ما في بيتك." : "Lentils, flour, tinned beans: dishes that make what you have last.",
+    },
+    {
+      href: "/tips",
+      title: isAr ? "نصائح صحية" : "Health tips",
+      text: isAr ? "الماء والنوم وتغذية الأطفال، في فقرات قصيرة." : "Water, sleep and feeding children, in short pieces.",
+    },
+    {
+      href: "/doctors",
+      title: isAr ? "أطباء" : "Doctors",
+      text: isAr ? "أطباء وأخصائيو تغذية، وأوقات وجودهم." : "Physicians and dietitians, and when you can reach them.",
+    },
+  ];
 
-export default function HomeAnimatedSections({ stats, isAr }: { stats: Stat[]; isAr: boolean }) {
   return (
     <>
-      <section className="py-24 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-12">
-          {stats.map((stat, i) => (
-            <div key={i} className="text-center group transition duration-500">
-              <div className="mb-6 inline-flex p-4 rounded-2xl bg-white/5 text-green-400 group-hover:bg-green-600 group-hover:text-white transition-all duration-500">
-                {stat.icon}
-              </div>
-              <h3 className="text-5xl font-black mb-2">{stat.val}</h3>
-              <p className="text-gray-400 font-medium uppercase tracking-widest text-sm">{stat.label}</p>
-            </div>
-          ))}
+      <section className="max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-20">
+        <div>
+          <h2 className="text-3xl md:text-4xl font-medium text-ink max-w-[14ch]">
+            {isAr ? "من أين تبدأ" : "Where to start"}
+          </h2>
+          <p className="mt-4 text-ink-soft text-lg max-w-sm">
+            {isAr ? "أربعة أشياء نحاول أن نفعلها جيداً." : "Four things we are trying to do well."}
+          </p>
         </div>
+
+        <ul className="border-t border-line-strong">
+          {places.map((item, i) => (
+            <li key={item.href} className="border-b border-line-strong">
+              <Link href={item.href} className="group flex items-start gap-5 py-6">
+                <span className="font-display text-sm text-clay-700 pt-1.5 w-6 tabular-nums" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="flex-1">
+                  <span className="block text-xl font-semibold text-ink group-hover:text-olive-800">{item.title}</span>
+                  <span className="block mt-1 text-ink-soft">{item.text}</span>
+                </span>
+                <ArrowRight
+                  size={20}
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                  className={`mt-1.5 text-ink-mute group-hover:text-olive-800 transition-colors ${isAr ? "rotate-180" : ""}`}
+                />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <section className="py-32 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-20 items-center">
-          <div className="lg:w-1/2">
-            <h2 className="text-5xl font-black mb-8 leading-tight">
-              {isAr ? "نظام البلاغات والاحتياج الميداني" : "Field Reporting & Needs System"}
-            </h2>
-            <p className="text-xl text-gray-600 mb-10 leading-relaxed italic border-l-4 border-green-600 pl-6">
-              &quot;نقوم بتحليل البيانات الواردة من مخيمات النزوح لتحديد أولويات توزيع الطرود الغذائية.&quot;
-            </p>
-            <div className="space-y-6">
-              {[
-                { title: isAr ? "تحليل البيانات الجغرافي" : "Geographic Data Analysis", icon: <Activity /> },
-                { title: isAr ? "تنسيق الجهود الإغاثية" : "Relief Coordination", icon: <ShieldCheck /> }
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-4 p-4 rounded-xl hover:bg-green-50 transition-colors">
-                  <span className="text-green-600">{item.icon}</span>
-                  <span className="font-bold text-lg">{item.title}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="lg:w-1/2 relative">
-             <div className="relative w-full aspect-square bg-gray-100 rounded-[4rem] overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 bg-[url('/assets/jabalia.jpg')] bg-cover bg-center opacity-80" />
-             </div>
-             <div className="absolute -bottom-10 -left-10 p-8 bg-white rounded-3xl shadow-xl max-w-xs border-t-8 border-green-600">
-                <p className="text-sm font-bold text-gray-400 mb-2">LAST REPORT IN</p>
-                <p className="text-xl font-black">Jabalia Refugee Camp</p>
-             </div>
-          </div>
+      <section className="max-w-7xl mx-auto px-5 md:px-8 pb-16 md:pb-24 grid lg:grid-cols-2 gap-10 lg:gap-20 items-center">
+        <div>
+          <h2 className="text-3xl md:text-4xl font-medium text-ink max-w-[18ch]">
+            {isAr ? "بلاغات الناس ترسم خريطة الحاجة" : "Reports from people on the ground"}
+          </h2>
+          <p className="mt-5 text-lg text-ink-soft leading-relaxed max-w-lg">
+            {isAr
+              ? "نجمع ما يصلنا من البلاغات عن الأحياء والمخيمات التي ينقصها الطعام، ثم نستخدمها لنقرر أين تذهب الطرود التالية."
+              : "We collect reports about neighbourhoods and camps that are short of food, then use them to decide where the next parcels go."}
+          </p>
+          <Link href="/report-area" className="text-link mt-6 inline-block">
+            {isAr ? "قدّم بلاغاً" : "Send a report"}
+          </Link>
+        </div>
+        <div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-line">
+          <SafeImage
+            src="/assets/placeholders/kitchen-table.svg"
+            alt={isAr ? "مطبخ مجتمعي تحت مظلة، وعلى الطاولة ثلاثة أوعية" : "A community kitchen under an awning, with three bowls on the table"}
+            kind="kitchen"
+            fill
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            className="object-cover"
+          />
         </div>
       </section>
     </>
