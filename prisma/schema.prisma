@@ -36,6 +36,7 @@ model User {
   areaReports   AreaReport[]
   appointments  Appointment[]
   doctorProfile Doctor?
+  notifications Notification[]
 }
 
 model HealthTip {
@@ -190,4 +191,21 @@ model RateLimit {
 
   @@index([windowStart])
   @@map("rate_limits")
+}
+
+// Something the user should hear about; today, a doctor changing the status of their appointment.
+// The doctor name and day are copied in so the message still reads right if the appointment is deleted.
+model Notification {
+  id            Int      @id @default(autoincrement())
+  userId        String
+  appointmentId Int?
+  status        String
+  doctorName    Json
+  visitDate     DateTime
+  read          Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
+  @@map("notifications")
 }

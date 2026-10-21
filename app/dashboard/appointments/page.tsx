@@ -6,6 +6,7 @@ import { getServerLang } from "@/lib/i18n";
 import { canPatientCancel, isAppointmentStatus, type AppointmentStatus } from "@/lib/appointments";
 import { asLocalized } from "@/lib/types";
 import CancelButton from "./CancelButton";
+import MarkNotificationsRead from "./MarkNotificationsRead";
 
 const COPY = {
   ar: {
@@ -19,6 +20,13 @@ const COPY = {
     status: "الحالة",
     cancel: "إلغاء الطلب",
     error: "تعذّر الإلغاء. حاول مرة أخرى.",
+    updates: "آخر التحديثات",
+    newBadge: "جديد",
+    message: {
+      CONFIRMED: (doctor: string, day: string) => `${doctor} أكّد موعدك يوم ${day}.`,
+      COMPLETED: (doctor: string, day: string) => `تم تسجيل زيارتك عند ${doctor} يوم ${day} كمنتهية.`,
+      CANCELLED: (doctor: string, day: string) => `${doctor} ألغى موعدك يوم ${day}.`,
+    } as Record<string, (doctor: string, day: string) => string>,
     statuses: { PENDING: "بانتظار رد الطبيب", CONFIRMED: "مؤكد", COMPLETED: "تمت الزيارة", CANCELLED: "ملغى" } as Record<AppointmentStatus, string>,
   },
   en: {
@@ -32,6 +40,13 @@ const COPY = {
     status: "Status",
     cancel: "Cancel request",
     error: "Could not cancel. Try again.",
+    updates: "Latest updates",
+    newBadge: "New",
+    message: {
+      CONFIRMED: (doctor: string, day: string) => `${doctor} confirmed your appointment on ${day}.`,
+      COMPLETED: (doctor: string, day: string) => `Your visit with ${doctor} on ${day} was marked as done.`,
+      CANCELLED: (doctor: string, day: string) => `${doctor} cancelled your appointment on ${day}.`,
+    } as Record<string, (doctor: string, day: string) => string>,
     statuses: { PENDING: "Waiting for the doctor", CONFIRMED: "Confirmed", COMPLETED: "Done", CANCELLED: "Cancelled" } as Record<AppointmentStatus, string>,
   },
 };
@@ -42,12 +57,21 @@ export default async function MyAppointmentsPage() {
 
   const t = COPY[lang];
   const isAr = lang === "ar";
-  const appointments = await prisma.appointment.findMany({
-    where: { patientId: sessionUser.id },
-    orderBy: { preferredDate: "desc" },
-    take: 100,
-    select: { id: true, preferredDate: true, note: true, status: true, doctor: { select: { name: true, specialty: true } } },
-  });
+  const [appointments, updates] = await Promise.all([
+    prisma.appointment.findMany({
+      where: { patientId: sessionUser.id },
+      orderBy: { preferredDate: "desc" },
+      take: 100,
+      select: { id: true, preferredDate: true, note: true, status: true, doctor: { select: { name: true, specialty: true } } },
+    }),
+    prisma.notification.findMany({
+      where: { userId: sessionUser.id },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: { id: true, status: true, doctorName: true, visitDate: true, read: true, createdAt: true },
+    }),
+  ]);
+  const hasUnread = updates.some((u) => !u.read);
   const dateFormat = new Intl.DateTimeFormat(isAr ? "ar" : "en", { dateStyle: "medium", timeZone: "UTC" });
 
   return (
@@ -56,6 +80,31 @@ export default async function MyAppointmentsPage() {
         <h1 className="text-3xl md:text-4xl font-medium text-ink">{t.title}</h1>
         <p className="text-ink-soft text-lg mt-2">{t.intro}</p>
       </header>
+
+      {updates.length > 0 && (
+        <section aria-labelledby="updates-heading" className="mb-10">
+          <h2 id="updates-heading" className="text-xl font-medium text-ink mb-3">{t.updates}</h2>
+          <ul className="surface divide-y divide-line">
+            {updates.map((u) => {
+              const text = t.message[u.status]?.(asLocalized(u.doctorName)[lang], dateFormat.format(u.visitDate));
+              if (!text) return null;
+              return (
+                <li key={u.id} className="px-5 py-3 flex items-start justify-between gap-4">
+                  <p className={u.read ? "text-ink-soft" : "text-ink font-medium"}>
+                    {!u.read && <span className="me-2 inline-block rounded bg-olive-100 px-1.5 py-0.5 text-xs text-olive-900">{t.newBadge}</span>}
+                    {text}
+                  </p>
+                  <time dateTime={u.createdAt.toISOString()} className="shrink-0 text-sm text-ink-mute">
+                    {dateFormat.format(u.createdAt)}
+                  </time>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {hasUnread && <MarkNotificationsRead />}
 
       {appointments.length === 0 ? (
         <div className="surface p-10 text-center">

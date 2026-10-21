@@ -5,6 +5,7 @@ import { cleanup, createDoctor, createUser, hasDatabase, prisma, signInAs } from
 import {
   cancelMyAppointmentAction,
   linkDoctorAccountAction,
+  markNotificationsReadAction,
   requestAppointmentAction,
   updateAppointmentStatusAction,
 } from "../app/actions/appointmentActions.ts";
@@ -94,6 +95,42 @@ describe("appointmentActions (real Postgres)", { skip: !hasDatabase && "DATABASE
     assert.deepEqual(await updateAppointmentStatusAction(id, "CONFIRMED"), { success: true });
     assert.deepEqual(await updateAppointmentStatusAction(id, "COMPLETED"), { success: true });
     assert.equal((await updateAppointmentStatusAction(id, "CANCELLED")).success, false);
+  });
+
+  it("tells the patient about every status change the doctor makes, and only those", async () => {
+    const doctorUser = await createUser("DOCTOR");
+    const doctor = await createDoctor({ userId: doctorUser.id, name: { ar: "د. ليلى", en: "Dr. Layla" } });
+    const patient = await createUser();
+    signInAs(patient);
+    await requestAppointmentAction(doctor.id, tomorrowPlus(1), "");
+    const appointment = await prisma.appointment.findFirst({ where: { patientId: patient.id } });
+    const mine = () => prisma.notification.findMany({ where: { userId: patient.id }, orderBy: { id: "asc" } });
+
+    assert.equal((await mine()).length, 0, "requesting a visit notifies nobody");
+
+    signInAs(doctorUser);
+    await updateAppointmentStatusAction(appointment.id, "COMPLETED");
+    assert.equal((await mine()).length, 0, "a refused change notifies nobody");
+
+    await updateAppointmentStatusAction(appointment.id, "CONFIRMED");
+    await updateAppointmentStatusAction(appointment.id, "COMPLETED");
+    const notes = await mine();
+    assert.deepEqual(notes.map((n) => [n.status, n.read, n.appointmentId]), [
+      ["CONFIRMED", false, appointment.id],
+      ["COMPLETED", false, appointment.id],
+    ]);
+    assert.deepEqual(notes[0].doctorName, { ar: "د. ليلى", en: "Dr. Layla" });
+    assert.equal(notes[0].visitDate.toISOString(), appointment.preferredDate.toISOString());
+
+    signInAs(null);
+    assert.equal((await markNotificationsReadAction()).success, false);
+    signInAs(await createUser());
+    assert.deepEqual(await markNotificationsReadAction(), { success: true });
+    assert.ok((await mine()).every((n) => !n.read), "someone else's updates stay unread");
+
+    signInAs(patient);
+    assert.deepEqual(await markNotificationsReadAction(), { success: true });
+    assert.ok((await mine()).every((n) => n.read));
   });
 
   it("lets a patient cancel only their own open appointment", async () => {

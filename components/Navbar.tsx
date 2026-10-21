@@ -9,6 +9,7 @@ import { useFavStore } from "@/store/useFavStore";
 import { useUserData } from "@/hooks/useUserData";
 import NavbarLinks from "./NavbarLinks";
 import Logo from "./Logo";
+import NotificationBell from "./NotificationBell";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function Navbar() {
@@ -75,6 +76,8 @@ export default function Navbar() {
               )}
             </Link>
 
+            {user?.role === "USER" && <NotificationBell />}
+
             {shown ? (
               <div className="flex items-center gap-4 ps-6 border-s border-line">
                 <span className="text-[0.9375rem] font-medium text-ink">
@@ -118,6 +121,7 @@ export default function Navbar() {
             <Link href="/favorites" onClick={() => setOpen(false)} aria-current={onFavorites ? "page" : undefined} className="text-base text-ink">
               {t.favorites}{favItems.length > 0 ? ` (${favItems.length})` : ""}
             </Link>
+            {user?.role === "USER" && <NotificationBell mobile onClick={() => setOpen(false)} />}
             <div className="pt-4 flex items-center gap-3">
               {shown ? (
                 <button onClick={logout} className="btn btn-quiet">

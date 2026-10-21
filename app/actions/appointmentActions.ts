@@ -60,18 +60,32 @@ export async function updateAppointmentStatusAction(appointmentId: number, statu
 
   const appointment = await prisma.appointment.findUnique({
     where: { id: appointmentId },
-    select: { status: true, doctor: { select: { userId: true } } },
+    select: { status: true, patientId: true, preferredDate: true, doctor: { select: { userId: true, name: true } } },
   });
   if (!appointment || appointment.doctor.userId !== sessionUser.id) return { success: false, error: m.appointmentNotFound };
   if (!canDoctorMove(appointment.status, status)) return { success: false, error: m.appointmentTransition };
 
   try {
-    // The status in the where clause keeps two quick clicks from skipping a step.
-    const { count } = await prisma.appointment.updateMany({
-      where: { id: appointmentId, status: appointment.status },
-      data: { status },
+    // The status in the where clause keeps two quick clicks from skipping a step; the patient's
+    // notification is written in the same transaction so a change is never silent.
+    const changed = await prisma.$transaction(async (tx) => {
+      const { count } = await tx.appointment.updateMany({
+        where: { id: appointmentId, status: appointment.status },
+        data: { status },
+      });
+      if (count === 0) return false;
+      await tx.notification.create({
+        data: {
+          userId: appointment.patientId,
+          appointmentId,
+          status,
+          doctorName: appointment.doctor.name as Prisma.InputJsonValue,
+          visitDate: appointment.preferredDate,
+        },
+      });
+      return true;
     });
-    if (count === 0) return { success: false, error: m.appointmentTransition };
+    if (!changed) return { success: false, error: m.appointmentTransition };
   } catch (error) {
     console.error("Appointment update failed:", error);
     return { success: false, error: m.appointmentSaveFailed };
@@ -149,5 +163,18 @@ export async function linkDoctorAccountAction(doctorId: number, email: string): 
   }
 
   revalidatePath("/dashboard/doctors");
+  return { success: true };
+}
+
+// The signed-in user has seen their updates.
+export async function markNotificationsReadAction(): Promise<Result> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized };
+  try {
+    await prisma.notification.updateMany({ where: { userId: sessionUser.id, read: false }, data: { read: true } });
+  } catch (error) {
+    console.error("Marking notifications read failed:", error);
+    return { success: false, error: (await getServerMessages()).somethingWrong };
+  }
   return { success: true };
 }
