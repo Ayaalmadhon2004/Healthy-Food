@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // Signed-in screens and JSON endpoints have nothing to index.
-        disallow: ["/api/", "/dashboard", "/tracker", "/favorites", "/support", "/report-area"],
+        disallow: ["/api/", "/dashboard", "/doctors/book", "/tracker", "/favorites", "/support", "/report-area"],
       },
     ],
     sitemap: `${base}/sitemap.xml`,

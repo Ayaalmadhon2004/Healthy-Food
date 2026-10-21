@@ -6,6 +6,7 @@ export { prisma };
 
 const userIds = new Set();
 const kitchenIds = new Set();
+const doctorIds = new Set();
 
 export const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -45,6 +46,27 @@ export async function createKitchen(capacity = 5, extra = {}) {
   return kitchen;
 }
 
+export async function createDoctor(extra = {}) {
+  const doctor = await prisma.doctor.create({
+    data: {
+      name: { ar: "طبيب اختبار", en: "Test doctor" },
+      specialty: { ar: "تغذية", en: "Nutrition" },
+      about: { ar: "", en: "" },
+      qualifications: { ar: [], en: [] },
+      rating: 4.5,
+      reviews: 1,
+      location: { ar: "غزة", en: "Gaza" },
+      phone: "none",
+      email: `${randomUUID()}@tests.invalid`,
+      image: "",
+      availability: { ar: "", en: "" },
+      ...extra,
+    },
+  });
+  doctorIds.add(doctor.id);
+  return doctor;
+}
+
 export function trackKitchen(id) {
   kitchenIds.add(Number(id));
 }
@@ -66,6 +88,9 @@ export async function cleanup() {
   signInAs(null);
   const users = [...userIds];
   const kitchens = [...kitchenIds];
+  const doctors = [...doctorIds];
+  await prisma.appointment.deleteMany({ where: { OR: [{ patientId: { in: users } }, { doctorId: { in: doctors } }] } });
+  await prisma.doctor.deleteMany({ where: { id: { in: doctors } } });
   await prisma.areaReport.deleteMany({ where: { userId: { in: users } } });
   await prisma.mealOrder.deleteMany({ where: { OR: [{ userId: { in: users } }, { kitchenId: { in: kitchens } }] } });
   await prisma.kitchen.deleteMany({ where: { id: { in: kitchens } } });

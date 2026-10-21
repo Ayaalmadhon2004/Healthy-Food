@@ -1052,6 +1052,7 @@ async function main() {
   await prisma.healthTip.deleteMany({});
   await prisma.foodRecipe.deleteMany({});
   await prisma.kitchen.deleteMany({});
+  await prisma.appointment.deleteMany({});
   await prisma.doctor.deleteMany({});
   await prisma.nutritionGuide.deleteMany({});
   

@@ -8,7 +8,7 @@ export interface User {
   id: string;
   email: string;
   name?: string;
-  role: "USER" | "ORG" | "ADMIN";
+  role: "USER" | "ORG" | "ADMIN" | "DOCTOR";
 }
 
 // Last known identity, kept in localStorage so the navbar can paint the right

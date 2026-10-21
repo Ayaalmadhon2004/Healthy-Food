@@ -7,8 +7,9 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { getAllReportsAction } from "@/app/actions/reportActions";
-import { getDashboardStatsAction } from "@/app/actions/statsActions";
+import { getDashboardStatsAction, getDoctorStatsAction } from "@/app/actions/statsActions";
 import type { DashboardStats } from "@/lib/dashboardStats";
+import type { DoctorStats } from "@/lib/appointments";
 
 interface StatCardProps {
   title: string;
@@ -46,6 +47,7 @@ export default function DashboardHome() {
   const [reports, setReports] = useState<AreaReportRow[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
   const [orgStats, setOrgStats] = useState<DashboardStats | null>(null);
+  const [doctorStats, setDoctorStats] = useState<DoctorStats | null>(null);
 
   // تأمين استخراج البيانات
   const userRole = user?.role?.toUpperCase()?.trim(); 
@@ -62,6 +64,11 @@ export default function DashboardHome() {
       };
       fetchReports();
     }
+    if (userRole === "DOCTOR") {
+      void getDoctorStatsAction().then((r) => {
+        if (r.success) setDoctorStats(r.stats);
+      });
+    }
   }, [userRole]);
 
   // 1. حماية التحميل (تمنع أي ظهور مفاجئ للواجهات)
@@ -76,10 +83,13 @@ export default function DashboardHome() {
 
   // 2. واجهة الأدوار الإدارية (ORG / ADMIN / DOCTOR)
   if (userRole === "ORG" || userRole === "ADMIN" || userRole === "DOCTOR") {
-    // Numbers come from the database. There is no patient or appointment data for doctors yet,
-    // so their dashboard shows no figures rather than made-up ones.
     const dash = "—";
-    const stats = userRole === "DOCTOR" ? [] : [
+    const fmt = (n: number | undefined) => (n === undefined ? dash : n.toLocaleString(isAr ? "ar" : "en"));
+    const stats = userRole === "DOCTOR" ? [
+      { title: isAr ? "عدد المرضى" : "Patients", value: fmt(doctorStats?.patients) },
+      { title: isAr ? "مواعيد مؤكدة قادمة" : "Confirmed upcoming", value: fmt(doctorStats?.upcoming) },
+      { title: isAr ? "طلبات تنتظر ردك" : "Waiting for your answer", value: fmt(doctorStats?.pending) },
+    ] : [
       { title: isAr ? "وجبات محجوزة لغد" : "Meals reserved for tomorrow", value: orgStats ? orgStats.reservedTomorrow.toLocaleString(isAr ? "ar" : "en") : dash },
       { title: isAr ? "السعة المحجوزة لغد" : "Capacity reserved for tomorrow", value: orgStats?.capacityUsedPercent != null ? `${orgStats.capacityUsedPercent}%` : dash },
       { title: isAr ? "بلاغات المناطق" : "Area reports", value: orgStats ? orgStats.areaReports.toLocaleString(isAr ? "ar" : "en") : dash },
@@ -102,6 +112,13 @@ export default function DashboardHome() {
               <StatCard key={index} {...stat} isAr={isAr} />
             ))}
           </div>
+        )}
+
+        {userRole === "DOCTOR" && (
+          <Link href="/dashboard/patients" className="text-link inline-flex items-center gap-2">
+            {isAr ? "افتح قائمة المرضى والمواعيد" : "Open patients and appointments"}
+            <ArrowRight size={18} strokeWidth={1.75} className={isAr ? "rotate-180" : ""} aria-hidden="true" />
+          </Link>
         )}
 
         {(userRole === "ORG" || userRole === "ADMIN") && (

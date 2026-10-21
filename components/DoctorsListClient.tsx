@@ -1,4 +1,5 @@
 // No hooks or handlers here, so this renders on the server and ships no JavaScript of its own.
+import Link from "next/link";
 import { MapPin, Calendar, Award, Star } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
 import { whatsappLink } from "@/lib/contact";
@@ -105,19 +106,24 @@ export default function DoctorsListClient({ initialDoctors, lang: langProp }: { 
               </ul>
             )}
 
-            <a
-              href={whatsappLink(
-                isAr
-                  ? `مرحباً، أرغب بحجز موعد مع ${name} (${doctor.specialty.ar}).`
-                  : `Hello, I would like to book an appointment with ${name} (${doctor.specialty.en}).`,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-quiet mt-6 self-start min-h-11"
-            >
-              {isAr ? "احجز موعداً عبر واتساب" : "Book on WhatsApp"}
-              <span className="sr-only">{isAr ? " (يفتح في نافذة جديدة)" : " (opens in a new tab)"}</span>
-            </a>
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+              <Link href={`/doctors/book?doctor=${doctor.id}`} className="btn min-h-11">
+                {isAr ? "اطلب موعداً" : "Request an appointment"}
+              </Link>
+              <a
+                href={whatsappLink(
+                  isAr
+                    ? `مرحباً، أرغب بحجز موعد مع ${name} (${doctor.specialty.ar}).`
+                    : `Hello, I would like to book an appointment with ${name} (${doctor.specialty.en}).`,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-link text-sm"
+              >
+                {isAr ? "أو تواصل عبر واتساب" : "Or message us on WhatsApp"}
+                <span className="sr-only">{isAr ? " (يفتح في نافذة جديدة)" : " (opens in a new tab)"}</span>
+              </a>
+            </div>
           </article>
           );
         })}
