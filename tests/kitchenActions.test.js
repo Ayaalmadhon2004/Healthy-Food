@@ -132,8 +132,8 @@ describe("reservations (real Postgres)", { skip: !hasDatabase && "DATABASE_URL i
       assert.deepEqual(await reserveMealAction(null, kitchen.id, q), { error: "INVALID_QUANTITY" }, String(q));
     }
     assert.deepEqual(await reserveMealAction(null, 999_999_999, 1), { error: "KITCHEN_NOT_FOUND" });
-    // A non-numeric id becomes NaN, which the database rejects: a generic failure, never a reservation.
-    assert.deepEqual(await reserveMealAction(null, "not-a-number", 1), { error: "GENERIC" });
+    // A non-numeric id is rejected before it reaches the database.
+    assert.deepEqual(await reserveMealAction(null, "not-a-number", 1), { error: "KITCHEN_NOT_FOUND" });
     assert.equal(await sumReserved(kitchen.id), 0);
   });
 
