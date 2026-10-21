@@ -68,6 +68,7 @@ export default async function EditKitchenPage({ params }: { params: Promise<{ id
                         todaysMeal: toPartial(kitchen.todaysMeal),
                         distributionTime: toPartial(kitchen.distributionTime),
                         contact: kitchen.contact,
+                        image: kitchen.image,
                         capacity: kitchen.capacity,
                     }}
                     lang={lang}

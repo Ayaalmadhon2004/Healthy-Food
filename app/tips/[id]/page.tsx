@@ -59,6 +59,7 @@ export default async function TipDetails({ params }: { params: Promise<{ id: str
       <article className="mt-6">
         <div className="relative aspect-[5/2] overflow-hidden rounded-lg border border-line bg-paper-deep">
           <SafeImage
+            src={tip.image}
             kind="tip"
             seed={tip.id}
             hint={tip.iconName}

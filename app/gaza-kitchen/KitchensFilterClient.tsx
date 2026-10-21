@@ -84,6 +84,7 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
               >
                 <div className="relative aspect-[16/9] bg-paper-deep border-b border-line">
                   <SafeImage
+                    src={kitchen.image}
                     kind="kitchen"
                     seed={kitchen.id}
                     alt={isAr ? `مطبخ ${name}` : `${name} kitchen`}

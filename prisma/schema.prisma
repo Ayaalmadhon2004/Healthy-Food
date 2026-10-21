@@ -46,6 +46,8 @@ model HealthTip {
   advice      Json
   details     Json
   moreDetails Json
+  // Optional photo: an https URL or an /assets/ path. Empty falls back to an illustration.
+  image       String?
   createdAt   DateTime @default(now())
 }
 
@@ -73,6 +75,8 @@ model Kitchen {
   todaysMeal       Json
   accessInfo       Json
   contact          String
+  // Optional photo: an https URL or an /assets/ path. Empty falls back to an illustration.
+  image            String?
   createdAt        DateTime    @default(now())
   orders           MealOrder[]
 }

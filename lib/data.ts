@@ -29,7 +29,7 @@ export function getRecipe(id: number) {
 export const getTips = unstable_cache(
   () =>
     prisma.healthTip.findMany({
-      select: { id: true, iconName: true, header: true, advice: true, details: true },
+      select: { id: true, iconName: true, image: true, header: true, advice: true, details: true },
       orderBy: { id: "asc" },
     }),
   ["tips-list"],

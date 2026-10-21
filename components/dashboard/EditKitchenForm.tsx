@@ -3,9 +3,10 @@
 import { useState, type FormEvent } from "react";
 import type { Localized } from "@/lib/types";
 import { parseCapacity } from "@/lib/capacity";
+import ImagePreview from "@/components/dashboard/ImagePreview";
 import { useRouter } from "next/navigation";
 import { updateKitchenAction } from "@/app/actions/kitchenActions";
-import { Save, Utensils, MapPin, Clock, Globe, Users, Phone, ChevronDown } from "lucide-react";
+import { Save, Utensils, MapPin, Clock, Globe, Users, Phone, ChevronDown, ImageIcon } from "lucide-react";
 
 // نفس المصفوفة الموحدة للمناطق
 const REGION_OPTIONS = [
@@ -23,6 +24,7 @@ export interface EditableKitchen {
   todaysMeal?: Partial<Localized> | null;
   distributionTime?: Partial<Localized> | null;
   contact?: string;
+  image?: string | null;
   capacity?: unknown;
 }
 
@@ -31,6 +33,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
   const [loading, setLoading] = useState(false);
 
   const isAr = lang === "ar";
+  const [imageValue, setImageValue] = useState(kitchen.image ?? "");
 
   const t = {
     ar: {
@@ -50,7 +53,10 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
       phMealAr: "وصف الوجبة بالعربي...",
       phMealEn: "Meal in English...",
       phCapacity: "مثلاً: 500",
-      phContact: "059XXXXXXXX"
+      phContact: "059XXXXXXXX",
+      photo: "رابط الصورة (اختياري)",
+      photoHint: "رابط https:// أو مسار يبدأ بـ /assets/. اتركه فارغاً لعرض الرسم التوضيحي.",
+      photoPreview: "معاينة الصورة"
     },
     en: {
       kitchenName: "Kitchen Name",
@@ -69,7 +75,10 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
       phMealAr: "Meal description in Arabic...",
       phMealEn: "Meal in English...",
       phCapacity: "e.g. 500",
-      phContact: "059XXXXXXXX"
+      phContact: "059XXXXXXXX",
+      photo: "Photo link (optional)",
+      photoHint: "An https:// link or a path starting with /assets/. Leave empty to show the illustration.",
+      photoPreview: "Photo preview"
     }
   }[lang as "ar" | "en"];
 
@@ -84,7 +93,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
       router.push("/dashboard/organization"); 
       router.refresh(); 
     } else {
-      alert(isAr ? "حدث خطأ أثناء التحديث" : "Error updating kitchen");
+      alert(result.error || (isAr ? "حدث خطأ أثناء التحديث" : "Error updating kitchen"));
       setLoading(false);
     }
   }
@@ -139,6 +148,27 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
             dir="ltr"
           />
         </div>
+      </section>
+
+      {/* الصورة */}
+      <section className="space-y-2">
+        <label htmlFor="edit-kitchen-image" className="flex items-center gap-2 font-bold text-gray-600 text-sm">
+          <ImageIcon size={16} className="text-sea-700" aria-hidden="true" />
+          {t.photo}
+        </label>
+        <input
+          type="text"
+          id="edit-kitchen-image" name="image"
+          value={imageValue}
+          onChange={(e) => setImageValue(e.target.value)}
+          maxLength={500}
+          aria-describedby="edit-kitchen-image-hint"
+          placeholder="https://..."
+          className="form-input-custom text-left"
+          dir="ltr"
+        />
+        <p id="edit-kitchen-image-hint" className="text-xs text-ink-mute">{t.photoHint}</p>
+        <ImagePreview value={imageValue} alt={t.photoPreview} />
       </section>
 
       {/* قسم المنطقة والوجبة والوقت */}

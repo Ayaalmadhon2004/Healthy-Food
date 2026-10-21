@@ -42,6 +42,7 @@ export interface KitchenView {
   distributionTime: LocalizedField;
   todaysMeal: LocalizedField;
   contact: string;
+  image?: string | null;
   capacity: unknown;
   capacityLimit?: number;
   reservedTomorrow?: number;

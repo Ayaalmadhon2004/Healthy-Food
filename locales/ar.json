@@ -66,6 +66,7 @@
     "kitchensLoadFailed": "تعذر تحميل المطابخ",
     "nameRequired": "الاسم مطلوب",
     "invalidCapacity": "السعة غير صالحة",
+    "invalidImage": "رابط الصورة يجب أن يبدأ بـ https:// أو أن يكون مساراً يبدأ بـ /assets/",
     "kitchenSaveFailed": "تعذر حفظ المطبخ",
     "kitchenDeleteFailed": "تعذر حذف المطبخ",
     "tooManyAttempts": "محاولات كثيرة، يرجى المحاولة لاحقاً",

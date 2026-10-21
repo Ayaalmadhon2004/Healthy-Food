@@ -2,8 +2,9 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { pickText, type LocalizedField } from "@/lib/types";
-import { Plus, X, Utensils, MapPin, Clock, Salad, Users, Phone, ChevronDown } from "lucide-react";
+import { Plus, X, Utensils, MapPin, Clock, Salad, Users, Phone, ChevronDown, ImageIcon } from "lucide-react";
 import { addKitchenAction } from "@/app/actions/kitchenActions";
+import ImagePreview from "@/components/dashboard/ImagePreview";
 import { useRouter } from "next/navigation";
 
 // يجب أن تطابق هذه المصفوفة تماماً المصفوفة الموجودة في صفحة العرض (Filter)
@@ -25,6 +26,8 @@ export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess 
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [nameInput, setNameInput] = useState(""); 
+  const [imageInput, setImageInput] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const translations = {
@@ -43,7 +46,10 @@ export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess 
       save: "حفظ المطبخ",
       cancel: "إلغاء",
       duplicateWarn: "هذا الاسم موجود مسبقاً",
-      selectRegion: "اختر المنطقة من القائمة..."
+      selectRegion: "اختر المنطقة من القائمة...",
+      photo: "رابط الصورة (اختياري)",
+      photoHint: "رابط https:// أو مسار يبدأ بـ /assets/. اتركه فارغاً لعرض الرسم التوضيحي.",
+      photoPreview: "معاينة الصورة"
     },
     en: {
       btn: "Add New Kitchen",
@@ -60,7 +66,10 @@ export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess 
       save: "Save Kitchen",
       cancel: "Cancel",
       duplicateWarn: "Name already exists",
-      selectRegion: "Select a region..."
+      selectRegion: "Select a region...",
+      photo: "Photo link (optional)",
+      photoHint: "An https:// link or a path starting with /assets/. Leave empty to show the illustration.",
+      photoPreview: "Photo preview"
     }
   };
 
@@ -85,6 +94,7 @@ export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
     const form = e.currentTarget; // currentTarget is cleared once the handler awaits
     const formData = new FormData(form);
     
@@ -94,9 +104,12 @@ export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess 
       if (result.success) {
         setIsOpen(false);
         setNameInput("");
+        setImageInput("");
         form.reset();
         if (onSuccess) await onSuccess();
         router.refresh(); 
+      } else if (result.error) {
+        setError(result.error);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -205,6 +218,18 @@ export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess 
                 <label htmlFor="add-kitchen-timeEn" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1"><Clock size={12} /> {t.timeEn}</label>
                 <input id="add-kitchen-timeEn" name="timeEn" required className="form-input" placeholder="e.g. 12:00 PM" />
               </div>
+
+              {/* الصورة (اختياري) */}
+              <div className="md:col-span-2 space-y-2">
+                <label htmlFor="add-kitchen-image" className="text-[10px] font-bold text-ink-mute uppercase tracking-widest flex items-center gap-1">
+                  <ImageIcon size={12} aria-hidden="true" /> {t.photo}
+                </label>
+                <input type="text" id="add-kitchen-image" name="image" value={imageInput} onChange={(e) => setImageInput(e.target.value)} maxLength={500} dir="ltr" aria-describedby="add-kitchen-image-hint" className="form-input text-left" placeholder="https://..." />
+                <p id="add-kitchen-image-hint" className="text-xs text-ink-mute">{t.photoHint}</p>
+                <ImagePreview value={imageInput} alt={t.photoPreview} />
+              </div>
+
+              {error && <p role="alert" className="md:col-span-2 text-sm font-bold text-brick-600">{error}</p>}
 
               <div className="md:col-span-2 flex gap-3 mt-4">
                 <button type="submit" disabled={loading} className="flex-1 bg-green-600 text-white p-4 rounded-lg font-bold hover:bg-green-700 transition-all disabled:opacity-50 shadow-sm shadow-green-100">

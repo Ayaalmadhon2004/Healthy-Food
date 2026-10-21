@@ -58,6 +58,7 @@ export default async function TipsPage() {
                   }`}
                 >
                   <SafeImage
+                    src={item.image}
                     kind="tip"
                     seed={item.id}
                     hint={item.iconName}

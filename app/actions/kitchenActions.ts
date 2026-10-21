@@ -7,6 +7,7 @@ import { getSessionUser, isOrgRole } from "@/lib/auth";
 import { getServerMessages } from "@/lib/i18n";
 import { getCapacityLimit, validateCapacityInput } from "@/lib/capacity";
 import { getReservationTargetDate } from "@/lib/dates";
+import { parseImageUrl } from "@/lib/imageUrl";
 import { asLocalizedField, type KitchenView } from "@/lib/types";
 
 const REGION_MAP: Record<string, { ar: string; en: string }> = {
@@ -66,6 +67,7 @@ export async function getKitchensAction(page: number = 1, limit: number = 5) {
         distributionTime: asLocalizedField(k.distributionTime),
         todaysMeal: asLocalizedField(k.todaysMeal),
         contact: k.contact,
+        image: k.image,
         capacity: k.capacity,
         capacityLimit: getCapacityLimit(k.capacity),
         reservedTomorrow: reservedByKitchen.get(k.id) || 0,
@@ -93,6 +95,9 @@ export async function addKitchenAction(formData: FormData) {
 
     const capacity = validateCapacityInput(formData.get("capacity"));
     if (capacity === null) return { success: false, error: (await getServerMessages()).invalidCapacity };
+
+    const image = parseImageUrl(formData.get("image"));
+    if (image === undefined) return { success: false, error: (await getServerMessages()).invalidImage };
 
     // منطق الترقيم التلقائي للأسماء المكررة
     const existingKitchens = await prisma.kitchen.findMany({
@@ -122,6 +127,7 @@ export async function addKitchenAction(formData: FormData) {
         distributionTime: { ar: field(formData, "timeAr"), en: field(formData, "timeEn") },
         contact: field(formData, "contact") || "No Contact",
         capacity,
+        image,
         accessInfo: { ar: "", en: "" },
       },
     });
@@ -149,12 +155,16 @@ export async function updateKitchenAction(kitchenId: number | string, formData: 
     const nameEn = field(formData, "nameEn");
     if (!nameAr || !nameEn) return { success: false, error: (await getServerMessages()).nameRequired };
 
+    const image = parseImageUrl(formData.get("image"));
+    if (image === undefined) return { success: false, error: (await getServerMessages()).invalidImage };
+
     const updatedData: Prisma.KitchenUpdateInput = {
       name: { ar: nameAr, en: nameEn },
       todaysMeal: { ar: field(formData, "mealAr"), en: field(formData, "mealEn") },
       distributionTime: { ar: field(formData, "timeAr"), en: field(formData, "timeEn") },
       contact: field(formData, "contact") || "No Contact",
       capacity,
+      image,
     };
 
     if (regionData) {
