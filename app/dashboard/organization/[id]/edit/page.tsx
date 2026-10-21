@@ -59,7 +59,7 @@ export default async function EditKitchenPage({ params }: { params: Promise<{ id
                 </p>
             </header>
 
-            <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                 <EditKitchenForm
                     kitchen={{
                         id: kitchen.id,

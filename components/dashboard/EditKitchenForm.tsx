@@ -111,7 +111,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
       </section>
 
       {/* قسم السعة والتواصل (تصميم مميز) */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-emerald-50/30 p-6 rounded-[2rem] border border-emerald-100/50">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-emerald-50/30 p-6 rounded-xl border border-emerald-100/50">
         <div className="space-y-2">
           <label className="flex items-center gap-2 font-bold text-gray-600 text-sm">
             <Users size={16} className="text-emerald-600" />
@@ -184,7 +184,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
         <button 
           type="submit" 
           disabled={loading}
-          className="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 disabled:opacity-50"
+          className="flex-1 bg-emerald-600 text-white py-4 rounded-lg font-black flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-sm shadow-emerald-100 disabled:opacity-50"
         >
           <Save size={20} />
           {loading ? "..." : t.save}
@@ -192,7 +192,7 @@ export default function EditKitchenForm({ kitchen, lang }: { kitchen: EditableKi
         <button 
           type="button"
           onClick={() => router.push("/dashboard/organization")}
-          className="px-8 py-4 bg-gray-100 text-gray-500 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+          className="px-8 py-4 bg-gray-100 text-gray-500 rounded-lg font-bold hover:bg-gray-200 transition-all"
         >
           {t.cancel}
         </button>

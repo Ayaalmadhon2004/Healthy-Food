@@ -25,15 +25,15 @@ export default function MonthlyDashboard({ data = {}, stats = {}, lang }: {
     const total = stats?.totalMeals || 0;
 
     return (
-        <section className="mt-12 w-full animate-in fade-in duration-700">
-        <h2 className="text-2xl font-black text-gray-800 mb-6 px-2">
-            {isRtl ? "تحليلات الشهر" : "Monthly Analytics"}
+        <section className="w-full settle">
+        <h2 className="text-3xl font-medium text-ink mb-8">
+            {isRtl ? "ملخص الشهر" : "This month"}
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <StatCard label={isRtl ? "متوسط الاستهلاك" : "Avg Calories"} value={avg} unit="cal" color="blue" />
-            <StatCard label={isRtl ? "أيام الالتزام" : "Commitment Days"} value={commitment} unit={isRtl ? "يوم" : "days"} color="green" />
-            <StatCard label={isRtl ? "إجمالي الوجبات" : "Total Meals"} value={total} unit={isRtl ? "وجبة" : "meals"} color="orange" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 mb-10">
+            <StatCard label={isRtl ? "متوسط الاستهلاك" : "Average intake"} value={avg} unit={isRtl ? "سعرة" : "cal"} />
+            <StatCard label={isRtl ? "أيام الالتزام" : "Days on track"} value={commitment} unit={isRtl ? "يوم" : "days"} />
+            <StatCard label={isRtl ? "إجمالي الوجبات" : "Meals logged"} value={total} unit={isRtl ? "وجبة" : "meals"} />
         </div>
 
         <MonthlyGrid 
@@ -48,24 +48,18 @@ export default function MonthlyDashboard({ data = {}, stats = {}, lang }: {
     );
     }
 
-    function StatCard({ label, value, unit, color }: {
-        label: string;
-        value: number;
-        unit: string;
-        color: "blue" | "green" | "orange";
-    }) {
-    const colors = {
-        blue: "bg-blue-50 text-blue-700 border-blue-100",
-        green: "bg-green-50 text-green-700 border-green-100",
-        orange: "bg-orange-50 text-orange-700 border-orange-100",
-    };
+function StatCard({ label, value, unit }: {
+    label: string;
+    value: number;
+    unit: string;
+}) {
     return (
-        <div className={`p-5 rounded-[1.5rem] border ${colors[color]} shadow-sm`}>
-        <p className="text-[10px] font-bold uppercase opacity-60 mb-1">{label}</p>
-        <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-black">{value}</span>
-            <span className="text-xs opacity-80">{unit}</span>
-        </div>
+        <div className="border-t-2 border-ink pt-3">
+        <p className="text-sm text-ink-soft font-medium">{label}</p>
+        <p className="mt-1 flex items-baseline gap-2">
+            <span className="text-4xl font-medium font-display tabular-nums text-ink">{value}</span>
+            <span className="text-sm text-ink-mute">{unit}</span>
+        </p>
         </div>
     );
 }

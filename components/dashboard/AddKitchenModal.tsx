@@ -99,15 +99,15 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="bg-green-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-green-700 transition-all shadow-lg active:scale-95 text-sm"
+        className="bg-green-600 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-green-700 transition-all shadow-sm text-sm"
       >
         <Plus size={20} />
         {t.btn}
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white rounded-[2.5rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-8">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-ink/50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
             
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
               <h2 className="text-xl font-black flex items-center gap-2 text-gray-800">
@@ -196,10 +196,10 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
               </div>
 
               <div className="md:col-span-2 flex gap-3 mt-4">
-                <button type="submit" disabled={loading} className="flex-1 bg-green-600 text-white p-4 rounded-2xl font-bold hover:bg-green-700 transition-all disabled:opacity-50 shadow-lg shadow-green-100">
+                <button type="submit" disabled={loading} className="flex-1 bg-green-600 text-white p-4 rounded-lg font-bold hover:bg-green-700 transition-all disabled:opacity-50 shadow-sm shadow-green-100">
                   {loading ? "..." : t.save}
                 </button>
-                <button type="button" onClick={() => setIsOpen(false)} className="px-8 bg-gray-100 text-gray-500 rounded-2xl font-bold hover:bg-gray-200">
+                <button type="button" onClick={() => setIsOpen(false)} className="px-8 bg-gray-100 text-gray-500 rounded-lg font-bold hover:bg-gray-200">
                   {t.cancel}
                 </button>
               </div>

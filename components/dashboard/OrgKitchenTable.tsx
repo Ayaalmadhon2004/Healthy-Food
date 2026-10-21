@@ -25,7 +25,7 @@ export default function OrgKitchenTable({
   const router = useRouter();
   const [search, setSearch] = useState("");
   
-  // ✅ إصلاح 1: وضع البيانات في State داخلية لتحديثها فوراً عند الإضافة
+  // إصلاح 1: وضع البيانات في State داخلية لتحديثها فوراً عند الإضافة
   const [kitchens, setKitchens] = useState<KitchenView[]>(initialKitchens);
 
   // تحديث الحالة الداخلية كلما تغيرت البيانات القادمة من الأب (Props)
@@ -72,7 +72,7 @@ export default function OrgKitchenTable({
     }
   };
 
-  // ✅ إصلاح 2: التأكد من اختيار اللغة بشكل صارم
+  // إصلاح 2: التأكد من اختيار اللغة بشكل صارم
   const currentT = t[lang] || t["ar"];
 
   const getText = (field: KitchenView["name"], language: string) => pickText(field, toLang(language));
@@ -202,20 +202,20 @@ export default function OrgKitchenTable({
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage <= 1}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-lg disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
           >
             {lang === "ar" ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             {currentT.prev}
           </button>
 
-          <div className="px-4 py-2 bg-white rounded-full border border-gray-100 shadow-inner text-xs font-black text-gray-500">
+          <div className="px-4 py-2 bg-white rounded-full border border-gray-100 shadow-sm text-xs font-black text-gray-500">
             {currentT.page} <span className="text-green-600 mx-1">{currentPage}</span> {currentT.of} {totalPages}
           </div>
 
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage >= totalPages}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-2xl disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-lg disabled:opacity-30 hover:border-green-500 hover:text-green-500 transition-all text-sm font-bold shadow-sm"
           >
             {currentT.next}
             {lang === "ar" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}

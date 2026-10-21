@@ -30,12 +30,12 @@ export default function Sidebar({ userRole, lang }: { userRole?: string | null; 
 
   return (
     <aside 
-      className={`w-64 h-screen bg-white p-4 flex flex-col gap-2 transition-all ${
+      className={`w-60 h-screen bg-paper p-4 flex flex-col gap-1 ${
         isAr ? "border-l text-right" : "border-r text-left"
       }`} 
       dir={isAr ? "rtl" : "ltr"}
     >
-      <div className="mb-4 px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+      <div className="mb-2 px-3 py-2 text-sm font-medium text-ink-mute">
         {t.menu}
       </div>
       
@@ -45,13 +45,13 @@ export default function Sidebar({ userRole, lang }: { userRole?: string | null; 
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium group ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors font-medium group ${
               isActive 
-                ? "bg-emerald-50 text-emerald-600 shadow-sm" 
-                : "text-gray-500 hover:bg-gray-50 hover:text-emerald-500"
+                ? "bg-olive-100 text-olive-900" 
+                : "text-ink-soft hover:bg-paper-deep hover:text-ink"
             }`}
           >
-            <span className={isActive ? "text-emerald-600" : "text-gray-400 group-hover:text-emerald-500"}>
+            <span className={isActive ? "text-olive-800" : "text-ink-mute"}>
               {item.icon}
             </span>
             <span className="text-sm">{item.label}</span>

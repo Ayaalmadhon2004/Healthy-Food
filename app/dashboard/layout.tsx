@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div 
-      className="flex h-screen bg-gray-50" 
+      className="flex h-screen bg-paper" 
       dir={lang === "ar" ? "rtl" : "ltr"}
     >
       <Sidebar userRole={realRole} lang={lang} />
@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <main className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-olive-600"></div>
           </div>
         ) : (
           children

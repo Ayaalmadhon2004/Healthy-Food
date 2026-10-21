@@ -18,7 +18,7 @@ import {
 
 const ProgressCard = dynamic(() => import("@/components/mealTracker/ProgressCard"), { 
   ssr: false,
-  loading: () => <div className="h-40 bg-gray-100 animate-pulse rounded-2xl" /> 
+  loading: () => <div className="h-40 bg-paper-deep rounded-lg" /> 
 });
 const AddMealForm = dynamic(() => import("@/components/mealTracker/AddMealForm"), { 
   ssr: false 
@@ -206,12 +206,12 @@ function TrackerContent() {
   if (!mounted) return <div className="min-h-screen bg-[var(--color-primary-light)]" />;
 
   return (
-    <div className="container mx-auto pb-20 px-4">
-      <h1 className="text-3xl font-bold my-8 text-center text-gray-800">
-        {state.loading ? (lang === 'ar' ? "جاري التحميل..." : "Loading...") : (lang === 'ar' ? "متتبع الوجبات" : "Meal Tracker")}
+    <div className="max-w-6xl mx-auto pb-20 px-5 md:px-8">
+      <h1 className="text-3xl md:text-4xl font-medium mt-10 mb-8 text-ink">
+        {state.loading ? (lang === 'ar' ? "جاري التحميل..." : "Loading...") : (lang === 'ar' ? "متابعة الوجبات" : "Meal tracker")}
       </h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-start">
         <ProgressCard calories={state.calories} goal={goal} onGoalChange={handleGoalChange} />
         {/* نمرر دالة الإضافة فقط، الفورم سيهتم بحالته الخاصة */}
         <AddMealForm onAdd={handleAddMeal} />
@@ -227,7 +227,7 @@ function TrackerContent() {
 export default function TrackerPage() {
   return (
     <div className="min-h-screen bg-[var(--color-primary-light)]">
-      <Suspense fallback={<div className="flex justify-center items-center h-screen font-bold">Initializing...</div>}>
+      <Suspense fallback={<div className="flex justify-center items-center h-screen text-ink-mute">...</div>}>
         <TrackerContent />
       </Suspense>
     </div>

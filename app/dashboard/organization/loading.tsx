@@ -9,7 +9,7 @@ export default function Loading() {
                     <div className="w-10 h-10 bg-gray-200 rounded-xl"></div>
                     <div className="h-8 bg-gray-200 rounded-lg w-64"></div>
                 </div>
-                <div className="h-4 bg-gray-100 rounded-lg w-96"></div>
+                <div className="h-4 bg-paper-deep rounded-lg w-96"></div>
               </div>
           <div className="h-12 bg-gray-200 rounded-2xl w-40"></div>
           </div>

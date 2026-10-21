@@ -27,43 +27,48 @@ export default function ReportForm({ userId, isAr }: { userId: string; isAr: boo
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <input type="hidden" name="userId" value={userId} />
-      
-      <div className="flex flex-col gap-2">
-        <label className="font-black text-gray-700">
-          {isAr ? "اسم المنطقة أو الحي" : "Area Name"}
+
+      <div>
+        <label htmlFor="report-area-name" className="label">
+          {isAr ? "اسم المنطقة أو الحي" : "Area or neighbourhood"}
         </label>
-        <input 
-          name="areaName" 
-          required 
-          className="p-5 bg-gray-50 border-2 border-gray-100 rounded-[1.5rem] outline-none focus:border-emerald-500 transition-all shadow-sm" 
+        <input
+          id="report-area-name"
+          name="areaName"
+          required
+          className="field"
         />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="font-black text-gray-700">
-          {isAr ? "وصف حالة الاحتياج" : "Description"}
+      <div>
+        <label htmlFor="report-description" className="label">
+          {isAr ? "ما الذي ينقصهم؟" : "What is missing there?"}
         </label>
-        <textarea 
-          name="description" 
-          required 
-          className="p-5 bg-gray-50 border-2 border-gray-100 rounded-[1.5rem] h-44 outline-none focus:border-emerald-500 transition-all resize-none shadow-sm" 
+        <textarea
+          id="report-description"
+          name="description"
+          required
+          className="field h-40 resize-none"
         />
+        <p className="mt-1.5 text-sm text-ink-mute">
+          {isAr ? "كم عائلة تقريباً؟ ومنذ متى لم يصلهم طعام؟" : "Roughly how many families, and how long since food last arrived?"}
+        </p>
       </div>
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         disabled={loading}
-        className="bg-gray-900 text-white p-6 rounded-[1.5rem] font-black text-xl hover:bg-black transition-all shadow-lg active:scale-95 mt-2 flex items-center justify-center gap-2"
+        className="btn btn-primary self-start !px-6 !py-3"
       >
         {loading ? (
           <>
-            <Loader2 className="animate-spin" size={24} />
+            <Loader2 className="animate-spin" size={18} />
             <span>{isAr ? "جاري الإرسال..." : "Sending..."}</span>
           </>
         ) : (
-          <span>{isAr ? "إرسال البلاغ الآن" : "Submit Report Now"}</span>
+          <span>{isAr ? "أرسل البلاغ" : "Send report"}</span>
         )}
       </button>
     </form>

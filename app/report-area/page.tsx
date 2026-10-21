@@ -21,8 +21,8 @@ export default async function ReportAreaPage() {
   
   if (!supabase) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500 font-bold">Supabase Configuration Error</p>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <p className="text-brick-700 font-medium">{isAr ? "تعذّر الاتصال بالخدمة حالياً." : "The service is not available right now."}</p>
       </div>
     );
   }
@@ -32,13 +32,13 @@ export default async function ReportAreaPage() {
   // 3. حماية الصفحة: إذا لم يسجل الدخول، يظهر زر العودة للدخول
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 text-center">
-        <div className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100 max-w-sm">
-          <p className="text-xl font-bold mb-6 text-gray-800">
-            {isAr ? "يجب تسجيل الدخول أولاً لتقديم بلاغ" : "Please login first to submit a report"}
+      <div className="min-h-[60vh] flex items-center justify-center p-6 text-center" dir={isAr ? "rtl" : "ltr"}>
+        <div className="surface p-8 max-w-sm">
+          <p className="text-xl font-medium mb-5 text-ink">
+            {isAr ? "سجّل دخولك أولاً لتقدّم بلاغاً." : "Sign in first to send a report."}
           </p>
-          <Link href="/login" className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold inline-block hover:bg-emerald-700 transition-all">
-            {isAr ? "تسجيل الدخول" : "Login"}
+          <Link href="/login" className="btn btn-primary">
+            {isAr ? "تسجيل الدخول" : "Sign in"}
           </Link>
         </div>
       </div>
@@ -46,34 +46,33 @@ export default async function ReportAreaPage() {
   }
 
   return (
-    <main 
-      className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6" 
+    <main
+      className="max-w-2xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20"
       dir={isAr ? "rtl" : "ltr"}
     >
-      <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-xl max-w-xl w-full border border-gray-50 relative">
-        
-        {/* زر العودة للصفحة الرئيسية */}
-        <Link 
-          href="/" 
-          className={`absolute top-8 ${isAr ? 'left-8' : 'right-8'} p-2 text-gray-400 hover:text-gray-900 transition-colors`}
-        >
-          {isAr ? <ArrowLeft size={24} /> : <ArrowRight size={24} />}
-        </Link>
+      <Link
+        href="/"
+        aria-label={isAr ? "العودة إلى الصفحة الرئيسية" : "Back to the home page"}
+        className="inline-flex items-center gap-2 text-sm font-medium text-ink-soft hover:text-olive-800"
+      >
+        {isAr ? <ArrowRight size={16} strokeWidth={1.75} /> : <ArrowLeft size={16} strokeWidth={1.75} />}
+        {isAr ? "الرئيسية" : "Home"}
+      </Link>
 
-        <header className="mb-10 mt-4">
-          <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-3 leading-tight">
-            {isAr ? "بلاغ منطقة محرومة" : "Report Underserved Area"}
-          </h1>
-          <p className="text-gray-500 text-lg">
-            {isAr 
-              ? "ساعدنا في تحديد الأماكن التي تحتاج لتدخل سريع." 
-              : "Help us identify areas that need urgent intervention."}
-          </p>
-        </header>
-        
+      <header className="mt-6 mb-8">
+        <h1 className="text-3xl md:text-4xl font-medium text-ink leading-tight">
+          {isAr ? "بلّغ عن منطقة محرومة" : "Report an underserved area"}
+        </h1>
+        <p className="mt-3 text-lg text-ink-soft leading-relaxed">
+          {isAr
+            ? "إذا كان في حيّك أو مخيّمك من لا يصلهم طعام، أخبرنا. تقرأ فرقنا كل بلاغ."
+            : "If people in your neighbourhood or camp are not getting food, tell us. Our teams read every report."}
+        </p>
+      </header>
+
+      <div className="surface p-6 md:p-8">
         {/* استدعاء مكون الفورم (Client Component) وتمرير البيانات */}
         <ReportForm userId={user.id} isAr={isAr} />
-        
       </div>
     </main>
   );
