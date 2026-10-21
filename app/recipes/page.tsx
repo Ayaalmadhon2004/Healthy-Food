@@ -1,15 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import FilterButtons from "../../components/recipes/FilterButtons";
 import { cookies } from "next/headers";
+import { toLang, toRecipe } from "@/lib/types";
 
 export const metadata = {
-  title: "Browse Recipes | NutriFlow",
+  title: "Browse Recipes",
   description: "Explore healthy recipes crafted for field nutrition and Gaza kitchen support.",
 };
 
 export default async function RecipesPage() {
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = toLang(cookieStore.get("lang")?.value);
   const isRtl = lang === "ar";
 
   const recipes = await prisma.foodRecipe.findMany();
@@ -29,7 +30,7 @@ export default async function RecipesPage() {
         </h1>
         
         {/* نمرر اللغة للـ FilterButtons لضمان توافق الفلترة مع النصوص */}
-        <FilterButtons initialRecipes={recipes} lang={lang} />
+        <FilterButtons initialRecipes={recipes.map(toRecipe)} />
       </div>
     </div>
   );

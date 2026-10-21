@@ -5,7 +5,7 @@ import Link from "next/link";
 import ReportForm from "@/components/ReportForm"; // استيراد المكون الذي أنشأناه
 
 export const metadata = {
-  title: "Report Area | NutriFlow",
+  title: "Report Area",
   description: "Submit a community report on underserved Gaza areas that need urgent food security assistance.",
 };
 

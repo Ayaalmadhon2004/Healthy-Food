@@ -1,12 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUserRole } from "@/app/actions/authActions";
+import { pickText, toLang, asLocalizedField, type Localized } from "@/lib/types";
 import EditKitchenForm from "@/components/dashboard/EditKitchenForm";
 import { cookies } from "next/headers";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-export default async function EditKitchenPage({ params }) {
+function toPartial(value: unknown): Partial<Localized> | null {
+    const field = asLocalizedField(value);
+    return field && typeof field === "object" ? field : null;
+}
+
+export default async function EditKitchenPage({ params }: { params: Promise<{ id: string }> }) {
     // 1. تشغيل الطلبات بالتوازي (Parallel) لتقليل وقت الانتظار
     const [role, resolvedParams, cookieStore] = await Promise.all([
         getCurrentUserRole(),
@@ -21,7 +27,7 @@ export default async function EditKitchenPage({ params }) {
         redirect("/dashboard");
     }
 
-    const lang = cookieStore.get("lang")?.value || "ar";
+    const lang = toLang(cookieStore.get("lang")?.value);
 
     // 3. جلب بيانات المطبخ
     const kitchen = await prisma.kitchen.findUnique({
@@ -48,13 +54,24 @@ export default async function EditKitchenPage({ params }) {
                 </h1>
                 <p className="text-gray-500 mt-2">
                     {isAr 
-                        ? `أنت تقوم الآن بتعديل بيانات: ${kitchen.name.ar}` 
-                        : `You are currently editing: ${kitchen.name.en}`}
+                        ? `أنت تقوم الآن بتعديل بيانات: ${pickText(asLocalizedField(kitchen.name), "ar")}` 
+                        : `You are currently editing: ${pickText(asLocalizedField(kitchen.name), "en")}`}
                 </p>
             </header>
 
             <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
-                <EditKitchenForm kitchen={kitchen} lang={lang} />
+                <EditKitchenForm
+                    kitchen={{
+                        id: kitchen.id,
+                        name: toPartial(kitchen.name),
+                        region: toPartial(kitchen.region),
+                        todaysMeal: toPartial(kitchen.todaysMeal),
+                        distributionTime: toPartial(kitchen.distributionTime),
+                        contact: kitchen.contact,
+                        capacity: kitchen.capacity,
+                    }}
+                    lang={lang}
+                />
             </div>
         </div>
     );

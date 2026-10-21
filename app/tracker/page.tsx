@@ -5,7 +5,9 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useLanguage } from "@/context/LanguageContext";
 import { requestNotificationPermission, showNotification } from "@/utils/notification";
-import { supabase } from "@/lib/supabase/client"; 
+import { supabase } from "@/lib/supabase/client";
+import type { TrackedMeal } from "@/lib/types";
+import type { NewMealInput } from "@/components/mealTracker/AddMealForm";
 
 import { 
   addMealAction, 
@@ -27,14 +29,36 @@ const MealList = dynamic(() => import("@/components/mealTracker/MealList"), {
   ssr: false 
 });
 
-const initialState = { 
+interface MonthlyStats {
+  avgCalories: number;
+  commitmentDays: number;
+  totalMeals: number;
+  goal?: number;
+}
+
+interface TrackerState {
+  meals: TrackedMeal[];
+  calories: number;
+  monthlyStats: MonthlyStats;
+  loading: boolean;
+}
+
+type TrackerAction =
+  | { type: "HYDRATE_DATA"; payload: { meals: TrackedMeal[]; calories: number } }
+  | { type: "SET_MONTHLY_STATS"; payload: MonthlyStats }
+  | { type: "ADD_MEAL_OPTIMISTIC"; payload: TrackedMeal }
+  | { type: "REPLACE_MEAL_ID"; payload: { oldId: string | number; newMeal: TrackedMeal } }
+  | { type: "DELETE_MEAL"; payload: string | number }
+  | { type: "ROLLBACK_MEALS"; payload: { meals: TrackedMeal[]; calories: number } };
+
+const initialState: TrackerState = { 
   meals: [], 
   calories: 0, 
   monthlyStats: { avgCalories: 0, commitmentDays: 0, totalMeals: 0 },
   loading: true 
 };
 
-function reducer(state, action) {
+function reducer(state: TrackerState, action: TrackerAction): TrackerState {
   switch (action.type) {
     case "HYDRATE_DATA":
       return { 
@@ -59,13 +83,14 @@ function reducer(state, action) {
         meals: state.meals.map(m => m.id === action.payload.oldId ? action.payload.newMeal : m)
       };
 
-    case "DELETE_MEAL":
+    case "DELETE_MEAL": {
       const updatedMeals = state.meals.filter(m => m.id !== action.payload);
       return { 
         ...state, 
         meals: updatedMeals, 
         calories: updatedMeals.reduce((s, m) => s + (Number(m.calories) || 0), 0) 
       };
+    }
 
     case "ROLLBACK_MEALS":
       return { ...state, meals: action.payload.meals, calories: action.payload.calories };
@@ -92,11 +117,11 @@ function TrackerContent() {
       const currentMonth = now.getMonth() + 1;
 
       const [mealsRes, statsRes] = await Promise.all([
-        getMealsAction(user.id),
+        getMealsAction(),
         getMonthlyStatsAction(user.id, currentYear, currentMonth)
       ]);
 
-      if (mealsRes.success) {
+      if (mealsRes.success && mealsRes.meals) {
         dispatch({ 
           type: "HYDRATE_DATA", 
           payload: { 
@@ -106,7 +131,7 @@ function TrackerContent() {
         });
       }
 
-      if (statsRes.success) {
+      if (statsRes.success && statsRes.stats) {
         dispatch({ type: "SET_MONTHLY_STATS", payload: statsRes.stats });
         if (statsRes.stats.goal) setGoal(statsRes.stats.goal);
       }
@@ -121,12 +146,12 @@ function TrackerContent() {
   }, [loadData]);
 
   // دالة الإضافة - تم تعديلها لتستقبل البيانات من الفورم مباشرة
-  const handleAddMeal = useCallback(async (mealData) => {
+  const handleAddMeal = useCallback(async (mealData: NewMealInput) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert("Please log in");
 
     const tempId = Date.now();
-    const optimisticMeal = { 
+    const optimisticMeal: TrackedMeal = { 
       id: tempId, 
       foodName: mealData.name, 
       mealType: mealData.option, 
@@ -139,13 +164,12 @@ function TrackerContent() {
 
     try {
       const result = await addMealAction({
-        userId: user.id,
-        mealType: optimisticMeal.mealType,
+        mealType: optimisticMeal.mealType ?? "",
         foodName: optimisticMeal.foodName,
         calories: optimisticMeal.calories
       });
 
-      if (result.success) {
+      if (result.success && result.meal) {
         dispatch({ type: "REPLACE_MEAL_ID", payload: { oldId: tempId, newMeal: result.meal } });
         await loadData(); 
       } else {
@@ -157,13 +181,13 @@ function TrackerContent() {
     }
   }, [loadData, lang]);
 
-  const handleDeleteMeal = async (id) => {
+  const handleDeleteMeal = async (id: string | number) => {
     const originalMeals = state.meals;
     const originalCalories = state.calories;
 
     dispatch({ type: "DELETE_MEAL", payload: id });
 
-    const result = await deleteMealAction(id);
+    const result = await deleteMealAction(String(id));
     if (!result.success) {
       dispatch({ type: "ROLLBACK_MEALS", payload: { meals: originalMeals, calories: originalCalories } });
     } else {
@@ -171,9 +195,9 @@ function TrackerContent() {
     }
   };
 
-  const handleGoalChange = useCallback(async (value) => {
+  const handleGoalChange = useCallback(async (value: string) => {
     const result = await setCalorieGoalAction(value);
-    if (result?.success) {
+    if (result?.success && result.goal) {
       setGoal(result.goal);
       await loadData();
     }

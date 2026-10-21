@@ -2,8 +2,22 @@
 
 import { MapPin, Calendar, Award, Star } from "lucide-react";
 import Image from "next/image";
+import { toLang, type Lang, type Localized } from "@/lib/types";
 
-export default function DoctorsListClient({ initialDoctors, lang }) {
+export interface DoctorView {
+  id: number;
+  name: Localized;
+  specialty: Localized;
+  about: Localized;
+  location: Localized;
+  availability: Localized;
+  qualifications: Record<Lang, string[]>;
+  rating: number;
+  image: string;
+}
+
+export default function DoctorsListClient({ initialDoctors, lang: langProp }: { initialDoctors: DoctorView[]; lang: string }) {
+  const lang = toLang(langProp);
   const isAr = lang === "ar";
 
   return (
@@ -84,7 +98,7 @@ export default function DoctorsListClient({ initialDoctors, lang }) {
 
             {/* Qualifications */}
             <div className="mt-6 flex flex-wrap gap-2 justify-center md:justify-start">
-              {doctor.qualifications[lang]?.map((q, i) => (
+              {doctor.qualifications[lang].map((q, i) => (
                 <span 
                   key={i} 
                   className="bg-white border border-emerald-100 text-emerald-800 text-xs px-3 py-2 rounded-xl font-bold"

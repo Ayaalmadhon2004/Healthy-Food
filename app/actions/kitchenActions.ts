@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
 import { getCapacityLimit, validateCapacityInput } from "@/lib/capacity";
 import { getReservationTargetDate } from "@/lib/dates";
+import { asLocalizedField, type KitchenView } from "@/lib/types";
 
 const REGION_MAP: Record<string, { ar: string; en: string }> = {
   "North": { ar: "الشمال", en: "North" },
@@ -56,8 +57,15 @@ export async function getKitchensAction(page: number = 1, limit: number = 5) {
 
     return {
       success: true,
-      kitchens: kitchens.map((k) => ({
-        ...k,
+      kitchens: kitchens.map((k): KitchenView => ({
+        id: k.id,
+        name: asLocalizedField(k.name),
+        region: asLocalizedField(k.region),
+        location: asLocalizedField(k.location),
+        distributionTime: asLocalizedField(k.distributionTime),
+        todaysMeal: asLocalizedField(k.todaysMeal),
+        contact: k.contact,
+        capacity: k.capacity,
         capacityLimit: getCapacityLimit(k.capacity),
         reservedTomorrow: reservedByKitchen.get(k.id) || 0,
       })),

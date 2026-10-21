@@ -1,13 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { AlertCircle } from "lucide-react"
 import { useUserData } from "@/hooks/useUserData" // تأكد من المسار الصحيح
 import { useFavStore } from "@/store/useFavStore" // تأكد من المسار الصحيح
 
-export default function LoginClient({ t }) {
+interface AuthText {
+    login_title: string
+    login_subtitle: string
+    email_label: string
+    email_placeholder: string
+    password_label: string
+    password_placeholder: string
+    signing_in: string
+    login_button: string
+    no_account: string
+    create_account: string
+    errors: Record<string, string>
+}
+
+export default function LoginClient({ t }: { t: AuthText }) {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
@@ -18,7 +32,7 @@ export default function LoginClient({ t }) {
     const { setUser } = useUserData()
     const setFavItems = useFavStore((state) => state.setFavItems)
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setError("")
         setIsLoading(true)

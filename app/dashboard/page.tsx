@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useUserData } from "@/hooks/useUserData";
 import Link from "next/link";
@@ -12,7 +12,21 @@ import {
 import { useSearchParams } from "next/navigation";
 import { getAllReportsAction } from "@/app/actions/reportActions";
 
-const StatCard = ({ title, value, icon: Icon, color, isAr }) => (
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: ComponentType<{ size?: number; className?: string }>;
+  color: string;
+  isAr: boolean;
+}
+
+interface AreaReportRow {
+  id: number;
+  areaName: string;
+  description: string;
+}
+
+const StatCard = ({ title, value, icon: Icon, color, isAr }: StatCardProps) => (
   <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow" dir={isAr ? "rtl" : "ltr"}>
     <div className="flex items-center justify-between mb-4">
       <div className={`p-3 rounded-2xl ${color}`}>
@@ -32,19 +46,19 @@ export default function DashboardHome() {
   const searchParams = useSearchParams();
   const isReportSuccess = searchParams.get("success") === "true";
 
-  const [reports, setReports] = useState([]);
+  const [reports, setReports] = useState<AreaReportRow[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
 
   // تأمين استخراج البيانات
   const userRole = user?.role?.toUpperCase()?.trim(); 
-  const userName = user?.name || user?.full_name || (isAr ? "رحمة" : "Rahma");
+  const userName = user?.name || (isAr ? "رحمة" : "Rahma");
 
   useEffect(() => {
     if (userRole === "ORG" || userRole === "ADMIN") {
       const fetchReports = async () => {
         setReportsLoading(true);
         const result = await getAllReportsAction();
-        if (result.success) setReports(result.reports);
+        if (result.success && result.reports) setReports(result.reports);
         setReportsLoading(false);
       };
       fetchReports();
@@ -107,7 +121,7 @@ export default function DashboardHome() {
                     <thead className="bg-gray-50 border-b border-gray-100">
                       <tr>
                         <th className="p-6 text-start text-xs font-black text-gray-400 uppercase">{isAr ? "المنطقة" : "Area"}</th>
-                        <th className="p-6 text-start text-xs font-black text-gray-400 uppercase">{isAr ? "العائلات" : "Families"}</th>
+                        <th className="p-6 text-start text-xs font-black text-gray-400 uppercase">{isAr ? "الوصف" : "Description"}</th>
                         <th className="p-6 text-start text-xs font-black text-gray-400 uppercase">{isAr ? "الحالة" : "Status"}</th>
                         <th className="p-6"></th>
                       </tr>
@@ -121,7 +135,7 @@ export default function DashboardHome() {
                               <span className="font-bold text-gray-800">{report.areaName}</span>
                             </div>
                           </td>
-                          <td className="p-6 font-bold text-gray-600">{report.familyCount}</td>
+                          <td className="p-6 font-bold text-gray-600 max-w-xs truncate">{report.description}</td>
                           <td className="p-6">
                             <span className="px-4 py-1.5 rounded-full text-xs font-black bg-orange-100 text-orange-600 uppercase">Pending</span>
                           </td>

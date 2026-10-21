@@ -1,18 +1,19 @@
 import { cache } from "react";
 import Link from "next/link";
-import { Droplet, Bed, Leaf, Activity, HelpCircle } from "lucide-react";
+import { Droplet, Bed, Leaf, Activity, HelpCircle, type LucideIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { asLocalized, toLang } from "@/lib/types";
 
-const IconMap = {
-  Droplet: Droplet,
-  Bed: Bed,
-  Leaf: Leaf,
-  Activity: Activity,
+const IconMap: Record<string, LucideIcon> = {
+  Droplet,
+  Bed,
+  Leaf,
+  Activity,
 };
 
 // توليد المسارات الثابتة (Next.js Static Generation)
-const getTip = cache(async (id) => {
+const getTip = cache(async (id: string) => {
   return prisma.healthTip.findUnique({
     where: { id: parseInt(id) },
   });
@@ -25,33 +26,33 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }) {
-  const id = params?.id;
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const tip = id ? await getTip(id) : null;
-  const cookieStore = cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const cookieStore = await cookies();
+  const lang = toLang(cookieStore.get("lang")?.value);
 
   if (!tip) {
     return {
-      title: lang === "ar" ? "النصيحة غير موجودة | NutriFlow" : "Tip Not Found | NutriFlow",
+      title: lang === "ar" ? "النصيحة غير موجودة" : "Tip Not Found",
       description: lang === "ar" ? "النصيحة المطلوبة غير متوفرة." : "The requested tip is unavailable.",
     };
   }
 
   return {
-    title: `${tip.header[lang]} | NutriFlow`,
+    title: `${asLocalized(tip.header)[lang]}`,
     description: lang === "ar"
-      ? `اقرأ المزيد عن ${tip.header[lang]} والنصيحة الصحية المتكاملة.`
-      : `Read more about ${tip.header[lang]} and the complete health advice.`,
+      ? `اقرأ المزيد عن ${asLocalized(tip.header)[lang]} والنصيحة الصحية المتكاملة.`
+      : `Read more about ${asLocalized(tip.header)[lang]} and the complete health advice.`,
   };
 }
 
-export default async function TipDetails({ params }) {
-  const id = params?.id;
+export default async function TipDetails({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   // 1. جلب اللغة من الكوكيز
   const cookieStore = await cookies();
-  const lang = cookieStore.get("lang")?.value || "ar";
+  const lang = toLang(cookieStore.get("lang")?.value);
   const isRtl = lang === "ar";
 
   // 2. جلب النصيحة المحددة من قاعدة البيانات مباشرة
@@ -85,17 +86,17 @@ export default async function TipDetails({ params }) {
 
         {/* Header */}
         <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 text-center leading-tight">
-          {tip.header[lang]}
+          {asLocalized(tip.header)[lang]}
         </h1>
 
         {/* Advice */}
         <p className="text-lg sm:text-xl md:text-2xl mt-6 text-green-700 font-medium leading-relaxed text-center">
-          {tip.advice[lang]}
+          {asLocalized(tip.advice)[lang]}
         </p>
 
         {/* Details */}
         <p className="text-gray-500 mt-6 leading-relaxed text-center text-base sm:text-lg md:text-xl max-w-2xl mx-auto">
-          {tip.details[lang]}
+          {asLocalized(tip.details)[lang]}
         </p>
 
         {/* More Details Section */}
@@ -105,7 +106,7 @@ export default async function TipDetails({ params }) {
             {lang === "ar" ? "تفاصيل إضافية" : "More Details"}
           </h2>
           <p className="text-gray-700 leading-loose whitespace-pre-line text-sm sm:text-base md:text-lg">
-            {tip.moreDetails[lang]}
+            {asLocalized(tip.moreDetails)[lang]}
           </p>
         </div>
 

@@ -11,8 +11,8 @@ import { useLanguage } from "@/context/LanguageContext";
 
 export default function MonthlyAnalyticsPage() {
   const { lang } = useLanguage();
-  const [monthlyData, setMonthlyData] = useState({});
-  const [stats, setStats] = useState({ avgCalories: 0, commitmentDays: 0, totalMeals: 0 });
+  const [monthlyData, setMonthlyData] = useState<Record<string, number>>({});
+  const [stats, setStats] = useState<{ avgCalories: number; commitmentDays: number; totalMeals: number; goal?: number }>({ avgCalories: 0, commitmentDays: 0, totalMeals: 0 });
   const [loading, setLoading] = useState(true);
 
   const fetchMonthlyData = useCallback(async () => {
@@ -30,10 +30,10 @@ export default function MonthlyAnalyticsPage() {
       ]);
 
       if (gridRes.success) {
-        setMonthlyData(gridRes.dailyTotals);
+        setMonthlyData(gridRes.dailyTotals ?? {});
       }
       if (statsRes.success) {
-        setStats(statsRes.stats);
+        if (statsRes.stats) setStats(statsRes.stats);
       }
     }
     setLoading(false);

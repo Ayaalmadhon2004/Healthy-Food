@@ -4,15 +4,16 @@ import { useEffect, useState, use } from "react";
 import { getKitchensAction } from "@/app/actions/kitchenActions";
 import OrgKitchenTable from "@/components/dashboard/OrgKitchenTable";
 import AddKitchenModal from "@/components/dashboard/AddKitchenModal";
+import type { KitchenView } from "@/lib/types";
 import { useLanguage } from "@/context/LanguageContext"; 
 // استيراد أيقونات إضافية لتمييز القسم الجديد
 import { Phone, Users, Info } from "lucide-react";
 
-export default function OrganizationPage({ searchParams }) {
+export default function OrganizationPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const params = use(searchParams);
   const currentPage = Number(params?.page) || 1;
   const { lang } = useLanguage(); 
-  const [data, setData] = useState({ kitchens: [], totalPages: 1 });
+  const [data, setData] = useState<{ kitchens: KitchenView[]; totalPages: number }>({ kitchens: [], totalPages: 1 });
   const [isLoading, setIsLoading] = useState(true);
 
   const isAr = lang === "ar";
@@ -51,7 +52,7 @@ export default function OrganizationPage({ searchParams }) {
     }
   };
   
-  const currentT = t[lang] || t.ar;
+  const currentT = t[lang];
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8" dir={isAr ? "rtl" : "ltr"}>

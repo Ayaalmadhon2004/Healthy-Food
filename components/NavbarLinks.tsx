@@ -4,7 +4,14 @@ import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { LayoutDashboard, HeartPulse, Stethoscope, ClipboardList, Languages, Loader2 } from "lucide-react";
 
-export default function NavbarLinks({ className, userRole, loading, onClick }) { // أضيفي loading هنا
+interface NavbarLinksProps {
+  className?: string;
+  userRole?: string | null;
+  loading?: boolean;
+  onClick?: () => void;
+}
+
+export default function NavbarLinks({ className, userRole, loading, onClick }: NavbarLinksProps) { // أضيفي loading هنا
   const { lang, changeLanguage } = useLanguage();
 
   // 1. إذا كان النظام لا يزال يحمل، لا تعرضي الروابط المتغيرة (Dashboard)
