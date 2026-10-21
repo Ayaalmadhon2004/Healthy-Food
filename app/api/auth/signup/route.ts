@@ -1,14 +1,16 @@
 import { getSupabaseAdmin } from "@/lib/supabase/server"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { getServerMessages } from "@/lib/i18n";
 import { rateLimit, getClientIp } from "@/lib/rateLimit"
-import { signupSchema } from "@/lib/validations/auth"
+import { createSignupSchema } from "@/lib/validations/auth"
 
 export async function POST(req: Request) {
+  const m = await getServerMessages();
   const limited = rateLimit(`signup:${getClientIp(req)}`, { limit: 5, windowMs: 600000 });
   if (!limited.ok) {
     return NextResponse.json(
-      { error: "Too many attempts, please try again later" },
+      { error: m.tooManyAttempts },
       { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
     );
   }
@@ -16,7 +18,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    const validation = signupSchema.safeParse(body)
+    const validation = createSignupSchema(m).safeParse(body)
 
     if (!validation.success) {
       const errors = validation.error.flatten().fieldErrors;
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
       }
 
       return NextResponse.json(
-        { error: "Validation failed", fieldErrors },
+        { error: m.validationFailed, fieldErrors },
         { status: 400 }
       );
     }
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Email already registered" },
+        { error: m.emailRegistered },
         { status: 409 }
       );
     }
@@ -52,7 +54,7 @@ export async function POST(req: Request) {
     if (!supabaseAdmin) {
       console.error("Supabase Admin Keys are missing in .env");
       return NextResponse.json(
-        { error: "Server configuration error" },
+        { error: m.serverConfigError },
         { status: 500 }
       );
     }
@@ -66,7 +68,7 @@ export async function POST(req: Request) {
 
     if (authError || !auth.user) {
       return NextResponse.json(
-        { error: authError?.message || "Auth provider error" },
+        { error: authError?.message || m.authProviderError },
         { status: 400 }
       );
     }
@@ -94,7 +96,7 @@ export async function POST(req: Request) {
       await supabaseAdmin.auth.admin.deleteUser(auth.user.id)
       console.error("Prisma DB Error:", prismaError)
       return NextResponse.json(
-        { error: "Database error occurred" },
+        { error: m.databaseError },
         { status: 500 }
       );
     }
@@ -102,7 +104,7 @@ export async function POST(req: Request) {
   } catch (error: unknown) {
     console.error("Global Signup API Error:", error instanceof Error ? error.message : error)
     return NextResponse.json(
-      { error: "Something went wrong on our end" },
+      { error: m.signupFailed },
       { status: 500 }
     );
   }

@@ -1,14 +1,16 @@
 import { getSupabaseServer } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { getServerMessages } from "@/lib/i18n"
 
 export async function POST() {
+  const m = await getServerMessages()
   try {
     const supabaseServer = await getSupabaseServer()
 
     // Check server connection
     if (!supabaseServer) {
       return NextResponse.json(
-        { error: "Internal server configuration error" },
+        { error: m.internalConfigError },
         { status: 500 }
       )
     }
@@ -18,7 +20,7 @@ export async function POST() {
 
     if (error) {
       return NextResponse.json(
-        { error: "Logout failed" },
+        { error: m.logoutFailed },
         { status: 500 }
       )
     }
@@ -27,7 +29,7 @@ export async function POST() {
   } catch (error) {
     console.error("Logout Error:", error)
     return NextResponse.json(
-      { error: "An unexpected error occurred. Please try again." },
+      { error: m.unexpectedError },
       { status: 500 }
     )
   }

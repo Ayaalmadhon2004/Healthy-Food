@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
+import { getServerMessages } from "@/lib/i18n";
 import { getGazaDayOfMonth, getGazaMonthRange, getGazaTodayStart, getReservationTargetDate } from "@/lib/dates";
 import { getCapacityLimit } from "@/lib/capacity";
 import { readCalorieGoal, validateCalorieGoalInput, withCalorieGoal } from "@/lib/calorieGoal";
@@ -18,18 +19,18 @@ async function loadCalorieGoal(userId: string): Promise<number> {
 export async function getCalorieGoalAction() {
   try {
     const sessionUser = await getSessionUser();
-    if (!sessionUser) return { success: false, error: "Unauthorized" };
+    if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized };
     return { success: true, goal: await loadCalorieGoal(sessionUser.id) };
   } catch (error) {
     console.error("mealActions error:", error);
-    return { success: false, error: "Something went wrong" };
+    return { success: false, error: (await getServerMessages()).somethingWrong };
   }
 }
 
 export async function setCalorieGoalAction(value: unknown) {
   try {
     const sessionUser = await getSessionUser();
-    if (!sessionUser) return { success: false, error: "Unauthorized" };
+    if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized };
 
     const goal = validateCalorieGoalInput(value);
     if (goal === null) return { success: false, error: "INVALID_GOAL" };
@@ -45,7 +46,7 @@ export async function setCalorieGoalAction(value: unknown) {
     return { success: true, goal };
   } catch (error) {
     console.error("mealActions error:", error);
-    return { success: false, error: "Something went wrong" };
+    return { success: false, error: (await getServerMessages()).somethingWrong };
   }
 }
 
@@ -58,11 +59,11 @@ interface NewMeal {
 export async function addMealAction(data: NewMeal) {
   try {
     const sessionUser = await getSessionUser();
-    if (!sessionUser) return { success: false, error: "Unauthorized" };
+    if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized };
 
     const calories = Number.parseInt(String(data.calories), 10);
     if (!Number.isFinite(calories) || calories < 0 || calories > 20000) {
-      return { success: false, error: "Invalid calories" };
+      return { success: false, error: (await getServerMessages()).invalidCalories };
     }
 
     const meal = await prisma.meal.create({
@@ -80,14 +81,14 @@ export async function addMealAction(data: NewMeal) {
     return { success: true, meal };
   } catch (error) {
     console.error("mealActions error:", error);
-    return { success: false, error: "Something went wrong" };
+    return { success: false, error: (await getServerMessages()).somethingWrong };
   }
 }
 
 export async function getMealsAction() {
   try {
     const sessionUser = await getSessionUser();
-    if (!sessionUser) return { success: false, error: "Unauthorized" };
+    if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized };
     const userId = sessionUser.id;
 
     const today = getGazaTodayStart();
@@ -107,25 +108,25 @@ export async function getMealsAction() {
     return { success: true, meals };
   } catch (error) {
     console.error("mealActions error:", error);
-    return { success: false, error: "Something went wrong" };
+    return { success: false, error: (await getServerMessages()).somethingWrong };
   }
 }
 
 export async function deleteMealAction(mealId: string) {
   try {
     const sessionUser = await getSessionUser();
-    if (!sessionUser) return { success: false, error: "Unauthorized" };
+    if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized };
 
     const { count } = await prisma.meal.deleteMany({
       where: { id: mealId, userId: sessionUser.id },
     });
-    if (count === 0) return { success: false, error: "Meal not found" };
+    if (count === 0) return { success: false, error: (await getServerMessages()).mealNotFound };
     revalidatePath("/dashboard/tracker");
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
     console.error("mealActions error:", error);
-    return { success: false, error: "Something went wrong" };
+    return { success: false, error: (await getServerMessages()).somethingWrong };
   }
 }
 
@@ -142,7 +143,7 @@ function sumByDay(meals: { calories: number; createdAt: Date }[]): Record<number
 export async function getMonthlyGridDataAction(_userId: unknown, year: number, month: number) {
   try {
     const sessionUser = await getSessionUser();
-    if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
+    if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized, dailyTotals: {} };
     const userId = sessionUser.id;
 
     const { start: startDate, end: endDate } = getGazaMonthRange(year, month);
@@ -167,7 +168,7 @@ export async function getMonthlyGridDataAction(_userId: unknown, year: number, m
 export async function getMonthlyStatsAction(_userId: unknown, year: number, month: number) {
   try {
     const sessionUser = await getSessionUser();
-    if (!sessionUser) return { success: false, error: "Unauthorized", dailyTotals: {} };
+    if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized, dailyTotals: {} };
     const userId = sessionUser.id;
 
     const { start: startDate, end: endDate } = getGazaMonthRange(year, month);
@@ -198,7 +199,7 @@ export async function getMonthlyStatsAction(_userId: unknown, year: number, mont
     };
   } catch (error) {
     console.error("mealActions error:", error);
-    return { success: false, error: "Something went wrong" };
+    return { success: false, error: (await getServerMessages()).somethingWrong };
   }
 }
 
@@ -286,7 +287,7 @@ export async function checkUserReservation(_userId: unknown, kitchenId: number |
 
 export async function cancelMealAction(_userId: unknown, kitchenId: number | string) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser) return { success: false, error: "Unauthorized" };
+  if (!sessionUser) return { success: false, error: (await getServerMessages()).unauthorized };
   const userId = sessionUser.id;
   const kId = Number(kitchenId);
   const tomorrow = getReservationTargetDate();

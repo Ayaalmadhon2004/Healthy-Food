@@ -1,32 +1,34 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server"
+import { getServerMessages } from "@/lib/i18n";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
-import { loginSchema } from "@/lib/validations/auth";
+import { createLoginSchema } from "@/lib/validations/auth";
 import { User as UserData } from "@/hooks/useUserData";
 
 export async function POST(request: Request) {
+  const m = await getServerMessages();
   const limited = rateLimit(`login:${getClientIp(request)}`, { limit: 10, windowMs: 60000 });
   if (!limited.ok) {
     return NextResponse.json(
-      { error: "Too many attempts, please try again later" },
+      { error: m.tooManyAttempts },
       { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
     );
   }
 
   try {
     const body = await request.json();
-    const validation = loginSchema.safeParse(body);
+    const validation = createLoginSchema(m).safeParse(body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json({ error: m.invalidData }, { status: 400 });
     }
 
     const { email, password } = validation.data;
     const supabase = await createSupabaseServerClient();
 
     if (!supabase) {
-      return NextResponse.json({ error: "Authentication service unavailable" }, { status: 500 });
+      return NextResponse.json({ error: m.authUnavailable }, { status: 500 });
     }
 
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
     });
 
     if (authError || !authData.user) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json({ error: m.invalidCredentials }, { status: 401 });
     }
 
     let userData: UserData | null = null;
@@ -72,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     if (!userData) {
-      return NextResponse.json({ error: "User profile not found" }, { status: 404 });
+      return NextResponse.json({ error: m.profileNotFound }, { status: 404 });
     }
 
     return NextResponse.json({ 
@@ -83,6 +85,6 @@ export async function POST(request: Request) {
 
   } catch (error: unknown) {
     console.error("Login Error:", error);
-    return NextResponse.json({ error: "Server Error" }, { status: 500 });
+    return NextResponse.json({ error: m.serverError }, { status: 500 });
   }
 }
