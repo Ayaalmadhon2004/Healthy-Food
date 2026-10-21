@@ -175,7 +175,7 @@ export default function DashboardHome() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-start">
-          <Link href="/dashboard/tracker" className="group">
+          <Link href="/tracker" className="group">
             <div className="bg-emerald-500 p-8 rounded-[2.5rem] text-white shadow-xl hover:scale-[1.02] transition-all relative overflow-hidden h-full min-h-[280px] flex flex-col justify-between">
               <PlusCircle className={`absolute ${isAr ? "-left-4" : "-right-4"} -top-4 w-40 h-40 text-emerald-400/30 rotate-12`} />
               <div>
