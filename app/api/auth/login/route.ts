@@ -6,7 +6,7 @@ import { loginSchema } from "@/lib/validations/auth";
 import { User as UserData } from "@/hooks/useUserData";
 
 export async function POST(request: Request) {
-  const limited = rateLimit(`login:${getClientIp(request)}`, { limit: 10, windowMs: 60000 });
+  const limited = await rateLimit(`login:${getClientIp(request)}`, { limit: 10, windowMs: 60000 });
   if (!limited.ok) {
     return NextResponse.json(
       { error: "Too many attempts, please try again later" },
