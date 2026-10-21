@@ -34,8 +34,9 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      # Action tests run against the real database, so the schema must exist first.
+      - run: npx prisma db push
       - run: npm test
       # The build reads recipes/tips from the database while generating pages.
-      - run: npx prisma db push
       - run: npx prisma db seed
       - run: npm run build
