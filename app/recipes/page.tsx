@@ -15,23 +15,21 @@ export default async function RecipesPage() {
 
   const recipes = await prisma.foodRecipe.findMany();
 
-  const translations = {
-    title: { en: "Browse Recipes", ar: "تصفح الوصفات" },
-  };
-
   return (
-    <div 
-      className="min-h-screen p-4 md:p-10 bg-[var(--color-primary-light)]"
-      dir={isRtl ? "rtl" : "ltr"}
-    >
-      <div className="container mx-auto">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center sm:text-start">
-          {translations.title[lang]}
+    <div className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20" dir={isRtl ? "rtl" : "ltr"}>
+      <header className="mb-10 md:mb-12 max-w-2xl">
+        <h1 className="text-3xl md:text-5xl font-medium text-ink">
+          {isRtl ? "وصفات من مكونات متوفرة" : "Recipes for what's in the kitchen"}
         </h1>
-        
-        {/* نمرر اللغة للـ FilterButtons لضمان توافق الفلترة مع النصوص */}
-        <FilterButtons initialRecipes={recipes.map(toRecipe)} />
-      </div>
+        <p className="mt-4 text-lg text-ink-soft leading-relaxed">
+          {isRtl
+            ? "أطباق بسيطة، لكل منها وقت التحضير والسعرات والقيمة الغذائية."
+            : "Simple dishes, each with its cooking time, calories and a nutrition breakdown."}
+        </p>
+      </header>
+
+      {/* نمرر اللغة للـ FilterButtons لضمان توافق الفلترة مع النصوص */}
+      <FilterButtons initialRecipes={recipes.map(toRecipe)} />
     </div>
   );
 }

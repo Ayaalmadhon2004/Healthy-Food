@@ -1,16 +1,9 @@
 import Link from "next/link";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
-import { Droplet, Bed, Leaf, Activity, HelpCircle, type LucideIcon } from "lucide-react";
+import SafeImage from "@/components/SafeImage";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { asLocalized, toLang } from "@/lib/types";
-
-const IconMap: Record<string, LucideIcon> = {
-  Droplet,
-  Bed,
-  Leaf,
-  Activity,
-};
 
 // تفعيل الكاش لمدة ساعة لتحسين السرعة
 export const revalidate = 3600;
@@ -29,62 +22,70 @@ export default async function TipsPage() {
   const tips = await prisma.healthTip.findMany();
 
   return (
-    <div 
-      className="bg-[#fdfcf9] min-h-screen p-4 md:p-10" 
+    <div
+      className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20"
       dir={isRtl ? "rtl" : "ltr"}
     >
-      <main className="container mx-auto">
+      <main>
         {/* العناوين الرئيسية */}
-        <header className="mb-12">
-          <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
-            {lang === "ar" ? "نصائح الصحة والتغذية" : "Health & Nutrition Tips"}
+        <header className="mb-12 md:mb-14 max-w-2xl">
+          <h1 className="text-3xl md:text-5xl font-medium text-ink">
+            {lang === "ar" ? "نصائح صحية" : "Health tips"}
           </h1>
-          <p className="text-gray-700 text-lg md:text-xl max-w-2xl leading-relaxed">
-            {lang === "ar" ? "خطوات بسيطة لحياة أفضل وأكثر صحة." : "Simple steps for a better, healthier lifestyle."}
+          <p className="mt-4 text-lg text-ink-soft leading-relaxed">
+            {lang === "ar"
+              ? "نصائح قصيرة وعملية من أطباء وأخصائيي تغذية، عن الماء والغذاء والنوم."
+              : "Short, practical advice from doctors and dietitians on water, food, sleep and staying well."}
           </p>
         </header>
 
-        {/* شبكة النصائح */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {tips.map((item) => {
-            const IconComponent = IconMap[item.iconName] || HelpCircle;
+        {/* شبكة النصائح: الأولى أوسع، والباقي بحجم واحد */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+          {tips.map((item, index) => {
+            const title = asLocalized(item.header)[lang];
+            const featured = index === 0;
 
             return (
-              <article key={item.id} className="group flex flex-col h-full">
-                {/* العنوان الفرعي - تم تغييره لـ h2 من أجل الـ SEO */}
-                <h2 className="mb-4 font-black text-gray-800 text-xl group-hover:text-green-700 transition-colors">
-                  {asLocalized(item.header)[lang]}
-                </h2>
+              <article
+                key={item.id}
+                className={`surface overflow-hidden flex flex-col ${featured ? "lg:col-span-3 lg:flex-row" : ""}`}
+              >
+                <div
+                  className={`relative bg-paper-deep border-b border-line ${
+                    featured ? "aspect-[5/3] lg:aspect-auto lg:w-[42%] lg:border-b-0 lg:border-e" : "aspect-[5/3]"
+                  }`}
+                >
+                  <SafeImage
+                    kind="tip"
+                    seed={item.id}
+                    hint={item.iconName}
+                    alt={title}
+                    fill
+                    sizes={featured ? "(min-width: 1024px) 40vw, 100vw" : "(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 100vw"}
+                    priority={featured}
+                    className="object-cover"
+                  />
+                </div>
 
-                <div className="bg-white shadow-sm hover:shadow-2xl transition-all duration-500 rounded-3xl p-7 border border-gray-100 flex flex-col flex-grow relative overflow-hidden">
-                  
-                  {/* الديكور العلوي داخل الكارت */}
-                  <div className="flex items-center justify-between bg-orange-50/80 p-4 rounded-2xl mb-6">
-                    <div className="p-3 bg-white rounded-xl shadow-sm">
-                      <IconComponent className="w-7 h-7 text-green-600" aria-hidden="true" />
-                    </div>
-                    <span className="font-bold text-gray-900 text-sm">
-                      {lang === "ar" ? "نصيحة اليوم" : "Daily Tip"}
-                    </span>
-                  </div>
+                <div className={`p-5 flex flex-col flex-1 ${featured ? "lg:p-10 lg:justify-center" : ""}`}>
+                  <h2 className={`font-semibold text-ink leading-snug ${featured ? "text-2xl md:text-3xl" : "text-xl"}`}>
+                    {title}
+                  </h2>
 
-                  {/* المحتوى النصي */}
-                  <div className="flex-grow space-y-3">
-                    <p className="font-extrabold text-gray-900 text-lg leading-snug">
-                      {asLocalized(item.advice)[lang]}
-                    </p>
-                    <p className="text-gray-600 text-sm leading-relaxed pb-6">
-                      {asLocalized(item.details)[lang]}
-                    </p>
-                  </div>
+                  <p className="mt-3 font-medium text-olive-900 leading-snug">
+                    {asLocalized(item.advice)[lang]}
+                  </p>
+                  <p className={`mt-2 text-ink-soft text-[0.9375rem] leading-relaxed ${featured ? "" : "line-clamp-3"}`}>
+                    {asLocalized(item.details)[lang]}
+                  </p>
 
-                  {/* رابط الإجراء - تم تحسين التباين */}
                   <ErrorBoundaryWrapper message="Link error">
                     <Link
-                      className="block w-full text-center px-6 py-4 bg-green-600 text-white text-sm font-black rounded-2xl hover:bg-green-700 transition-all shadow-lg hover:shadow-green-200 active:scale-95"
+                      className="text-link mt-auto pt-5 self-start"
                       href={`/tips/${item.id}`}
                     >
-                      {lang === "ar" ? "اقرأ المزيد" : "Read more!"}
+                      {lang === "ar" ? "اقرأ النصيحة كاملة" : "Read the full tip"}
+                      <span className="sr-only"> — {title}</span>
                     </Link>
                   </ErrorBoundaryWrapper>
                 </div>

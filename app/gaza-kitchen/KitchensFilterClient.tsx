@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { MapPin, Clock, PhoneCall, CheckCircle2 } from "lucide-react";
-import MealRegistration from "@/components/kitchen/MealRegistration"; 
+import { MapPin, Clock, Phone } from "lucide-react";
+import MealRegistration from "@/components/kitchen/MealRegistration";
+import SafeImage from "@/components/SafeImage";
 import { pickText, type KitchenView, type Lang } from "@/lib/types";
 
 const REGIONS = [
-  { id: "ALL", en: "ALL", ar: "الكل" },
+  { id: "ALL", en: "All", ar: "الكل" },
   { id: "North", en: "North", ar: "الشمال" },
   { id: "Gaza", en: "Gaza", ar: "غزة" },
   { id: "Middle", en: "Middle", ar: "الوسطى" },
@@ -18,9 +19,23 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
   const [selectedRegion, setSelectedRegion] = useState("ALL");
   const isAr = lang === "ar";
 
+  // Regions that appear in the data but not in the fixed list still get a chip.
+  const regions = useMemo(() => {
+    const known = new Set(REGIONS.map((r) => r.id.toLowerCase()));
+    const extra: typeof REGIONS = [];
+    for (const k of kitchens) {
+      const en = pickText(k.region, "en");
+      if (en && !known.has(en.toLowerCase())) {
+        known.add(en.toLowerCase());
+        extra.push({ id: en, en, ar: pickText(k.region, "ar") || en });
+      }
+    }
+    return [...REGIONS, ...extra];
+  }, [kitchens]);
+
   const filteredKitchens = useMemo(() => {
     if (selectedRegion === "ALL") return kitchens;
-    
+
     return kitchens.filter((k) => {
       const kitchenRegion = pickText(k.region, "en").toLowerCase();
       const targetRegion = selectedRegion.toLowerCase();
@@ -28,92 +43,103 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
     });
   }, [selectedRegion, kitchens]);
 
+  const countLabel = isAr
+    ? `${filteredKitchens.length} ${filteredKitchens.length === 1 ? "مطبخ" : "مطبخاً"}`
+    : `${filteredKitchens.length} ${filteredKitchens.length === 1 ? "kitchen" : "kitchens"}`;
+
   return (
-    <div className="w-full max-w-6xl mx-auto" dir={isAr ? "rtl" : "ltr"}>
-      
-      <nav className="flex flex-wrap gap-2 mb-12 justify-center" aria-label="Region filter">
-        {REGIONS.map((region) => (
-          <button
-            key={region.id}
-            onClick={() => setSelectedRegion(region.id)}
-            className={`px-5 py-2 rounded-2xl font-bold transition-all border-2 ${
-              selectedRegion === region.id
-                ? "bg-emerald-600 text-white border-emerald-600 shadow-md scale-105"
-                : "bg-white text-gray-500 border-gray-100 hover:border-emerald-200"
-            }`}
-          >
-            {isAr ? region.ar : region.en}
-          </button>
-        ))}
-      </nav>
+    <div className="w-full" dir={isAr ? "rtl" : "ltr"}>
+
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 mb-8">
+        <nav className="flex flex-wrap gap-2" aria-label={isAr ? "تصفية حسب المنطقة" : "Filter by region"}>
+          {regions.map((region) => (
+            <button
+              key={region.id}
+              type="button"
+              onClick={() => setSelectedRegion(region.id)}
+              aria-pressed={selectedRegion === region.id}
+              className="chip"
+            >
+              {isAr ? region.ar : region.en}
+            </button>
+          ))}
+        </nav>
+        <p className="text-sm text-ink-mute" aria-live="polite">{countLabel}</p>
+      </div>
 
       {filteredKitchens.length === 0 ? (
-        <div className="text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-          <p className="text-gray-400 text-lg">
-            {isAr ? "لا توجد مطابخ في هذه المنطقة حالياً." : "No kitchens found in this region."}
+        <div className="text-center py-16 border border-dashed border-line-strong rounded-lg">
+          <p className="text-ink-soft text-lg">
+            {isAr ? "لا توجد مطابخ في هذه المنطقة حالياً." : "No kitchens listed in this region yet."}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredKitchens.map((kitchen) => (
-            <article
-              key={kitchen.id}
-              className="bg-white p-7 rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col group"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="font-black text-2xl text-gray-900 group-hover:text-emerald-600 transition-colors leading-tight">
-                  {pickText(kitchen.name, lang)} 
-                </h2>
-                <CheckCircle2 className="text-emerald-500 shrink-0" size={22} />
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredKitchens.map((kitchen) => {
+            const name = pickText(kitchen.name, lang);
+            return (
+              <article
+                key={kitchen.id}
+                className="surface flex flex-col overflow-hidden"
+              >
+                <div className="relative aspect-[16/9] bg-paper-deep border-b border-line">
+                  <SafeImage
+                    kind="kitchen"
+                    seed={kitchen.id}
+                    alt={isAr ? `مطبخ ${name}` : `${name} kitchen`}
+                    fill
+                    sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
 
-              <div className="flex items-center text-gray-500 text-sm mb-6 bg-gray-50 w-fit px-3 py-1 rounded-full">
-                <MapPin size={14} className={`${isAr ? 'ml-1' : 'mr-1'} text-emerald-500`} />
-                <span className="font-bold">
-                  {pickText(kitchen.region, lang)}
-                </span>
-              </div>
+                <div className="p-5 flex flex-col flex-1">
+                  <h2 className="font-semibold text-xl text-ink leading-snug">{name}</h2>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex items-start gap-3 text-sm">
-                  <Clock size={18} className="text-gray-400 mt-1" />
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
-                      {isAr ? "وقت التوزيع" : "Distribution Time"}
-                    </p>
-                    <p className="text-gray-800 font-bold">{pickText(kitchen.distributionTime, lang)}</p>
+                  <p className="mt-1 flex items-center gap-1.5 text-sm text-ink-soft">
+                    <MapPin size={15} strokeWidth={1.75} className="text-clay-600 shrink-0" aria-hidden="true" />
+                    {pickText(kitchen.region, lang)}
+                  </p>
+
+                  <dl className="mt-5 space-y-3 text-[0.9375rem]">
+                    <div className="flex items-start gap-3">
+                      <Clock size={17} strokeWidth={1.75} className="text-ink-mute mt-1 shrink-0" aria-hidden="true" />
+                      <div>
+                        <dt className="text-xs text-ink-mute">{isAr ? "وقت التوزيع" : "Served at"}</dt>
+                        <dd className="text-ink font-medium">{pickText(kitchen.distributionTime, lang)}</dd>
+                      </div>
+                    </div>
+
+                    <div className="border-s-2 border-ochre-400 ps-3">
+                      <dt className="text-xs text-ink-mute">{isAr ? "وجبة اليوم" : "On the menu today"}</dt>
+                      <dd className="text-ink font-semibold text-lg leading-snug">{pickText(kitchen.todaysMeal, lang)}</dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-auto pt-6">
+                    <div className="pt-5 border-t border-line">
+                      <MealRegistration
+                        kitchenId={kitchen.id}
+                        capacity={kitchen.capacityLimit}
+                        initialCount={kitchen.reservedTomorrow || 0}
+                        lang={lang}
+                      />
+                    </div>
+
+                    {kitchen.contact && (
+                      <a
+                        href={`tel:${kitchen.contact}`}
+                        className="mt-4 flex items-center gap-2 text-sm text-ink-soft hover:text-olive-800"
+                      >
+                        <Phone size={15} strokeWidth={1.75} aria-hidden="true" />
+                        <span dir="ltr">{kitchen.contact}</span>
+                      </a>
+                    )}
                   </div>
                 </div>
-
-                <div className="bg-amber-50/50 p-5 rounded-3xl border border-amber-100/50">
-                  <span className="text-amber-700 text-[10px] font-black uppercase block mb-1">
-                    {isAr ? "وجبة اليوم" : "Today's Menu"}
-                  </span>
-                  <p className="text-amber-900 font-black text-lg">{pickText(kitchen.todaysMeal, lang)}</p>
-                </div>
-              </div>
-
-              
-              <div className="mt-auto pt-6 border-t border-gray-50">
-                <MealRegistration 
-                  kitchenId={kitchen.id} 
-                  capacity={kitchen.capacityLimit} 
-                  initialCount={kitchen.reservedTomorrow || 0} 
-                  lang={lang} 
-                />
-              </div>
-
-              {kitchen.contact && (
-                <a 
-                  href={`tel:${kitchen.contact}`}
-                  className="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition-all active:scale-95 text-sm"
-                >
-                  <PhoneCall size={16} />
-                  <span dir="ltr">{kitchen.contact}</span>
-                </a>
-              )}
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
     </div>

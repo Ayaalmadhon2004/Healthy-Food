@@ -23,33 +23,39 @@ export default function FilterButtons({ initialRecipes, loading = false }: { ini
 
   const skeletonCount = 8;
 
+  const count = filtered.length;
+  const countLabel = lang === "ar"
+    ? `${count} ${count === 1 ? "وصفة" : "وصفات"}`
+    : `${count} ${count === 1 ? "recipe" : "recipes"}`;
+
   return (
     <>
-      <div 
-        className="flex flex-wrap gap-2 mb-6 justify-center sm:justify-start"
+      <div
+        className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 mb-8"
         dir={lang === "ar" ? "rtl" : "ltr"}
       >
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setFilter(cat.id)}
-            className={`px-4 py-2 rounded-xl border text-sm font-bold transition-all duration-300 ${
-              filter === cat.id
-                ? "bg-green-600 text-white border-green-600 shadow-md scale-105"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            {cat[lang]}
-          </button>
-        ))}
+        <div className="flex flex-wrap gap-2" role="group" aria-label={lang === "ar" ? "تصفية حسب الوجبة" : "Filter by meal"}>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setFilter(cat.id)}
+              aria-pressed={filter === cat.id}
+              className="chip"
+            >
+              {cat[lang]}
+            </button>
+          ))}
+        </div>
+        {!loading && <p className="text-sm text-ink-mute" aria-live="polite">{countLabel}</p>}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
         {loading
           ? Array.from({ length: skeletonCount }).map((_, i) => (
               <div
                 key={i}
-                className="h-64 bg-gray-200 rounded-2xl animate-pulse"
+                className="h-72 bg-paper-deep rounded-lg"
               ></div>
             ))
           : filtered.map((meal, index) => (
@@ -58,8 +64,8 @@ export default function FilterButtons({ initialRecipes, loading = false }: { ini
       </div>
 
       {!loading && filtered.length === 0 && (
-        <div className="text-center py-20 text-gray-500">
-          {lang === "ar" ? "لا توجد وصفات في هذا القسم حالياً." : "No recipes found in this category."}
+        <div className="text-center py-16 text-ink-soft">
+          {lang === "ar" ? "لا توجد وصفات في هذا القسم حالياً." : "No recipes in this category yet."}
         </div>
       )}
     </>

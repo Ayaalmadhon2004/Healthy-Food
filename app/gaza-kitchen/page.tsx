@@ -3,14 +3,15 @@ import KitchensFilterClient from "./KitchensFilterClient";
 import NutritionSectionClient from "@/components/NutritionSection";
 import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import { getKitchensAction } from "@/app/actions/kitchenActions";
-import { MessageCircle, AlertTriangle, Heart} from "lucide-react";
-import Link from "next/link"; 
+import { MessageCircle } from "lucide-react";
+import Link from "next/link";
+import SafeImage from "@/components/SafeImage";
 import { toLang, type KitchenView } from "@/lib/types";
 
 export default async function Page() {
   const cookieStore = await cookies();
   const allHeaders = await headers();
-  
+
   const lang = toLang(cookieStore.get("lang")?.value || allHeaders.get("x-custom-lang"));
   const isAr = lang === "ar";
 
@@ -18,88 +19,79 @@ export default async function Page() {
   const kitchens = (result.success ? result.kitchens : []) as unknown as KitchenView[];
 
   return (
-    <div 
-      className="bg-gradient-to-b from-emerald-50 from-0% to-white to-25% flex flex-col items-center min-h-screen p-6 pb-20"
-      dir={isAr ? "rtl" : "ltr"} 
-    >
-      <header className="text-center mt-20 mb-16 max-w-4xl">
-        <span className="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full text-sm font-bold inline-block mb-6 animate-bounce">
-          {isAr ? "📍 اعثر على وجبات مجانية بالقرب منك" : "📍 Find Free Meals Near You"}
-        </span>
-        <h1 className="font-black text-4xl md:text-7xl text-gray-900 leading-tight tracking-tight">
-          {isAr ? "مطابخ غزة المجتمعية" : "Gaza Community Kitchens"}
-        </h1>
-        <p className="text-gray-600 text-lg md:text-xl mt-6 mx-auto leading-relaxed max-w-2xl">
-          {isAr
-            ? "دليل تفاعلي للمطابخ المجتمعية النشطة التي تقدم وجبات مجانية لدعم صمود أهالينا في قطاع غزة."
-            : "Locate active community kitchens providing free meals across Gaza to support our community."}
-        </p>
+    <div className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20" dir={isAr ? "rtl" : "ltr"}>
+      <header className="grid md:grid-cols-[1.4fr_0.6fr] gap-8 items-end mb-12 md:mb-16">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-medium text-ink leading-tight max-w-[20ch]">
+            {isAr ? "المطابخ المجتمعية في غزة" : "Community kitchens in Gaza"}
+          </h1>
+          <p className="text-ink-soft text-lg md:text-xl mt-5 leading-relaxed max-w-2xl">
+            {isAr
+              ? "وجبات مجانية تُقدَّم كل يوم. اطّلع على موعد التوزيع وقائمة اليوم، واحجز وجبة الغد ليعرف المطبخ كم يطبخ."
+              : "Free meals, served every day. Check the time and today's menu, then reserve tomorrow's meal so the kitchen knows how much to cook."}
+          </p>
+        </div>
+        <div className="hidden md:block relative aspect-[4/3] overflow-hidden rounded-lg border border-line">
+          <SafeImage
+            src="/assets/placeholders/kitchen-pot.svg"
+            kind="kitchen"
+            alt={isAr ? "قدر كبير يغلي على النار" : "A large pot simmering over a fire"}
+            fill
+            sizes="25vw"
+            className="object-cover"
+          />
+        </div>
       </header>
 
-      <div className="w-full max-w-7xl">
-        <ErrorBoundaryWrapper message={isAr ? "فشل تحميل قائمة المطابخ" : "Failed to load Kitchens list"}>
-          <KitchensFilterClient lang={lang} kitchens={kitchens} />
-        </ErrorBoundaryWrapper>
-      </div>
+      <ErrorBoundaryWrapper message={isAr ? "فشل تحميل قائمة المطابخ" : "Failed to load Kitchens list"}>
+        <KitchensFilterClient lang={lang} kitchens={kitchens} />
+      </ErrorBoundaryWrapper>
 
-      <section className="w-full max-w-6xl mt-24 grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-        
-        <div className="bg-emerald-600 p-10 rounded-[3rem] text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group">
-          <div className="relative z-10">
-            <Heart className="mb-4 opacity-80 group-hover:scale-110 transition-transform" size={40} />
-            <h2 className="text-3xl font-black mb-4">
-              {isAr ? "دعم استمرار المطبخ" : "Support the Kitchen"}
+      <section className="mt-20 md:mt-28 grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        <div className="bg-olive-800 text-white p-8 md:p-10 rounded-xl flex flex-col justify-between gap-8">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-medium text-white">
+              {isAr ? "ساعد في إبقاء القدور عامرة" : "Help keep the pots full"}
             </h2>
-            <p className="mb-8 text-emerald-50 text-lg leading-relaxed">
-              {isAr 
-                ? "ساهم معنا في توفير المواد الغذائية الأساسية لضمان استمرار تقديم الوجبات اليومية للعائلات النازحة." 
-                : "Help us provide essential food supplies to ensure daily meals continue for displaced families."}
+            <p className="mt-3 text-olive-100 text-lg leading-relaxed">
+              {isAr
+                ? "الدقيق والزيت والعدس هي ما يُبقي الوجبات اليومية للعائلات النازحة. راسلنا على واتساب لننسّق التبرع."
+                : "Flour, oil and lentils are what keep daily meals going for displaced families. Message us on WhatsApp and we will arrange the donation."}
             </p>
           </div>
-          <a 
-            href="https://wa.me/970598509088" 
+          <a
+            href="https://wa.me/970598509088"
             target="_blank"
-            className="bg-white text-emerald-700 px-8 py-5 rounded-2xl font-black hover:bg-emerald-50 transition-all flex items-center justify-center gap-3 shadow-lg active:scale-95 text-lg"
+            rel="noopener noreferrer"
+            className="btn bg-white text-olive-900 hover:bg-olive-100 self-start !px-5 !py-3"
           >
-            <MessageCircle size={24} />
-            <span>{isAr ? "تنسيق تبرع عبر واتساب" : "Coordinate via WhatsApp"}</span>
+            <MessageCircle size={20} strokeWidth={1.75} aria-hidden="true" />
+            <span>{isAr ? "راسلنا على واتساب" : "Message us on WhatsApp"}</span>
           </a>
-          <div className="absolute -right-10 -bottom-10 bg-emerald-500 w-40 h-40 rounded-full opacity-20 group-hover:scale-150 transition-all duration-700" />
         </div>
 
-        {/* بطاقة بلاغات المناطق المحرومة */}
-        <div className="bg-white p-10 rounded-[3rem] border-2 border-dashed border-emerald-200 flex flex-col justify-between shadow-sm hover:border-emerald-400 transition-colors">
+        <div className="surface p-8 md:p-10 flex flex-col justify-between gap-8">
           <div>
-            <AlertTriangle className="mb-4 text-orange-500" size={40} />
-            <h2 className="text-3xl font-black text-gray-800 mb-4">
-              {isAr ? "بلاغ عن منطقة محرومة" : "Report Underserved Area"}
+            <h2 className="text-2xl md:text-3xl font-medium text-ink">
+              {isAr ? "هل تعرف حياً لا يصله شيء؟" : "Know a street that gets nothing?"}
             </h2>
-            <p className="text-gray-500 text-lg leading-relaxed mb-8">
-              {isAr 
-                ? "هل تعرف منطقة تعاني من نقص حاد ولا يصلها التوزيع؟ أخبرنا لنقوم بتوجيه الفرق الميدانية إليها." 
-                : "Know an area with severe shortages and no distribution? Let us know so we can direct our field teams."}
+            <p className="mt-3 text-ink-soft text-lg leading-relaxed">
+              {isAr
+                ? "أخبرنا أين هو. تعتمد فرقنا الميدانية على هذه البلاغات لتقرر وجهتها التالية."
+                : "Tell us where it is. Our field teams use these reports to decide where to go next."}
             </p>
           </div>
-            <Link 
-              href="/report-area" 
-              className="w-full bg-gray-900 text-white px-8 py-5 rounded-2xl font-black hover:bg-black transition-all shadow-lg active:scale-95 text-lg block text-center"
-            >
-              {isAr ? "تقديم طلب وصول" : "Request Access Support"}
-            </Link>
+          <Link href="/report-area" className="btn btn-clay self-start !px-5 !py-3">
+            {isAr ? "بلّغ عن منطقة" : "Report an area"}
+          </Link>
         </div>
       </section>
 
-      {/* قسم التغذية الإرشادي */}
-      <div className="w-full mt-24 max-w-7xl">
+      <div className="mt-20 md:mt-28">
         <ErrorBoundaryWrapper message={isAr ? "فشل تحميل قسم التغذية" : "Failed to load Nutrition Section"}>
           <NutritionSectionClient />
         </ErrorBoundaryWrapper>
       </div>
-
-      {/* Footer بسيط */}
-      <footer className="mt-20 text-gray-400 text-sm font-medium">
-        {isAr ? "© 2024 تكية غزة المجتمعية - يد واحدة تدعم الجميع" : "© 2024 Gaza Community Kitchen - One hand supports all"}
-      </footer>
     </div>
   );
 }

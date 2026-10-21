@@ -1,7 +1,8 @@
 "use client";
 
 import { MapPin, Calendar, Award, Star } from "lucide-react";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
+import { doctorPhoto } from "@/lib/placeholders";
 import { toLang, type Lang, type Localized } from "@/lib/types";
 
 export interface DoctorView {
@@ -21,98 +22,95 @@ export default function DoctorsListClient({ initialDoctors, lang: langProp }: { 
   const isAr = lang === "ar";
 
   return (
-    <main 
-      className="max-w-7xl mx-auto p-4 md:p-8" 
+    <main
+      className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-20"
       dir={isAr ? "rtl" : "ltr"}
     >
-      {/* Header Section */}
-      <div className="mb-12 text-center md:text-start border-b pb-8 border-gray-100">
-        <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
-          {isAr ? "أطباؤنا المتخصصون" : "Our Specialized Doctors"}
+      {/* Header */}
+      <div className="mb-10 md:mb-14 max-w-2xl">
+        <h1 className="text-3xl md:text-5xl font-medium text-ink">
+          {isAr ? "الأطباء" : "Our doctors"}
         </h1>
-        <p className="mt-3 text-gray-600 text-lg">
-          {isAr 
-            ? "نخبة من خبراء التغذية والصحة لخدمتكم بأعلى المعايير" 
-            : "Top nutrition and health experts dedicated to your well-being"}
+        <p className="mt-4 text-lg text-ink-soft leading-relaxed">
+          {isAr
+            ? "أطباء وأخصائيو تغذية يجيبون عن أسئلتك الصحية. تجد هنا تخصص كل منهم ومكانه ومواعيده."
+            : "Physicians and dietitians who can answer your health questions. Each one lists their field, where they work and when they are available."}
         </p>
       </div>
 
-      {/* Grid Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {initialDoctors.map((doctor) => (
-          <article 
-            key={doctor.id} 
-            className="group border p-6 rounded-3xl shadow-sm bg-white hover:shadow-2xl transition-all duration-500 border-gray-100 flex flex-col justify-between"
+      {/* List */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {initialDoctors.map((doctor) => {
+          const name = doctor.name[lang];
+          return (
+          <article
+            key={doctor.id}
+            className="surface p-5 md:p-6 flex flex-col"
           >
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Doctor Image with fixed dimensions for CLS fix */}
-              <div className="relative w-28 h-28 md:w-32 md:h-32 flex-shrink-0 mx-auto md:mx-0">
-                <Image 
-                  src={doctor.image} 
-                  alt={doctor.name[lang]} 
+            <div className="flex gap-5">
+              <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0 overflow-hidden rounded-lg border border-line bg-paper-deep">
+                <SafeImage
+                  src={doctorPhoto(doctor.image)}
+                  kind="doctor"
+                  seed={doctor.id}
+                  alt={name}
                   fill
-                  className="rounded-2xl object-cover ring-4 ring-emerald-50 shadow-inner"
-                  sizes="128px"
+                  className="object-cover"
+                  sizes="112px"
                 />
-                <div className="absolute -bottom-2 -right-2 bg-emerald-600 text-white p-1.5 rounded-xl shadow-lg border-2 border-white">
-                    <Award size={18} />
-                </div>
               </div>
 
-              <div className="flex-1 text-center md:text-start">
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-2">
-                  <div>
-                    <h2 className="text-2xl font-black text-gray-900 group-hover:text-emerald-700 transition-colors">
-                      {doctor.name[lang]}
-                    </h2>
-                    <p className="text-emerald-700 font-bold text-sm mt-1 bg-emerald-50 inline-block px-3 py-1 rounded-lg">
-                      {doctor.specialty[lang]}
-                    </p>
-                  </div>
-                  <div className="flex items-center bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl text-sm font-black shadow-sm">
-                    <Star size={16} className="fill-current mr-1 ml-1" />
-                    {doctor.rating}
-                  </div>
-                </div>
-                
-                {/* Details Section */}
-                <div className="mt-5 space-y-3 text-sm text-gray-600">
-                    <div className="flex items-center justify-center md:justify-start gap-2">
-                      <MapPin size={18} className="text-emerald-500" /> 
-                      <span className="font-medium">{doctor.location[lang]}</span>
-                    </div>
-                    <div className="flex items-center justify-center md:justify-start gap-2">
-                      <Calendar size={18} className="text-emerald-500" /> 
-                      <span className="font-medium">{doctor.availability[lang]}</span>
-                    </div>
-                </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl font-semibold text-ink leading-snug">
+                  {name}
+                </h2>
+                <p className="text-clay-700 font-medium text-[0.9375rem] mt-0.5">
+                  {doctor.specialty[lang]}
+                </p>
+
+                <ul className="mt-3 space-y-1.5 text-sm text-ink-soft">
+                  <li className="flex items-center gap-2">
+                    <MapPin size={15} strokeWidth={1.75} className="text-ink-mute shrink-0" aria-hidden="true" />
+                    <span>{doctor.location[lang]}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Calendar size={15} strokeWidth={1.75} className="text-ink-mute shrink-0" aria-hidden="true" />
+                    <span>{doctor.availability[lang]}</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Star size={15} strokeWidth={1.75} className="text-ochre-600 shrink-0" aria-hidden="true" />
+                    <span>
+                      <span className="sr-only">{isAr ? "التقييم: " : "Rating: "}</span>
+                      {doctor.rating}
+                    </span>
+                  </li>
+                </ul>
               </div>
             </div>
 
-            {/* About Section */}
-            <div className="mt-6 p-5 bg-gray-50/80 rounded-2xl border border-gray-50 flex-grow">
-              <p className="text-gray-700 text-sm leading-relaxed line-clamp-3 italic">
-                &ldquo;{doctor.about[lang]}&rdquo;
-              </p>
-            </div>
+            {/* About */}
+            <p className="mt-5 text-ink leading-relaxed line-clamp-3">
+              {doctor.about[lang]}
+            </p>
 
             {/* Qualifications */}
-            <div className="mt-6 flex flex-wrap gap-2 justify-center md:justify-start">
-              {doctor.qualifications[lang].map((q, i) => (
-                <span 
-                  key={i} 
-                  className="bg-white border border-emerald-100 text-emerald-800 text-xs px-3 py-2 rounded-xl font-bold"
-                >
-                  {q}
-                </span>
-              ))}
-            </div>
+            {doctor.qualifications[lang].length > 0 && (
+              <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-soft">
+                {doctor.qualifications[lang].map((q, i) => (
+                  <li key={i} className="flex items-center gap-1.5">
+                    <Award size={14} strokeWidth={1.75} className="text-olive-700 shrink-0" aria-hidden="true" />
+                    {q}
+                  </li>
+                ))}
+              </ul>
+            )}
 
-            <button className="w-full mt-8 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-lg hover:shadow-emerald-100 transition-all active:scale-95">
-              {isAr ? "احجز موعدك الآن" : "Book Your Appointment"}
+            <button className="btn btn-quiet mt-6 self-start">
+              {isAr ? "احجز موعداً" : "Book an appointment"}
             </button>
           </article>
-        ))}
+          );
+        })}
       </div>
     </main>
   );

@@ -3,38 +3,48 @@ import { Heart } from "lucide-react";
 import type { MouseEvent } from "react";
 import { useFavStore, type FavItem } from "@/store/useFavStore";
 import { useUserData } from "@/hooks/useUserData";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function AddToFavButton({ meal }: { meal: FavItem }) {
   const { user } = useUserData();
-  
+  const { lang } = useLanguage();
+
   // استخدام Selector يضمن تحديث الزر فور تغير favItems في المتجر
   const favItems = useFavStore((state) => state.favItems);
   const toggleFavorite = useFavStore((state) => state.toggleFavorite);
-  
+
   // التحقق المباشر من القائمة المدمجة
   const isFavorite = favItems.some((item) => item.id === meal.id);
 
   const handleToggle = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // إرسال الوجبة وUserId للمزامنة مع السيرفر
     await toggleFavorite(meal, user?.id);
   };
 
+  const label = isFavorite
+    ? (lang === "ar" ? "إزالة من المفضلة" : "Remove from favorites")
+    : (lang === "ar" ? "أضف إلى المفضلة" : "Add to favorites");
+
   return (
     <button
+      type="button"
       onClick={handleToggle}
-      className={`w-12 h-10 flex items-center justify-center rounded-xl border transition-all active:scale-90 ${
-        isFavorite 
-          ? "bg-red-50 border-red-100 text-red-500 shadow-sm" 
-          : "bg-gray-50 border-gray-100 text-gray-400 hover:text-red-400"
+      aria-label={label}
+      aria-pressed={isFavorite}
+      title={label}
+      className={`w-10 h-10 shrink-0 flex items-center justify-center rounded-lg border transition-colors ${
+        isFavorite
+          ? "bg-clay-50 border-clay-300 text-clay-700"
+          : "bg-white border-line-strong text-ink-mute hover:text-clay-700 hover:border-clay-300"
       }`}
     >
-      <Heart 
-        size={20} 
-        className={isFavorite ? "fill-current" : ""} 
-        strokeWidth={isFavorite ? 2.5 : 2}
+      <Heart
+        size={19}
+        strokeWidth={1.75}
+        className={isFavorite ? "fill-current" : ""}
       />
     </button>
   );
