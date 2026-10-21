@@ -106,16 +106,6 @@ model Meal {
   @@map("meals")
 }
 
-model FoodLog {
-  id        String   @id @default(cuid())
-  userId    String
-  mealName  String
-  calories  Int
-  mealType  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 model Favorite {
   id         String     @id @default(uuid())
   userId     String
@@ -152,6 +142,7 @@ model SupportTicket {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, createdAt])
   @@map("support_tickets")
 }
 
@@ -164,4 +155,15 @@ model AreaReport {
   createdAt   DateTime @default(now())
 
   user        User     @relation(fields: [userId], references: [id])
+}
+
+// Durable fixed-window rate limiter state (see lib/rateLimit.ts)
+model RateLimit {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  windowStart DateTime
+  count       Int
+
+  @@index([windowStart])
+  @@map("rate_limits")
 }

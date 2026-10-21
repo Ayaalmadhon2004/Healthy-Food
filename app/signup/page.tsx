@@ -59,7 +59,7 @@ export default function SignupPage() {
       }
 
       router.push("/login?message=registered");
-    } catch (err) {
+    } catch {
       setGeneralError(t.errGeneric[lang]);
       setIsLoading(false);
     }

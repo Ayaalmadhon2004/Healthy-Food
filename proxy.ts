@@ -1,15 +1,26 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+
+// Routes that require a signed-in user. One entry per line to keep merges easy.
+const PROTECTED_ROUTES = [
+  '/dashboard',
+  '/doctors',
+  '/tracker',
+  '/report-area',
+  '/support',
+]
 
 // تأكدي أن اسم الدالة هو "proxy" كما يطلب الخطأ
-export async function proxy(request) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // 1. استثناء الملفات الثابتة لزيادة الأداء
   if (
     pathname.startsWith('/_next') || 
     pathname.includes('favicon.ico') ||
-    pathname.includes('manifest.json')
+    pathname.includes('manifest.json') ||
+    pathname === '/sw.js' ||
+    pathname === '/offline.html'
   ) {
     return NextResponse.next()
   }
@@ -19,17 +30,17 @@ export async function proxy(request) {
   })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name) { return request.cookies.get(name)?.value },
-        set(name, value, options) {
+        get(name: string) { return request.cookies.get(name)?.value },
+        set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options })
           response = NextResponse.next({ request: { headers: request.headers } })
           response.cookies.set({ name, value, ...options })
         },
-        remove(name, options) {
+        remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: '', ...options })
           response = NextResponse.next({ request: { headers: request.headers } })
           response.cookies.set({ name, value: '', ...options })
@@ -42,7 +53,7 @@ export async function proxy(request) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // 3. حماية المسارات (Routes Protection)
-  const isProtectedRoute = ['/dashboard', '/doctors', '/tracker', '/report-area'].some((p) => pathname.startsWith(p))
+  const isProtectedRoute = PROTECTED_ROUTES.some((p) => pathname.startsWith(p))
   
   if (!user && isProtectedRoute) {
     return NextResponse.redirect(new URL('/login', request.url))
@@ -53,5 +64,5 @@ export async function proxy(request) {
 
 // 4. الإعدادات (Matcher)
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|assets|favicon.ico|manifest.json).*)'],
+  matcher: ['/((?!_next/static|_next/image|assets|favicon.ico|manifest.json|sw.js|offline.html|icons).*)'],
 }

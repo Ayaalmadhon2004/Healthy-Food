@@ -1,36 +1,42 @@
 import { z } from "zod";
+import type { ServerMessages } from "@/lib/i18n";
 
-export const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address")
-    .trim()
-    .toLowerCase(),
-  password: z
-    .string()
-    .min(1, "Password is required"),
-});
+// Schemas are built per request so validation messages come out in the request's language.
+export function createLoginSchema(m: ServerMessages) {
+  return z.object({
+    email: z
+      .string()
+      .min(1, m.emailRequired)
+      .email(m.emailInvalidAddress)
+      .trim()
+      .toLowerCase(),
+    password: z
+      .string()
+      .min(1, m.passwordRequired),
+  });
+}
 
-export const signupSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name is too long")
-    .trim(),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email format")
-    .trim()
-    .toLowerCase(),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[^a-zA-Z0-9]/, "Password must contain at least one special character"),
-});
+export function createSignupSchema(m: ServerMessages) {
+  return z.object({
+    name: z
+      .string()
+      .min(2, m.nameTooShort)
+      .max(50, m.nameTooLong)
+      .trim(),
+    email: z
+      .string()
+      .min(1, m.emailRequired)
+      .email(m.emailInvalidFormat)
+      .trim()
+      .toLowerCase(),
+    password: z
+      .string()
+      .min(8, m.passwordTooShort)
+      .regex(/[A-Z]/, m.passwordNeedsUpper)
+      .regex(/[0-9]/, m.passwordNeedsNumber)
+      .regex(/[^a-zA-Z0-9]/, m.passwordNeedsSpecial),
+  });
+}
 
-export type LoginInput = z.infer<typeof loginSchema>;
-export type SignupInput = z.infer<typeof signupSchema>;
+export type LoginInput = z.infer<ReturnType<typeof createLoginSchema>>;
+export type SignupInput = z.infer<ReturnType<typeof createSignupSchema>>;
