@@ -1,23 +1,40 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getClientIp, rateLimit } from "../lib/rateLimit.ts";
+import { applyHit, decide, getClientIp } from "../lib/rateLimitCore.ts";
+
+const run = (hits, opts) => {
+  let state = null;
+  const results = [];
+  for (const at of hits) {
+    state = applyHit(state, at, opts.windowMs);
+    results.push(decide(state, at, opts));
+  }
+  return results;
+};
 
 test("allows up to the limit, then blocks with a retry time", () => {
-  const key = `test-${Math.random()}`;
   const opts = { limit: 3, windowMs: 60_000 };
-  for (let i = 0; i < 3; i++) assert.equal(rateLimit(key, opts).ok, true);
-  const blocked = rateLimit(key, opts);
-  assert.equal(blocked.ok, false);
-  assert.ok(blocked.retryAfter > 0 && blocked.retryAfter <= 60);
+  const r = run([0, 1000, 2000, 3000], opts);
+  assert.deepEqual(r.slice(0, 3).map((x) => x.ok), [true, true, true]);
+  assert.equal(r[3].ok, false);
+  assert.equal(r[3].retryAfter, 57);
 });
 
-test("keys are independent and the window resets", async () => {
-  const opts = { limit: 1, windowMs: 20 };
-  assert.equal(rateLimit("a-reset", opts).ok, true);
-  assert.equal(rateLimit("a-reset", opts).ok, false);
-  assert.equal(rateLimit("b-reset", opts).ok, true);
-  await new Promise((r) => setTimeout(r, 30));
-  assert.equal(rateLimit("a-reset", opts).ok, true);
+test("window resets exactly at its boundary", () => {
+  const opts = { limit: 1, windowMs: 1000 };
+  const r = run([0, 999, 1000], opts);
+  assert.deepEqual(r.map((x) => x.ok), [true, false, true]);
+});
+
+test("blocked hits keep the original window start (fixed window)", () => {
+  let s = applyHit(null, 100, 1000);
+  s = applyHit(s, 900, 1000);
+  assert.deepEqual(s, { windowStart: 100, count: 2 });
+});
+
+test("retryAfter is at least 1 second", () => {
+  const s = { windowStart: 0, count: 5 };
+  assert.equal(decide(s, 999, { limit: 1, windowMs: 1000 }).retryAfter, 1);
 });
 
 test("getClientIp prefers the first x-forwarded-for entry", () => {

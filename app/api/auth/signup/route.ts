@@ -5,7 +5,7 @@ import { rateLimit, getClientIp } from "@/lib/rateLimit"
 import { signupSchema } from "@/lib/validations/auth"
 
 export async function POST(req: Request) {
-  const limited = rateLimit(`signup:${getClientIp(req)}`, { limit: 5, windowMs: 600000 });
+  const limited = await rateLimit(`signup:${getClientIp(req)}`, { limit: 5, windowMs: 600000 });
   if (!limited.ok) {
     return NextResponse.json(
       { error: "Too many attempts, please try again later" },
