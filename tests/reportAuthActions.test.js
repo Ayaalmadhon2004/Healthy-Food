@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import { cleanup, createUser, hasDatabase, prisma, resetRevalidated, revalidated, signInAs } from "./helpers/db.js";
 import { getAllReportsAction, submitAreaReportAction } from "../app/actions/reportActions.ts";
 import { checkOrgAccess, getCurrentUserRole } from "../app/actions/authActions.ts";
-import { loginSchema, signupSchema } from "../lib/validations/auth.ts";
+import { readFileSync } from "node:fs";
+import { createLoginSchema, createSignupSchema } from "../lib/validations/auth.ts";
+
+const serverMessages = JSON.parse(readFileSync(new URL("../locales/en.json", import.meta.url), "utf8")).server;
+const loginSchema = createLoginSchema(serverMessages);
+const signupSchema = createSignupSchema(serverMessages);
 
 after(cleanup);
 afterEach(() => signInAs(null));

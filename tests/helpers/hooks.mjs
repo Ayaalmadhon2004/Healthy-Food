@@ -22,3 +22,13 @@ export function resolve(specifier, context, nextResolve) {
   }
   return nextResolve(specifier, context);
 }
+
+// Next/webpack allows `import("x.json")`; plain Node demands an import attribute. Serve JSON as a default-exporting module.
+export async function load(url, context, nextLoad) {
+  if (url.endsWith(".json") && !context.importAttributes?.type) {
+    const { readFile } = await import("node:fs/promises");
+    const source = `export default ${await readFile(fileURLToPath(url), "utf8")};`;
+    return { format: "module", source, shortCircuit: true };
+  }
+  return nextLoad(url, context);
+}
