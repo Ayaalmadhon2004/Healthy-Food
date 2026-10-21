@@ -28,5 +28,31 @@
       "close": "Close",
       "confirm": "Schedule Now"
     }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "Send us a message and track your tickets.",
+    "subject_label": "Subject",
+    "message_label": "Message",
+    "submit": "Submit ticket",
+    "submitting": "Sending...",
+    "my_tickets": "My tickets",
+    "all_tickets": "All tickets",
+    "empty": "No tickets yet.",
+    "sent": "Your ticket was submitted.",
+    "login_required": "Please log in to contact support.",
+    "from": "From",
+    "status": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In progress",
+      "CLOSED": "Closed"
+    },
+    "errors": {
+      "unauthorized": "You must be logged in.",
+      "forbidden": "You are not allowed to do this.",
+      "invalid": "Please check the subject (3-120 characters) and message (10-2000 characters).",
+      "rate_limited": "Too many tickets. Please try again later.",
+      "failed": "Something went wrong. Please try again."
+    }
   }
 }
