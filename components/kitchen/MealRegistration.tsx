@@ -4,10 +4,17 @@ import { useState, useEffect, useMemo } from "react";
 import { reserveMealAction , cancelMealAction , checkUserReservation } from "@/app/actions/mealActions";
 import { useUserData } from "@/hooks/useUserData";
 
-export default function MealRegistration({ kitchenId, initialCount = 0, capacity = 500, lang = "ar" }) {
+interface MealRegistrationProps {
+    kitchenId: number | string;
+    initialCount?: number;
+    capacity?: number;
+    lang?: string;
+}
+
+export default function MealRegistration({ kitchenId, initialCount = 0, capacity = 500, lang = "ar" }: MealRegistrationProps) {
     const { user } = useUserData();
     const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState(null); // 'success' | 'error' | null
+    const [status, setStatus] = useState<"success" | "error" | null>(null);
     const [message, setMessage] = useState("");
     const [currentCount, setCurrentCount] = useState(Number(initialCount) || 0);
     const [quantity, setQuantity] = useState(1);
@@ -57,7 +64,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                     INVALID_QUANTITY: "يجب اختيار وجبة واحدة على الأقل.",
                     KITCHEN_NOT_FOUND: "المطبخ غير موجود.",
                     ALREADY_RESERVED: "لقد قمت بالحجز مسبقاً لهذا المطبخ لغدًا.",
-                    NOT_ENOUGH_LEFT: (n) => `عذراً، المتبقي فقط ${n} وجبة.`,
+                    NOT_ENOUGH_LEFT: (n: number) => `عذراً، المتبقي فقط ${n} وجبة.`,
                     BUSY: "الطلبات كثيرة حالياً، حاول مرة أخرى."
                 }
             },
@@ -79,12 +86,12 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                     INVALID_QUANTITY: "Please choose at least one meal.",
                     KITCHEN_NOT_FOUND: "Kitchen not found.",
                     ALREADY_RESERVED: "You have already reserved at this kitchen for tomorrow.",
-                    NOT_ENOUGH_LEFT: (n) => `Sorry, only ${n} meals left.`,
+                    NOT_ENOUGH_LEFT: (n: number) => `Sorry, only ${n} meals left.`,
                     BUSY: "Many requests right now, please try again."
                 }
             }
         };
-        return translations[lang] || translations.ar;
+        return translations[lang as keyof typeof translations] || translations.ar;
     }, [lang]);
 
     const isAr = lang === "ar";
@@ -103,7 +110,7 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
         try {
             const result = await reserveMealAction(user.id, kitchenId, quantity);
             
-            if (result?.success) {
+            if ("success" in result) {
                 setIsReserved(true); 
                 setStatus("success");
                 setStatus("success");
@@ -111,8 +118,9 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
                 setCurrentCount(prev => prev + quantity);
             } else {
                 setStatus("error");
-                const known = t.errors[result?.error];
-                setMessage(typeof known === "function" ? known(result.remaining) : known || t.errorDefault);
+                const known: string | ((remaining: number) => string) | undefined =
+                    (t.errors as Record<string, string | ((remaining: number) => string)>)[result.error];
+                setMessage(typeof known === "function" ? known(result.remaining ?? 0) : known || t.errorDefault);
             }
         } catch (err) {
             setStatus("error");

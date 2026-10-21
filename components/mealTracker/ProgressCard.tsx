@@ -3,7 +3,13 @@
 import { useLanguage } from "@/context/LanguageContext";
 import { memo, useMemo, useState } from "react";
 
-const ProgressCard = memo(({ calories, goal = 2000, onGoalChange }) => {
+interface ProgressCardProps {
+  calories: number;
+  goal?: number;
+  onGoalChange?: (value: string) => Promise<{ success?: boolean; error?: string } | undefined>;
+}
+
+const ProgressCard = memo(({ calories, goal = 2000, onGoalChange }: ProgressCardProps) => {
   const { lang } = useLanguage();
   const isRtl = lang === "ar";
   
@@ -43,7 +49,7 @@ const ProgressCard = memo(({ calories, goal = 2000, onGoalChange }) => {
   const save = async () => {
     setSaving(true);
     setError("");
-    const result = await onGoalChange(draft);
+    const result = await onGoalChange?.(draft);
     setSaving(false);
     if (result?.success) setEditing(false);
     else setError(result?.error === "INVALID_GOAL" ? content.invalid[lang] : content.failed[lang]);

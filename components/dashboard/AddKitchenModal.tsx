@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { pickText, type LocalizedField } from "@/lib/types";
 import { Plus, X, Utensils, MapPin, Clock, Salad, AlertCircle, Users, Phone, ChevronDown } from "lucide-react";
 import { addKitchenAction } from "@/app/actions/kitchenActions";
 import { useRouter } from "next/navigation";
@@ -14,7 +15,13 @@ const REGION_OPTIONS = [
   { id: "Rafah", en: "Rafah", ar: "رفح" },
 ];
 
-export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess }) {
+interface AddKitchenModalProps {
+  lang?: string;
+  kitchens?: { name?: unknown }[];
+  onSuccess?: () => void | Promise<void>;
+}
+
+export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess }: AddKitchenModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [nameInput, setNameInput] = useState(""); 
@@ -57,18 +64,19 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
     }
   };
 
-  const t = translations[lang] || translations.ar;
+  const t = translations[lang as keyof typeof translations] || translations.ar;
   const isAr = lang === "ar";
 
   const isDuplicate = kitchens.some(k => {
-    const existingName = (typeof k.name === 'string' ? k.name : k.name?.ar)?.trim();
+    const existingName = pickText(k.name as LocalizedField, "ar").trim();
     return existingName === nameInput.trim() && nameInput.trim() !== "";
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    const formData = new FormData(e.target);
+    const form = e.currentTarget; // currentTarget is cleared once the handler awaits
+    const formData = new FormData(form);
     
     // ملاحظة: سنقوم بإرسال الـ ID الخاص بالمنطقة ليتم تخزينه بشكل موحد
     try {
@@ -76,7 +84,7 @@ export default function AddKitchenModal({ lang = "ar", kitchens = [], onSuccess 
       if (result.success) {
         setIsOpen(false);
         setNameInput("");
-        e.target.reset();
+        form.reset();
         if (onSuccess) await onSuccess();
         router.refresh(); 
       }

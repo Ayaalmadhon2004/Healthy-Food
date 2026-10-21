@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { MapPin, Clock, PhoneCall, CheckCircle2 } from "lucide-react";
 import MealRegistration from "@/components/kitchen/MealRegistration"; 
+import { pickText, type KitchenView, type Lang } from "@/lib/types";
 
 const REGIONS = [
   { id: "ALL", en: "ALL", ar: "الكل" },
@@ -13,7 +14,7 @@ const REGIONS = [
   { id: "Rafah", en: "Rafah", ar: "رفح" },
 ];
 
-export default function KitchensFilterClient({ kitchens, lang }) {
+export default function KitchensFilterClient({ kitchens, lang }: { kitchens: KitchenView[]; lang: Lang }) {
   const [selectedRegion, setSelectedRegion] = useState("ALL");
   const isAr = lang === "ar";
 
@@ -21,7 +22,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
     if (selectedRegion === "ALL") return kitchens;
     
     return kitchens.filter((k) => {
-      const kitchenRegion = k.region?.en?.toLowerCase() || "";
+      const kitchenRegion = pickText(k.region, "en").toLowerCase();
       const targetRegion = selectedRegion.toLowerCase();
       return kitchenRegion === targetRegion;
     });
@@ -61,7 +62,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
             >
               <div className="flex justify-between items-start mb-4">
                 <h2 className="font-black text-2xl text-gray-900 group-hover:text-emerald-600 transition-colors leading-tight">
-                  {kitchen.name[lang] || kitchen.name['en']} 
+                  {pickText(kitchen.name, lang)} 
                 </h2>
                 <CheckCircle2 className="text-emerald-500 shrink-0" size={22} />
               </div>
@@ -69,7 +70,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
               <div className="flex items-center text-gray-500 text-sm mb-6 bg-gray-50 w-fit px-3 py-1 rounded-full">
                 <MapPin size={14} className={`${isAr ? 'ml-1' : 'mr-1'} text-emerald-500`} />
                 <span className="font-bold">
-                  {kitchen.region[lang] || kitchen.region['en']}
+                  {pickText(kitchen.region, lang)}
                 </span>
               </div>
 
@@ -80,7 +81,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">
                       {isAr ? "وقت التوزيع" : "Distribution Time"}
                     </p>
-                    <p className="text-gray-800 font-bold">{kitchen.distributionTime[lang]}</p>
+                    <p className="text-gray-800 font-bold">{pickText(kitchen.distributionTime, lang)}</p>
                   </div>
                 </div>
 
@@ -88,7 +89,7 @@ export default function KitchensFilterClient({ kitchens, lang }) {
                   <span className="text-amber-700 text-[10px] font-black uppercase block mb-1">
                     {isAr ? "وجبة اليوم" : "Today's Menu"}
                   </span>
-                  <p className="text-amber-900 font-black text-lg">{kitchen.todaysMeal[lang]}</p>
+                  <p className="text-amber-900 font-black text-lg">{pickText(kitchen.todaysMeal, lang)}</p>
                 </div>
               </div>
 

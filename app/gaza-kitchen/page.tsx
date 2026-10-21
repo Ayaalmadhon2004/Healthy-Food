@@ -5,16 +5,17 @@ import ErrorBoundaryWrapper from "@/components/ErrorBoundaryWrapper";
 import { getKitchensAction } from "@/app/actions/kitchenActions";
 import { MessageCircle, AlertTriangle, Heart} from "lucide-react";
 import Link from "next/link"; 
+import { toLang, type KitchenView } from "@/lib/types";
 
 export default async function Page() {
   const cookieStore = await cookies();
   const allHeaders = await headers();
   
-  const lang = cookieStore.get("lang")?.value || allHeaders.get("x-custom-lang") || "ar"; 
+  const lang = toLang(cookieStore.get("lang")?.value || allHeaders.get("x-custom-lang"));
   const isAr = lang === "ar";
 
   const result = await getKitchensAction();
-  const kitchens = result.success ? result.kitchens : [];
+  const kitchens = (result.success ? result.kitchens : []) as unknown as KitchenView[];
 
   return (
     <div 
@@ -91,7 +92,7 @@ export default async function Page() {
       {/* قسم التغذية الإرشادي */}
       <div className="w-full mt-24 max-w-7xl">
         <ErrorBoundaryWrapper message={isAr ? "فشل تحميل قسم التغذية" : "Failed to load Nutrition Section"}>
-          <NutritionSectionClient lang={lang} />
+          <NutritionSectionClient />
         </ErrorBoundaryWrapper>
       </div>
 

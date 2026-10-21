@@ -26,3 +26,26 @@ export interface TrackedMeal {
   calories: number;
   isOptimistic?: boolean;
 }
+
+// A text that may be stored localized ({ ar, en }) or, in older rows, as a plain string.
+export type LocalizedField = Localized | string | null | undefined;
+
+// A kitchen row plus the values the kitchen list adds (see getKitchensAction).
+export interface KitchenView {
+  id: number;
+  name: LocalizedField;
+  region: LocalizedField;
+  location?: LocalizedField;
+  distributionTime: LocalizedField;
+  todaysMeal: LocalizedField;
+  contact: string;
+  capacity: unknown;
+  capacityLimit?: number;
+  reservedTomorrow?: number;
+}
+
+export function pickText(field: LocalizedField, lang: Lang): string {
+  if (!field) return "";
+  if (typeof field === "string") return field;
+  return field[lang] || field.ar || "";
+}
