@@ -14,14 +14,13 @@ import localFont from "next/font/local";
 // (next/font/google intermittently failed in CI).
 const inter = localFont({
   src: "./fonts/inter-latin-wght-normal.woff2",
-  weight: "100 900",
+  weight: "400 600",
   variable: "--font-main",
   display: "swap",
 });
 
 const poppins = localFont({
   src: [
-    { path: "./fonts/poppins-latin-400-normal.woff2", weight: "400", style: "normal" },
     { path: "./fonts/poppins-latin-500-normal.woff2", weight: "500", style: "normal" },
     { path: "./fonts/poppins-latin-600-normal.woff2", weight: "600", style: "normal" },
   ],
@@ -29,12 +28,17 @@ const poppins = localFont({
   display: "swap",
 });
 
-// Arabic font for improved Arabic rendering
+// The site only uses weights 400 to 600 (Tailwind's bold/extrabold/black are mapped to 600 in
+// globals.css), so the variable fonts are cut to that range and Poppins ships only 500 and 600.
+
+// Arabic font. Not preloaded: the preload would be sent on every page, English included, and
+// Cairo is only requested by the browser when the page is Arabic (see html[lang="ar"] in globals.css).
 const cairo = localFont({
   src: "./fonts/cairo-arabic-wght-normal.woff2",
-  weight: "200 1000",
+  weight: "400 600",
   variable: "--font-arabic",
   display: "swap",
+  preload: false,
 });
 
 
