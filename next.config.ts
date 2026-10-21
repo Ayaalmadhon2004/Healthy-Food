@@ -26,6 +26,14 @@ const securityHeaders = [
   },
 ];
 
+// Public content pages. Their HTML depends on the `lang` cookie and nothing else (the signed-in
+// user is loaded in the browser, never rendered on the server). Next.js sends `no-store` for any
+// page that reads cookies, and `no-store` is what stops the back/forward cache, so these routes
+// say `private, no-cache` instead: never shared, and revalidated on every normal visit. Pages that
+// render per-user data keep Next.js's default. (A `Vary: Cookie` cannot be added here: Next.js
+// overwrites Vary when it renders an app page, so UserInitializer checks the language on restore.)
+const PUBLIC_PAGES = ["/", "/recipes", "/recipes/:id", "/gaza-kitchen", "/tips", "/tips/:id", "/doctors"];
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -44,6 +52,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      ...PUBLIC_PAGES.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "private, no-cache" }],
+      })),
       {
         // Unversioned files: cached for a month, revalidated in the background after that.
         source: "/assets/:path*",
