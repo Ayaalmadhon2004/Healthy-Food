@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateReportStatusAction, type ReportStatus } from "@/app/actions/reportActions";
+import { updateReportStatusAction } from "@/app/actions/reportActions";
+import type { ReportStatus } from "@/lib/reportStatus";
 
 export default function ReportStatusSelect({
   reportId,

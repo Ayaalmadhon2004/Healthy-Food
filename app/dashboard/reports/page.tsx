@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
 import { getServerLang } from "@/lib/i18n";
-import { isReportStatus, REPORT_STATUSES, type ReportStatus } from "@/app/actions/reportActions";
+import { isReportStatus, REPORT_STATUSES, type ReportStatus } from "@/lib/reportStatus";
 import ReportStatusSelect from "./ReportStatusSelect";
 
 const PAGE_SIZE = 15;

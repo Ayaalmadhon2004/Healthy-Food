@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
 import { getServerMessages } from "@/lib/i18n";
+import { isReportStatus } from "@/lib/reportStatus";
 
 export async function submitAreaReportAction(formData: FormData): Promise<{ error: string } | undefined> {
   const areaName = formData.get("areaName");
@@ -68,13 +69,6 @@ export async function getAllReportsAction() {
     console.error("Error fetching reports:", error);
     return { success: false, error: (await getServerMessages()).reportsFetchFailed };
   }
-}
-
-export const REPORT_STATUSES = ["pending", "seen", "investigated"] as const;
-export type ReportStatus = (typeof REPORT_STATUSES)[number];
-
-export function isReportStatus(value: unknown): value is ReportStatus {
-  return typeof value === "string" && (REPORT_STATUSES as readonly string[]).includes(value);
 }
 
 export async function updateReportStatusAction(
