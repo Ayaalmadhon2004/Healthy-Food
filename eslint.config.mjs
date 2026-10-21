@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "public/**",
+    // Worktrees of other agent sessions (each with its own node_modules and .next).
+    ".claude/**",
   ]),
 ]);
 
