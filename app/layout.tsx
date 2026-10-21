@@ -23,9 +23,6 @@ const poppins = localFont({
     { path: "./fonts/poppins-latin-400-normal.woff2", weight: "400", style: "normal" },
     { path: "./fonts/poppins-latin-500-normal.woff2", weight: "500", style: "normal" },
     { path: "./fonts/poppins-latin-600-normal.woff2", weight: "600", style: "normal" },
-    { path: "./fonts/poppins-latin-700-normal.woff2", weight: "700", style: "normal" },
-    { path: "./fonts/poppins-latin-800-normal.woff2", weight: "800", style: "normal" },
-    { path: "./fonts/poppins-latin-900-normal.woff2", weight: "900", style: "normal" },
   ],
   variable: "--font-headings",
   display: "swap",
@@ -68,7 +65,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       dir={lang === "ar" ? "rtl" : "ltr"}
       className={`${inter.variable} ${poppins.variable} ${cairo.variable}`}
     >
-      <body className="min-h-screen bg-white text-gray-900 antialiased font-sans">
+      <body className="min-h-screen bg-paper text-ink antialiased">
         <LanguageProvider initialLang={lang}>
           <UserInitializer />
           <Toaster position="top-center" reverseOrder={false} />
