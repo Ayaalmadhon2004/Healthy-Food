@@ -666,10 +666,14 @@ const kitchens = [
 ];
 
 // --- 4. بيانات الأطباء ---
+// All eight are nutrition-focused. `image` points at the illustrated avatars in
+// public/assets/placeholders, picked to match each doctor (doctor-1/3/5 are women,
+// doctor-2/4 are men) until real photos are added.
+const AVATAR = (n) => `/assets/placeholders/doctor-${n}.svg`;
 const doctorsData = [
   {
     name: L("Dr. Rania Abu Shamala", "د. رانيا أبو شمالة"),
-    specialty: L("Clinical Nutritionist", "أخصائية تغذية علاجية"),
+    specialty: L("Clinical Nutrition", "تغذية سريرية"),
     qualifications: { en: ["MSc in Clinical Nutrition", "Certified in community management of acute malnutrition"], ar: ["ماجستير في التغذية العلاجية", "شهادة في الإدارة المجتمعية لسوء التغذية الحاد"] },
     rating: 4.9,
     reviews: 214,
@@ -680,108 +684,44 @@ const doctorsData = [
       "Rania supports families with children and pregnant mothers on making the most of limited food, and leads nutrition screening days.",
       "تدعم رانيا العائلات التي لديها أطفال والأمهات الحوامل في الاستفادة القصوى من الغذاء المحدود، وتشرف على أيام فحص التغذية."
     ),
-    image: "/assets/doctor1.jpg",
+    image: AVATAR(1),
     availability: L("Sun-Thu, 9:00 AM - 2:00 PM", "الأحد-الخميس، 9:00 ص - 2:00 م"),
   },
   {
-    name: L("Dr. Khaled Al-Masri", "د. خالد المصري"),
-    specialty: L("Pediatrician", "طبيب أطفال"),
-    qualifications: { en: ["MD, Pediatrics", "Fellow in child nutrition"], ar: ["دكتوراه في الطب، تخصص أطفال", "زمالة في تغذية الأطفال"] },
-    rating: 4.8,
-    reviews: 187,
-    location: L("Nuseirat Children's Clinic, Middle Area", "عيادة الأطفال في النصيرات، المنطقة الوسطى"),
-    phone: "+970-597-200202",
-    email: "khaled.almasri@example.org",
-    about: L(
-      "Khaled treats childhood diarrhea, malnutrition, and respiratory infections and trains mothers in oral rehydration at home.",
-      "يعالج خالد إسهال الأطفال وسوء التغذية والتهابات الجهاز التنفسي ويدرّب الأمهات على الإماهة الفموية في المنزل."
-    ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Sat-Wed, 8:30 AM - 1:30 PM", "السبت-الأربعاء، 8:30 ص - 1:30 م"),
-  },
-  {
-    name: L("Dr. Samar Al-Najjar", "د. سمر النجار"),
-    specialty: L("Obstetrician and Maternal Health", "طبيبة نسائية وصحة الأم"),
-    qualifications: { en: ["MD, Obstetrics and Gynecology", "Diploma in maternal nutrition"], ar: ["دكتوراه في الطب، تخصص نسائية وتوليد", "دبلوم في تغذية الأم"] },
+    name: L("Dr. Ahmad Al-Masri", "د. أحمد المصري"),
+    specialty: L("Malnutrition Management and Therapeutic Diet", "علاج سوء التغذية والحمية العلاجية"),
+    qualifications: { en: ["MSc in Clinical Nutrition", "Trained in therapeutic feeding and nutritional rehabilitation"], ar: ["ماجستير في التغذية السريرية", "تدريب في التغذية العلاجية وإعادة التأهيل الغذائي"] },
     rating: 4.9,
-    reviews: 256,
-    location: L("Khan Younis Maternity Point", "نقطة الأمومة، خانيونس"),
-    phone: "+970-595-200203",
-    email: "samar.alnajjar@example.org",
+    reviews: 176,
+    location: L("Gaza City Medical Complex / Online Consultation", "مجمع غزة الطبي / استشارة عن بُعد"),
+    phone: "+970-599-200211",
+    email: "ahmad.almasri@example.org",
     about: L(
-      "Samar follows pregnancies and breastfeeding mothers and gives practical advice on iron, folic acid, and safe nutrition.",
-      "تتابع سمر الحمل والأمهات المرضعات وتقدّم نصائح عملية حول الحديد وحمض الفوليك والتغذية الآمنة."
+      "Ahmad designs therapeutic diets for adults and teenagers recovering from malnutrition and gives emergency nutritional support in the complex's outpatient unit. He also takes follow-up consultations online.",
+      "يضع أحمد حميات علاجية للبالغين والمراهقين المتعافين من سوء التغذية ويقدّم الدعم الغذائي الطارئ في العيادات الخارجية بالمجمع. كما يجري استشارات المتابعة عن بُعد."
     ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Sun-Thu, 10:00 AM - 3:00 PM", "الأحد-الخميس، 10:00 ص - 3:00 م"),
+    image: AVATAR(2),
+    availability: L("Sun-Thu, 9:00 AM - 2:00 PM", "الأحد-الخميس، 9:00 ص - 2:00 م"),
   },
   {
-    name: L("Dr. Mahmoud Hamdan", "د. محمود حمدان"),
-    specialty: L("Family Physician", "طبيب أسرة"),
-    qualifications: { en: ["MD, Family Medicine", "Training in emergency and disaster care"], ar: ["دكتوراه في الطب، تخصص طب أسرة", "تدريب في رعاية الطوارئ والكوارث"] },
-    rating: 4.7,
-    reviews: 143,
-    location: L("Jabalia Primary Care Centre, North Gaza", "مركز الرعاية الأولية، جباليا، شمال غزة"),
-    phone: "+970-599-200204",
-    email: "mahmoud.hamdan@example.org",
-    about: L(
-      "Mahmoud provides general care for whole families, including wound care, skin infections, and follow-up for chronic illnesses.",
-      "يقدّم محمود رعاية عامة للأسرة بأكملها تشمل العناية بالجروح والالتهابات الجلدية ومتابعة الأمراض المزمنة."
-    ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Sat-Thu, 9:00 AM - 1:00 PM", "السبت-الخميس، 9:00 ص - 1:00 م"),
-  },
-  {
-    name: L("Dr. Hanan Qudeih", "د. حنان قديح"),
-    specialty: L("Diabetes and Endocrinology", "السكري والغدد الصماء"),
-    qualifications: { en: ["MD, Internal Medicine", "Diabetes educator certification"], ar: ["دكتوراه في الطب، تخصص باطنة", "شهادة مثقّف سكري"] },
+    name: L("Dr. Mona Salem", "د. منى سالم"),
+    specialty: L("Public Health and Dietetics", "صحة عامة وتغذية"),
+    qualifications: { en: ["MPH in Public Health", "Registered dietitian", "Community nutrition outreach trainer"], ar: ["ماجستير في الصحة العامة", "أخصائية تغذية مسجّلة", "مدرّبة في التوعية الغذائية المجتمعية"] },
     rating: 4.8,
-    reviews: 168,
-    location: L("Deir Al-Balah Diabetes Clinic, Middle Area", "عيادة السكري، دير البلح، المنطقة الوسطى"),
-    phone: "+970-592-200205",
-    email: "hanan.qudeih@example.org",
+    reviews: 158,
+    location: L("Central Clinic, Nuseirat, Middle Area", "العيادة المركزية، النصيرات، المنطقة الوسطى"),
+    phone: "+970-597-200212",
+    email: "mona.salem@example.org",
     about: L(
-      "Hanan helps patients manage blood sugar and blood pressure when food and medicine are limited and teaches safe insulin storage.",
-      "تساعد حنان المرضى على ضبط السكر والضغط عند شحّ الغذاء والدواء وتعلّم حفظ الأنسولين بأمان."
+      "Mona runs community nutrition sessions in shelters and clinics, and helps families plan balanced meals from aid parcels and local produce.",
+      "تدير منى جلسات توعية غذائية مجتمعية في مراكز الإيواء والعيادات، وتساعد العائلات على تخطيط وجبات متوازنة من الطرود الغذائية والمنتجات المحلية."
     ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Mon, Wed, Thu, 9:00 AM - 2:00 PM", "الإثنين، الأربعاء، الخميس، 9:00 ص - 2:00 م"),
-  },
-  {
-    name: L("Dr. Yousef Abu Jazar", "د. يوسف أبو جزر"),
-    specialty: L("Community Nutrition Specialist", "أخصائي تغذية مجتمعية"),
-    qualifications: { en: ["MPH in Public Health Nutrition", "Trainer in infant and young child feeding"], ar: ["ماجستير صحة عامة، تخصص تغذية", "مدرّب في تغذية الرضّع والأطفال الصغار"] },
-    rating: 4.7,
-    reviews: 121,
-    location: L("Rafah Nutrition Point", "نقطة التغذية، رفح"),
-    phone: "+970-598-200206",
-    email: "yousef.abujazar@example.org",
-    about: L(
-      "Yousef runs group sessions on stretching meals, feeding babies after six months, and choosing the best foods from aid parcels.",
-      "يدير يوسف جلسات جماعية حول مضاعفة الوجبات وتغذية الأطفال بعد ستة أشهر واختيار أفضل الأطعمة من الطرود الغذائية."
-    ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Sun-Thu, 8:00 AM - 12:00 PM", "الأحد-الخميس، 8:00 ص - 12:00 م"),
-  },
-  {
-    name: L("Dr. Layla Shurrab", "د. ليلى شرّاب"),
-    specialty: L("Geriatrics and Internal Medicine", "طب المسنّين والباطنة"),
-    qualifications: { en: ["MD, Internal Medicine", "Diploma in geriatric care"], ar: ["دكتوراه في الطب، تخصص باطنة", "دبلوم في رعاية المسنّين"] },
-    rating: 4.6,
-    reviews: 97,
-    location: L("Al-Mawasi Medical Point, Khan Younis", "النقطة الطبية في المواصي، خانيونس"),
-    phone: "+970-595-200207",
-    email: "layla.shurrab@example.org",
-    about: L(
-      "Layla cares for older adults and people with heart disease and high blood pressure, with a focus on safe eating and hydration.",
-      "تعتني ليلى بكبار السن والمصابين بأمراض القلب وارتفاع الضغط مع التركيز على الغذاء الآمن والترطيب."
-    ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Sat-Wed, 10:00 AM - 2:00 PM", "السبت-الأربعاء، 10:00 ص - 2:00 م"),
+    image: AVATAR(3),
+    availability: L("Mon-Wed, 9:00 AM - 2:00 PM", "الإثنين-الأربعاء، 9:00 ص - 2:00 م"),
   },
   {
     name: L("Dr. Omar Al-Ghalayini", "د. عمر الغلاييني"),
-    specialty: L("Pediatric Nutrition and Growth", "تغذية الأطفال والنمو"),
+    specialty: L("Pediatric Nutrition and Growth", "تغذية أطفال ونمو"),
     qualifications: { en: ["MD, Pediatrics", "Certified in severe acute malnutrition management"], ar: ["دكتوراه في الطب، تخصص أطفال", "شهادة في علاج سوء التغذية الحاد الوخيم"] },
     rating: 4.9,
     reviews: 203,
@@ -792,40 +732,72 @@ const doctorsData = [
       "Omar treats children with severe malnutrition and trains community health workers to measure arm circumference and refer early.",
       "يعالج عمر الأطفال المصابين بسوء التغذية الوخيم ويدرّب العاملين الصحيين المجتمعيين على قياس محيط الذراع والتحويل المبكر."
     ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Daily, 8:00 AM - 4:00 PM", "يومياً، 8:00 ص - 4:00 م"),
+    image: AVATAR(4),
+    availability: L("Sun-Thu, 8:00 AM - 4:00 PM", "الأحد-الخميس، 8:00 ص - 4:00 م"),
   },
   {
-    name: L("Dr. Nadine Al-Aqqad", "د. نادين العقّاد"),
-    specialty: L("Mental Health and Psychosocial Support", "الصحة النفسية والدعم النفسي الاجتماعي"),
-    qualifications: { en: ["MSc in Clinical Psychology", "Trained in psychological first aid"], ar: ["ماجستير في علم النفس العيادي", "تدريب في الإسعاف النفسي الأولي"] },
-    rating: 4.8,
-    reviews: 132,
-    location: L("Gaza City Wellbeing Centre", "مركز العافية، مدينة غزة"),
-    phone: "+970-597-200209",
-    email: "nadine.alaqqad@example.org",
+    name: L("Dr. Fatima Khalil", "د. فاطمة خليل"),
+    specialty: L("Pediatric and Maternal Nutrition", "تغذية أطفال وأمهات"),
+    qualifications: { en: ["MSc in Human Nutrition", "Certified breastfeeding counsellor", "Trained in infant and young child feeding in emergencies"], ar: ["ماجستير في التغذية البشرية", "مستشارة رضاعة معتمدة", "تدريب في تغذية الرضّع والأطفال الصغار في الطوارئ"] },
+    rating: 4.9,
+    reviews: 191,
+    location: L("Khan Younis Health Center", "مركز خانيونس الصحي"),
+    phone: "+970-595-200213",
+    email: "fatima.khalil@example.org",
     about: L(
-      "Nadine offers individual and family support for stress, sleep problems, and trauma, including activities for children.",
-      "تقدّم نادين دعماً فردياً وأسرياً للتوتر ومشاكل النوم والصدمة، بما في ذلك أنشطة للأطفال."
+      "Fatima guides mothers on breastfeeding and on starting complementary foods at six months, and follows children's growth with safe, low-cost meal ideas.",
+      "ترشد فاطمة الأمهات حول الرضاعة الطبيعية وبدء الأغذية التكميلية عند ستة أشهر، وتتابع نمو الأطفال مع أفكار وجبات آمنة وقليلة التكلفة."
     ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Sun-Thu, 11:00 AM - 5:00 PM", "الأحد-الخميس، 11:00 ص - 5:00 م"),
+    image: AVATAR(5),
+    availability: L("Sun-Thu, 8:30 AM - 1:30 PM", "الأحد-الخميس، 8:30 ص - 1:30 م"),
   },
   {
-    name: L("Dr. Ibrahim Abu Rukbah", "د. إبراهيم أبو ركبة"),
-    specialty: L("Clinical Pharmacist and Water Hygiene Advisor", "صيدلي سريري ومستشار نظافة المياه"),
-    qualifications: { en: ["PharmD", "Trained in water, sanitation and hygiene (WASH)"], ar: ["دكتوراه في الصيدلة", "تدريب في المياه والصرف الصحي والنظافة"] },
+    name: L("Dr. Mahmoud Abu El-Aynain", "د. محمود أبو العينين"),
+    specialty: L("Chronic Disease Diet", "تغذية الأمراض المزمنة"),
+    qualifications: { en: ["MSc in Clinical Dietetics", "Training in renal and cardiac nutrition"], ar: ["ماجستير في التغذية العلاجية", "تدريب في تغذية أمراض الكلى والقلب"] },
     rating: 4.7,
-    reviews: 88,
-    location: L("Khan Younis Pharmacy Point", "نقطة الصيدلية، خانيونس"),
-    phone: "+970-595-200210",
-    email: "ibrahim.aburukbah@example.org",
+    reviews: 119,
+    location: L("Deir Al-Balah Health Post, Middle Area", "النقطة الصحية، دير البلح، المنطقة الوسطى"),
+    phone: "+970-592-200214",
+    email: "mahmoud.abuelaynain@example.org",
     about: L(
-      "Ibrahim explains correct use of ORS, zinc, and chlorine tablets, and advises families on safe water storage.",
-      "يشرح إبراهيم الاستخدام الصحيح لأملاح الإماهة والزنك وأقراص الكلور، ويقدّم النصح للعائلات حول تخزين الماء بأمان."
+      "Mahmoud helps people with high blood pressure, heart and kidney disease eat safely with limited food, from cutting hidden salt in canned items to choosing the best fluids.",
+      "يساعد محمود المصابين بارتفاع الضغط وأمراض القلب والكلى على الأكل بأمان مع شحّ الغذاء، من تقليل الملح الخفي في المعلبات إلى اختيار أنسب السوائل."
     ),
-    image: "/assets/doctor1.jpg",
-    availability: L("Sat-Thu, 9:00 AM - 5:00 PM", "السبت-الخميس، 9:00 ص - 5:00 م"),
+    image: AVATAR(2),
+    availability: L("Sat-Wed, 9:00 AM - 1:00 PM", "السبت-الأربعاء، 9:00 ص - 1:00 م"),
+  },
+  {
+    name: L("Dr. Hanan Qudeih", "د. حنان قديح"),
+    specialty: L("Diabetes Nutrition and Chronic Disease Diet", "تغذية السكري والأمراض المزمنة"),
+    qualifications: { en: ["MD, Internal Medicine", "Diabetes educator certification"], ar: ["دكتوراه في الطب، تخصص باطنة", "شهادة مثقّف سكري"] },
+    rating: 4.8,
+    reviews: 168,
+    location: L("Deir Al-Balah Diabetes Clinic, Middle Area", "عيادة السكري، دير البلح، المنطقة الوسطى"),
+    phone: "+970-592-200205",
+    email: "hanan.qudeih@example.org",
+    about: L(
+      "Hanan helps patients manage blood sugar and blood pressure through regular, balanced meals when food and medicine are limited, and teaches safe insulin storage.",
+      "تساعد حنان المرضى على ضبط السكر والضغط عبر وجبات منتظمة ومتوازنة عند شحّ الغذاء والدواء وتعلّم حفظ الأنسولين بأمان."
+    ),
+    image: AVATAR(1),
+    availability: L("Mon, Wed, Thu, 9:00 AM - 2:00 PM", "الإثنين، الأربعاء، الخميس، 9:00 ص - 2:00 م"),
+  },
+  {
+    name: L("Dr. Yousef Abu Jazar", "د. يوسف أبو جزر"),
+    specialty: L("Community Nutrition and Emergency Feeding", "تغذية مجتمعية ودعم غذائي طارئ"),
+    qualifications: { en: ["MPH in Public Health Nutrition", "Trainer in infant and young child feeding"], ar: ["ماجستير صحة عامة، تخصص تغذية", "مدرّب في تغذية الرضّع والأطفال الصغار"] },
+    rating: 4.7,
+    reviews: 121,
+    location: L("Rafah Nutrition Point", "نقطة التغذية، رفح"),
+    phone: "+970-598-200206",
+    email: "yousef.abujazar@example.org",
+    about: L(
+      "Yousef runs group sessions on stretching meals, feeding babies after six months, and choosing the best foods from aid parcels.",
+      "يدير يوسف جلسات جماعية حول مضاعفة الوجبات وتغذية الأطفال بعد ستة أشهر واختيار أفضل الأطعمة من الطرود الغذائية."
+    ),
+    image: AVATAR(4),
+    availability: L("Sun-Thu, 8:00 AM - 12:00 PM", "الأحد-الخميس، 8:00 ص - 12:00 م"),
   },
 ];
 
@@ -1040,8 +1012,27 @@ async function syncRecipes() {
   console.log(`Recipes synced: ${foodRecipes.length} in the database, ${removed.count} old ones removed.`);
 }
 
+// `node prisma/seed.js --doctors-only` touches only the Doctor table. Doctors are matched by
+// email, so existing rows (and their appointments and linked accounts) are updated in place.
+// Doctors that are not in the list are removed only if they have no appointments.
+async function syncDoctors() {
+  for (const doctor of doctorsData) {
+    const existing = await prisma.doctor.findFirst({ where: { email: doctor.email } });
+    if (existing) await prisma.doctor.update({ where: { id: existing.id }, data: doctor });
+    else await prisma.doctor.create({ data: doctor });
+  }
+  const stale = await prisma.doctor.findMany({
+    where: { email: { notIn: doctorsData.map((d) => d.email) } },
+    select: { id: true, _count: { select: { appointments: true } } },
+  });
+  const removable = stale.filter((d) => d._count.appointments === 0).map((d) => d.id);
+  await prisma.doctor.deleteMany({ where: { id: { in: removable } } });
+  console.log(`Doctors synced: ${doctorsData.length} in the database, ${removable.length} old ones removed, ${stale.length - removable.length} kept because they have appointments.`);
+}
+
 async function main() {
   if (process.argv.includes("--recipes-only")) return syncRecipes();
+  if (process.argv.includes("--doctors-only")) return syncDoctors();
   console.log("🌱 بدأت عملية تنظيف البيانات القديمة...");
   
   // ترتيب الحذف لتجنب مشاكل العلاقات
