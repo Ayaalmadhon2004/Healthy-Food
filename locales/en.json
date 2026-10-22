@@ -66,6 +66,7 @@
     "kitchensLoadFailed": "Failed to load kitchens",
     "nameRequired": "Name is required",
     "invalidCapacity": "Invalid capacity",
+    "invalidImage": "Photo link must be an https:// link or a path starting with /assets/",
     "kitchenSaveFailed": "Failed to save kitchen",
     "kitchenDeleteFailed": "Failed to delete kitchen",
     "tooManyAttempts": "Too many attempts, please try again later",
@@ -98,6 +99,15 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "passwordNeedsUpper": "Password must contain at least one uppercase letter",
     "passwordNeedsNumber": "Password must contain at least one number",
-    "passwordNeedsSpecial": "Password must contain at least one special character"
+    "passwordNeedsSpecial": "Password must contain at least one special character",
+    "forbidden": "You are not allowed to do this",
+    "appointmentInvalidDate": "Choose a date between tomorrow and 60 days from now",
+    "appointmentDuplicate": "You already asked this doctor for that day",
+    "appointmentSaveFailed": "Could not save the appointment",
+    "appointmentNotFound": "Appointment not found",
+    "appointmentTransition": "That change is not allowed for this appointment",
+    "doctorNotFound": "Doctor not found",
+    "userNotFound": "No account with that email",
+    "doctorAlreadyLinked": "That account is already linked to another doctor"
   }
 }

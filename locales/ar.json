@@ -66,6 +66,7 @@
     "kitchensLoadFailed": "تعذر تحميل المطابخ",
     "nameRequired": "الاسم مطلوب",
     "invalidCapacity": "السعة غير صالحة",
+    "invalidImage": "رابط الصورة يجب أن يبدأ بـ https:// أو أن يكون مساراً يبدأ بـ /assets/",
     "kitchenSaveFailed": "تعذر حفظ المطبخ",
     "kitchenDeleteFailed": "تعذر حذف المطبخ",
     "tooManyAttempts": "محاولات كثيرة، يرجى المحاولة لاحقاً",
@@ -98,6 +99,15 @@
     "passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
     "passwordNeedsUpper": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل",
     "passwordNeedsNumber": "يجب أن تحتوي كلمة المرور على رقم واحد على الأقل",
-    "passwordNeedsSpecial": "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل"
+    "passwordNeedsSpecial": "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل",
+    "forbidden": "غير مسموح لك بذلك",
+    "appointmentInvalidDate": "اختر تاريخاً بين الغد و60 يوماً من الآن",
+    "appointmentDuplicate": "سبق أن طلبت موعداً عند هذا الطبيب في هذا اليوم",
+    "appointmentSaveFailed": "تعذر حفظ الموعد",
+    "appointmentNotFound": "الموعد غير موجود",
+    "appointmentTransition": "هذا التغيير غير مسموح لهذا الموعد",
+    "doctorNotFound": "الطبيب غير موجود",
+    "userNotFound": "لا يوجد حساب بهذا البريد",
+    "doctorAlreadyLinked": "هذا الحساب مرتبط بطبيب آخر"
   }
 }

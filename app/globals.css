@@ -456,6 +456,11 @@ html[lang="ar"] button, html[lang="ar"] input, html[lang="ar"] textarea, html[la
 html[lang="ar"] body { line-height: 1.75; }
 html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3 { line-height: 1.45; }
 
+/* Large numerals set in Poppins Medium; the 500 file is not preloaded (see app/layout.tsx) */
+.font-display.font-medium {
+  font-family: var(--font-headings-medium), var(--font-headings), var(--font-main), ui-sans-serif, system-ui, sans-serif;
+}
+
 i { font-style: normal !important; }
 
 ::selection { background: #d9dfb9; color: var(--color-ink); }
@@ -556,7 +561,7 @@ i { font-style: normal !important; }
     transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
   }
   .chip:hover { background: var(--color-paper-deep); color: var(--color-ink); }
-  .chip[aria-pressed="true"] { background: var(--color-olive-800); border-color: var(--color-olive-800); color: var(--color-white); }
+  .chip[aria-pressed="true"], .chip[aria-current="page"] { background: var(--color-olive-800); border-color: var(--color-olive-800); color: var(--color-white); }
 }
 
 /* Touch screens: keep tap targets at least 44px tall (WCAG 2.5.5) without changing the desktop look. */

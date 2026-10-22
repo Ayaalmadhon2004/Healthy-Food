@@ -26,6 +26,20 @@ const securityHeaders = [
   },
 ];
 
+// Every page exists under /en and /ar and its HTML depends on the URL alone (the signed-in user is
+// loaded in the browser), so public pages are prerendered and keep Next.js's own caching headers
+// (`s-maxage=...`, no `no-store`): shared caches may keep them and the back/forward cache is allowed.
+// Signed-in screens are the exception: nothing about them may be stored by a shared cache or kept in
+// the back/forward cache, so they are marked `private, no-store`.
+const LOCALE = ":lang(en|ar)";
+const PROTECTED_PAGES = [
+  `/${LOCALE}/dashboard/:path*`,
+  `/${LOCALE}/tracker`,
+  `/${LOCALE}/doctors/book`,
+  `/${LOCALE}/report-area`,
+  `/${LOCALE}/support`,
+];
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -44,6 +58,10 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      ...PROTECTED_PAGES.map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "private, no-store" }],
+      })),
       {
         // Unversioned files: cached for a month, revalidated in the background after that.
         source: "/assets/:path*",

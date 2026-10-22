@@ -11,7 +11,27 @@ function mightBeSignedIn(hintPresent: boolean): boolean {
   return document.cookie.split("; ").some((c) => c.startsWith("sb-") && c.includes("-auth-token"));
 }
 
+// Public pages may be shown again from the back/forward cache (see next.config.ts), which brings back
+// the page as it was left, including the signed-in state of the navbar. Bring that up to date when it
+// happens. The language needs no such check: it is part of the URL, so a restored page is always in
+// the right language.
+function useRefreshOnRestore() {
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      const { user, fetchUser, clearUser } = useUserData.getState();
+      const signedIn = mightBeSignedIn(readUserHint() !== null);
+      if (signedIn && !user) void fetchUser();
+      else if (!signedIn && user) clearUser();
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+}
+
 export function UserInitializer() {
+  useRefreshOnRestore();
+
   const fetchUser = useUserData((state) => state.fetchUser);
   const listenToAuth = useUserData((state) => state.listenToAuth);
   const setHint = useUserData((state) => state.setHint);

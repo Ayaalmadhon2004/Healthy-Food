@@ -1,9 +1,11 @@
 "use server";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalized } from "@/lib/revalidate";
 import { redirect } from "next/navigation";
 import { getSessionUser, isOrgRole } from "@/lib/auth";
-import { getServerMessages } from "@/lib/i18n";
+import { getRequestLang, getServerMessages } from "@/lib/i18n";
+import { localePath } from "@/lib/i18n-routing";
+import { isReportStatus } from "@/lib/reportStatus";
 
 export async function submitAreaReportAction(formData: FormData): Promise<{ error: string } | undefined> {
   const areaName = formData.get("areaName");
@@ -37,8 +39,8 @@ export async function submitAreaReportAction(formData: FormData): Promise<{ erro
   }
 
   if (success) {
-    revalidatePath("/dashboard");
-    redirect("/dashboard?success=true");
+    revalidateLocalized("/dashboard");
+    redirect(localePath(await getRequestLang(), "/dashboard?success=true"));
   }
 }
 
@@ -68,4 +70,28 @@ export async function getAllReportsAction() {
     console.error("Error fetching reports:", error);
     return { success: false, error: (await getServerMessages()).reportsFetchFailed };
   }
+}
+
+export async function updateReportStatusAction(
+  reportId: number,
+  status: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || !isOrgRole(sessionUser.role)) {
+    return { success: false, error: (await getServerMessages()).unauthorized };
+  }
+  if (!Number.isInteger(reportId) || !isReportStatus(status)) {
+    return { success: false, error: (await getServerMessages()).invalidData };
+  }
+
+  try {
+    await prisma.areaReport.update({ where: { id: reportId }, data: { status } });
+  } catch (error) {
+    console.error("Report status update failed:", error);
+    return { success: false, error: (await getServerMessages()).reportSaveFailed };
+  }
+
+  revalidateLocalized("/dashboard/reports");
+  revalidateLocalized("/dashboard");
+  return { success: true };
 }

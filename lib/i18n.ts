@@ -1,6 +1,7 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type en from "@/locales/en.json";
-import { toLang, type Lang } from "@/lib/types";
+import type { Lang } from "@/lib/types";
+import { LANG_COOKIE, langFromRequest } from "@/lib/i18n-routing";
 
 export async function getDictionaryServer(locale: string) {
   const dictionaries: Record<string, () => Promise<Record<string, unknown>>> = {
@@ -8,34 +9,27 @@ export async function getDictionaryServer(locale: string) {
     ar: () => import("@/locales/ar.json").then((module) => module.default),
   };
   
-  const fetcher = dictionaries[locale] || dictionaries.ar;
+  const fetcher = dictionaries[locale] || dictionaries.en;
   return fetcher();
-}
-
-export async function getDictionaryClient() {
-  if (typeof window === "undefined") return null; 
-
-  const locale = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("lang="))
-    ?.split("=")[1] || "en";
-
-  if (locale === "ar") {
-    return import("@/locales/ar.json").then((m) => m.default);
-  }
-  return import("@/locales/en.json").then((m) => m.default);
 }
 
 export type ServerMessages = typeof en.server;
 
-// Language of the current request, from the `lang` cookie (English by default).
-export async function getServerLang(): Promise<Lang> {
-  const cookieStore = await cookies();
-  return toLang(cookieStore.get("lang")?.value);
+// Language of a request that has no route param: server actions and API routes. Pages and layouts
+// must use the [lang] route param instead. The proxy sets x-lang for locale-prefixed paths; API calls
+// carry the page's URL in Referer; the lang cookie and English are the fallbacks.
+export async function getRequestLang(): Promise<Lang> {
+  const [headerStore, cookieStore] = await Promise.all([headers(), cookies()]);
+  return langFromRequest({
+    xLang: headerStore.get("x-lang"),
+    referer: headerStore.get("referer"),
+    cookie: cookieStore.get(LANG_COOKIE)?.value,
+  });
 }
 
-// User-facing messages (errors) from the server.* dictionary, in the request's language.
-export async function getServerMessages(): Promise<ServerMessages> {
-  const dict = (await getDictionaryServer(await getServerLang())) as { server: ServerMessages };
+// User-facing messages (errors) from the server.* dictionary, in the request's language
+// (or in `lang` when the caller already knows it, e.g. a page).
+export async function getServerMessages(lang?: Lang): Promise<ServerMessages> {
+  const dict = (await getDictionaryServer(lang ?? (await getRequestLang()))) as { server: ServerMessages };
   return dict.server;
 }

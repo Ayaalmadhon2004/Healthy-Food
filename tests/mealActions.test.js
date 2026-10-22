@@ -51,7 +51,7 @@ describe("mealActions (real Postgres)", { skip: !hasDatabase && "DATABASE_URL is
     assert.equal(res.success, true);
     assert.equal(res.meal.userId, user.id);
     assert.equal(res.meal.calories, 350);
-    assert.ok(revalidated().includes("/dashboard/tracker"));
+    assert.ok(revalidated().includes("/en/dashboard/tracker") && revalidated().includes("/ar/dashboard/tracker"));
   });
 
   it("rejects out-of-range or non-numeric calories without writing", async () => {

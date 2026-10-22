@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Heart, LogOut, X } from "lucide-react"; 
 import { getSupabase } from "@/lib/supabase/client";
@@ -9,12 +9,14 @@ import { useFavStore } from "@/store/useFavStore";
 import { useUserData } from "@/hooks/useUserData";
 import NavbarLinks from "./NavbarLinks";
 import Logo from "./Logo";
+import NotificationBell from "./NotificationBell";
 import { useLanguage } from "@/context/LanguageContext";
+import { stripLocale } from "@/lib/i18n-routing";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const { lang } = useLanguage();
+  const { lang, path } = useLanguage();
   
   const { user, hint, loading, clearUser } = useUserData();
   // Never block the navbar on the session check: show the cached identity
@@ -22,7 +24,7 @@ export default function Navbar() {
   const shown = user ?? (loading ? hint : null);
   
   const router = useRouter();
-  const onFavorites = usePathname() === "/favorites";
+  const onFavorites = stripLocale(usePathname()) === "/favorites";
   const favItems = useFavStore((state) => state.favItems);
   const resolvedRole = shown?.role || "USER";
 
@@ -44,7 +46,7 @@ export default function Navbar() {
     await supabase.auth.signOut();
     clearUser();
     setOpen(false);
-    router.push("/login");
+    router.push(path("/login"));
   };
 
   const t = lang === "ar"
@@ -74,6 +76,8 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
+
+            {user?.role === "USER" && <NotificationBell />}
 
             {shown ? (
               <div className="flex items-center gap-4 ps-6 border-s border-line">
@@ -118,6 +122,7 @@ export default function Navbar() {
             <Link href="/favorites" onClick={() => setOpen(false)} aria-current={onFavorites ? "page" : undefined} className="text-base text-ink">
               {t.favorites}{favItems.length > 0 ? ` (${favItems.length})` : ""}
             </Link>
+            {user?.role === "USER" && <NotificationBell mobile onClick={() => setOpen(false)} />}
             <div className="pt-4 flex items-center gap-3">
               {shown ? (
                 <button onClick={logout} className="btn btn-quiet">

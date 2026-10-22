@@ -146,6 +146,7 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against 
 ## Design Notes
 
 * **Identity comes from the session.** Server Actions and API routes read the signed-in user from the Supabase session (`lib/auth.js`); they never trust a user id sent by the client. Kitchen management and area reports are restricted to `ORG` / `ADMIN`.
+* **Language is part of the URL.** Every page lives under `/en/...` or `/ar/...` (`app/[lang]`); bare paths such as `/recipes` redirect to the visitor's language (the `lang` cookie set by the language switcher, else `Accept-Language`, else English). Path helpers are in `lib/i18n-routing.ts`; the redirect decision is made in `proxy.ts`.
 * **Gaza time.** "Today", "tomorrow" and monthly statistics use the `Asia/Gaza` timezone (`lib/dates.js`), independent of the server timezone.
 * **Reservations** run in a serializable transaction (with retry), so a kitchen cannot be overbooked by concurrent requests.
 * **Kitchen capacity** is stored as a number; older `{ en, ar }` values are still read correctly (`lib/capacity.js`).

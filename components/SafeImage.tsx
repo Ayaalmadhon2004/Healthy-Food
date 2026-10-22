@@ -42,7 +42,9 @@ export default function SafeImage({ src, alt, kind, seed = 0, hint, ...rest }: S
       ref={ref}
       src={shown}
       alt={alt}
-      unoptimized={useFallback || shown.endsWith(".svg") ? true : rest.unoptimized}
+      // Remote photos are served as-is: next.config has no remotePatterns, so the
+      // optimizer would reject them. Only local /assets files may be optimized.
+      unoptimized={useFallback || shown.endsWith(".svg") || !shown.startsWith("/") ? true : rest.unoptimized}
       onError={() => {
         if (src) setFailedSrc(src);
       }}

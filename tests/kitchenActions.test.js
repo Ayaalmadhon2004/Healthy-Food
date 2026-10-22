@@ -49,7 +49,7 @@ describe("kitchen management (real Postgres)", { skip: !hasDatabase && "DATABASE
       assert.deepEqual(added.kitchen.name, { ar: `مطبخ-${token}`, en: `Kitchen-${token}` });
       assert.deepEqual(added.kitchen.region, { ar: "رفح", en: "Rafah" });
       assert.equal(added.kitchen.capacity, 120);
-      assert.deepEqual(revalidated().sort(), ["/dashboard/organization", "/gaza-kitchen"]);
+      assert.deepEqual(revalidated().sort(), ["/ar/dashboard/organization", "/ar/gaza-kitchen", "/en/dashboard/organization", "/en/gaza-kitchen"]);
 
       const updated = await updateKitchenAction(String(added.kitchen.id), validForm(token, { nameEn: "Renamed", capacity: "٢٠٠", contact: "" }));
       assert.equal(updated.success, true);
@@ -60,6 +60,41 @@ describe("kitchen management (real Postgres)", { skip: !hasDatabase && "DATABASE
       assert.deepEqual(await deleteKitchenAction(added.kitchen.id), { success: true });
       assert.equal(await prisma.kitchen.count({ where: { id: added.kitchen.id } }), 0);
     }
+  });
+
+  it("saves, replaces and clears the optional photo link", async () => {
+    signInAs(await createUser("ORG"));
+    const token = randomUUID();
+    const added = await addKitchenAction(validForm(token, { image: "  https://example.com/pot.jpg " }));
+    assert.equal(added.success, true);
+    trackKitchen(added.kitchen.id);
+    assert.equal(added.kitchen.image, "https://example.com/pot.jpg", "trimmed and stored");
+
+    const local = await updateKitchenAction(added.kitchen.id, validForm(token, { image: "/assets/kitchens/pot.jpg" }));
+    assert.equal(local.kitchen.image, "/assets/kitchens/pot.jpg");
+
+    const list = await getKitchensAction(1, 100);
+    assert.equal(list.kitchens.find((k) => k.id === added.kitchen.id).image, "/assets/kitchens/pot.jpg");
+
+    const cleared = await updateKitchenAction(added.kitchen.id, validForm(token, { image: "" }));
+    assert.equal(cleared.success, true);
+    assert.equal(cleared.kitchen.image, null, "empty clears the photo");
+
+    const without = await addKitchenAction(validForm(randomUUID()));
+    trackKitchen(without.kitchen.id);
+    assert.equal(without.kitchen.image, null, "photo is optional");
+  });
+
+  it("rejects unsafe photo links without writing", async () => {
+    signInAs(await createUser("ORG"));
+    const kitchen = await createKitchen(50, { image: "https://example.com/keep.jpg" });
+    const token = randomUUID();
+    for (const image of ["javascript:alert(1)", "data:image/png;base64,AAAA", "//evil.com/a.jpg", "http://example.com/a.jpg", "https://exa mple.com/a.jpg", "https://example.com/" + "a".repeat(500)]) {
+      assert.equal((await addKitchenAction(validForm(token, { image }))).error, "Photo link must be an https:// link or a path starting with /assets/", image.slice(0, 30));
+      assert.equal((await updateKitchenAction(kitchen.id, validForm(token, { image }))).success, false);
+    }
+    assert.equal(await prisma.kitchen.count({ where: { name: { path: ["ar"], string_starts_with: `مطبخ-${token}` } } }), 0);
+    assert.equal((await prisma.kitchen.findUnique({ where: { id: kitchen.id } })).image, "https://example.com/keep.jpg");
   });
 
   it("add and update reject bad names and capacities without writing", async () => {

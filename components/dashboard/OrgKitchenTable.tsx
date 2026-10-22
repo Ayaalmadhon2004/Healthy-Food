@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"; // أضفنا useEffect
 import { formatCapacity } from "@/lib/capacity";
 import { Edit3, Trash2, ChevronLeft, ChevronRight, MapPin, Clock, Users, Search } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useRouter } from "next/navigation";
 import { deleteKitchenAction } from "@/app/actions/kitchenActions";
 import { pickText, toLang, type KitchenView } from "@/lib/types";

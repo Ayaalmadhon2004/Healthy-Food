@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getContentIds } from "@/lib/data";
 import { getSiteUrl } from "@/lib/site";
+import { absoluteLocaleUrl, LOCALES } from "@/lib/i18n-routing";
 
 // Regenerated at most once an hour. Never fails the build: if the database cannot be
 // reached the sitemap simply lists the static routes.
@@ -16,17 +17,27 @@ const STATIC_ROUTES: { path: string; priority: number }[] = [
   { path: "/signup", priority: 0.3 },
 ];
 
+// One entry per page per language, each listing all its language versions (hreflang), plus x-default.
+function entriesFor(origin: string, path: string, priority: number): MetadataRoute.Sitemap {
+  const languages: Record<string, string> = Object.fromEntries(
+    LOCALES.map((lang) => [lang, absoluteLocaleUrl(origin, lang, path)]),
+  );
+  languages["x-default"] = absoluteLocaleUrl(origin, "en", path);
+  return LOCALES.map((lang) => ({
+    url: absoluteLocaleUrl(origin, lang, path),
+    priority,
+    alternates: { languages },
+  }));
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl().origin;
-  const entries: MetadataRoute.Sitemap = STATIC_ROUTES.map(({ path, priority }) => ({
-    url: `${base}${path === "/" ? "" : path}`,
-    priority,
-  }));
+  const entries: MetadataRoute.Sitemap = STATIC_ROUTES.flatMap(({ path, priority }) => entriesFor(base, path, priority));
 
   try {
     const { recipes, tips } = await getContentIds();
-    for (const id of recipes) entries.push({ url: `${base}/recipes/${id}`, priority: 0.7 });
-    for (const id of tips) entries.push({ url: `${base}/tips/${id}`, priority: 0.6 });
+    for (const id of recipes) entries.push(...entriesFor(base, `/recipes/${id}`, 0.7));
+    for (const id of tips) entries.push(...entriesFor(base, `/tips/${id}`, 0.6));
   } catch (error) {
     console.error("Sitemap: content ids unavailable, listing static routes only.", error);
   }

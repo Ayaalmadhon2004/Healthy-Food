@@ -1,7 +1,7 @@
 import { after, afterEach, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { cleanup, createUser, hasDatabase, prisma, resetRevalidated, revalidated, signInAs } from "./helpers/db.js";
-import { getAllReportsAction, submitAreaReportAction } from "../app/actions/reportActions.ts";
+import { getAllReportsAction, submitAreaReportAction, updateReportStatusAction } from "../app/actions/reportActions.ts";
 import { checkOrgAccess, getCurrentUserRole } from "../app/actions/authActions.ts";
 import { readFileSync } from "node:fs";
 import { createLoginSchema, createSignupSchema } from "../lib/validations/auth.ts";
@@ -63,8 +63,8 @@ describe("reportActions (real Postgres)", { skip: !hasDatabase && "DATABASE_URL 
     resetRevalidated();
     // Exactly at the limits.
     const result = await submit(form({ areaName: "x".repeat(200), description: "y".repeat(2000) }));
-    assert.deepEqual(result, { redirected: "/dashboard?success=true" });
-    assert.ok(revalidated().includes("/dashboard"));
+    assert.deepEqual(result, { redirected: "/en/dashboard?success=true" });
+    assert.ok(revalidated().includes("/en/dashboard") && revalidated().includes("/ar/dashboard"));
 
     const rows = await prisma.areaReport.findMany({ where: { userId: user.id } });
     assert.equal(rows.length, 1);
@@ -90,6 +90,22 @@ describe("reportActions (real Postgres)", { skip: !hasDatabase && "DATABASE_URL 
       assert.equal(mine.areaName, "North camp");
       assert.deepEqual(mine.user, { name: author.name, email: author.email });
     }
+  });
+
+  it("lets only ORG/ADMIN change a report status, and only to a known status", async () => {
+    const author = await createUser();
+    const report = await prisma.areaReport.create({ data: { userId: author.id, areaName: "East block", description: "No bread", status: "pending" } });
+
+    for (const user of [null, author]) {
+      signInAs(user);
+      assert.deepEqual(await updateReportStatusAction(report.id, "seen"), { success: false, error: "Unauthorized" });
+    }
+
+    signInAs(await createUser("ORG"));
+    assert.deepEqual(await updateReportStatusAction(report.id, "done"), { success: false, error: "Invalid data" });
+    assert.deepEqual(await updateReportStatusAction(1.5, "seen"), { success: false, error: "Invalid data" });
+    assert.deepEqual(await updateReportStatusAction(report.id, "seen"), { success: true });
+    assert.equal((await prisma.areaReport.findUnique({ where: { id: report.id } })).status, "seen");
   });
 });
 

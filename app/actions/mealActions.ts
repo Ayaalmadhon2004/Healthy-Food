@@ -1,7 +1,7 @@
 "use server";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidateLocalized } from "@/lib/revalidate";
 import { getSessionUser } from "@/lib/auth";
 import { getServerMessages } from "@/lib/i18n";
 import { getGazaDayOfMonth, getGazaMonthRange, getGazaTodayStart, getReservationTargetDate } from "@/lib/dates";
@@ -41,8 +41,8 @@ export async function setCalorieGoalAction(value: unknown) {
       data: { health_goals: withCalorieGoal(row?.health_goals, goal) as Prisma.InputJsonObject },
     });
 
-    revalidatePath("/tracker");
-    revalidatePath("/dashboard/tracker/monthly");
+    revalidateLocalized("/tracker");
+    revalidateLocalized("/dashboard/tracker/monthly");
     return { success: true, goal };
   } catch (error) {
     console.error("mealActions error:", error);
@@ -75,8 +75,8 @@ export async function addMealAction(data: NewMeal) {
       }
     });
 
-    revalidatePath("/dashboard/tracker");
-    revalidatePath("/dashboard"); 
+    revalidateLocalized("/dashboard/tracker");
+    revalidateLocalized("/dashboard"); 
 
     return { success: true, meal };
   } catch (error) {
@@ -121,8 +121,8 @@ export async function deleteMealAction(mealId: string) {
       where: { id: mealId, userId: sessionUser.id },
     });
     if (count === 0) return { success: false, error: (await getServerMessages()).mealNotFound };
-    revalidatePath("/dashboard/tracker");
-    revalidatePath("/dashboard");
+    revalidateLocalized("/dashboard/tracker");
+    revalidateLocalized("/dashboard");
     return { success: true };
   } catch (error) {
     console.error("mealActions error:", error);
@@ -261,7 +261,7 @@ export async function reserveMealAction(_userId: unknown, kitchenId: number | st
     }
 
     if ("error" in outcome) return outcome;
-    revalidatePath("/"); 
+    revalidateLocalized("/gaza-kitchen"); 
     return { success: true, quantity: qty };
   } catch (error) {
     console.error("Meal Order Error:", error);
@@ -301,5 +301,6 @@ export async function cancelMealAction(_userId: unknown, kitchenId: number | str
     where: { userId, kitchenId: kId, targetDate: tomorrow }
   });
   const quantity = orders.reduce((sum, o) => sum + o.quantity, 0);
+  revalidateLocalized("/gaza-kitchen");
   return { success: true, quantity };
 }

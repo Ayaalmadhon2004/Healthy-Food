@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { ArrowRight } from "lucide-react";
 import SafeImage from "@/components/SafeImage";
 
@@ -45,7 +45,7 @@ export default function HomeAnimatedSections({ isAr }: { isAr: boolean }) {
           {places.map((item, i) => (
             <li key={item.href} className="border-b border-line-strong">
               <Link href={item.href} className="group flex items-start gap-5 py-6">
-                <span className="font-display text-sm text-clay-700 pt-1.5 w-6 tabular-nums" aria-hidden="true">
+                <span className="font-display text-sm font-medium text-clay-700 pt-1.5 w-6 tabular-nums" aria-hidden="true">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="flex-1">

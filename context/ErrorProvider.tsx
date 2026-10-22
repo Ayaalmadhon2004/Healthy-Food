@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ErrorContextValue {
   errorMsg: string;
@@ -18,11 +19,12 @@ export const useError = () => useContext(ErrorContext);
 export const ErrorProvider = ({ children }: { children: ReactNode }) => {
   const [errorMsg, setError] = useState("");
   const router = useRouter();
+  const { path } = useLanguage();
 
   const handleTryAgain = () => {
     setError("");      
     // replace not push ...     
-    router.replace("/login"); 
+    router.replace(path("/login")); 
   };
 
   return (

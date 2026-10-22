@@ -1,24 +1,36 @@
 import type { Metadata } from "next";
-import { getServerLang } from "@/lib/i18n";
+import { LOCALES, localePath } from "@/lib/i18n-routing";
 import type { Lang } from "@/lib/types";
 
 type Copy = { title: string; description: string };
 
+const OG_LOCALE: Record<Lang, string> = { ar: "ar_AR", en: "en_US" };
+
+// Canonical URL of this language's page plus hreflang links to every language (and x-default, which
+// is the English page). `path` is the page's path without a locale, e.g. "/recipes/3".
+export function localizedAlternates(lang: Lang, path: string): NonNullable<Metadata["alternates"]> {
+  return {
+    canonical: localePath(lang, path),
+    languages: {
+      ...Object.fromEntries(LOCALES.map((l) => [l, localePath(l, path)])),
+      "x-default": localePath("en", path),
+    },
+  };
+}
+
 // Metadata for a route whose title/description exist in both languages.
-// The language is a cookie, so there is one URL per page: the canonical is the page's own
-// path and no hreflang alternates are emitted (they would all point at the same URL).
-export async function localizedMetadata(
+export function localizedMetadata(
+  lang: Lang,
   path: string,
   copy: Record<Lang, Copy>,
   extra: Metadata = {},
-): Promise<Metadata> {
-  const lang = await getServerLang();
+): Metadata {
   const { title, description } = copy[lang];
   return {
     title,
     description,
-    alternates: { canonical: path },
-    openGraph: { title, description, url: path, locale: lang === "ar" ? "ar_AR" : "en_US" },
+    alternates: localizedAlternates(lang, path),
+    openGraph: { title, description, url: localePath(lang, path), locale: OG_LOCALE[lang] },
     ...extra,
   };
 }
