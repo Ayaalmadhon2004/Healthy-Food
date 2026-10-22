@@ -437,23 +437,6 @@ const foodRecipes = [
   },
   {
     id: 11,
-    img: "/assets/recipes/zibdiyet-gambari.svg",
-    type: TYPES.Dinner,
-    title: L("Zibdiyet Gambari (Shrimp in a Clay Pot)", "زبدية الجمبري"),
-    time: minutes(25),
-    cal: calories(290),
-    nutrition: nutrition(28, 8, 16, 2),
-    ingredients: {
-      en: ["400 g fresh peeled shrimp", "4 ripe tomatoes, chopped", "6 garlic cloves, sliced", "1 hot chili, sliced", "1/2 cup chopped dill", "3 tbsp olive oil", "1 tbsp lemon juice", "1/2 tsp cumin and salt"],
-      ar: ["400 غرام من الجمبري الطازج المقشّر", "4 حبات بندورة ناضجة مقطّعة", "6 فصوص ثوم مقطّعة شرائح", "حبة فلفل حارّ مقطّعة", "نصف كوب من الشبت المفروم", "3 ملاعق كبيرة من زيت الزيتون", "ملعقة كبيرة من عصير الليمون", "نصف ملعقة صغيرة من الكمّون وملح"],
-    },
-    instructions: {
-      en: ["Heat the olive oil in a small clay pot or a pan and sizzle the garlic and chili for 30 seconds.", "Add the tomatoes, cumin, and salt, and cook for 8 minutes until they become a thick sauce.", "Add the shrimp and half the dill and cook for 4 to 5 minutes, only until pink and firm.", "Finish with the lemon juice and the remaining dill.", "Serve bubbling hot with bread, and discard any shrimp that smell strong or off before cooking."],
-      ar: ["سخّن زيت الزيتون في زبدية فخارية صغيرة أو مقلاة وقلّب الثوم والفلفل 30 ثانية.", "أضف البندورة والكمّون والملح واطبخها 8 دقائق حتى تصبح صلصة سميكة.", "أضف الجمبري ونصف الشبت واطبخ 4 إلى 5 دقائق فقط حتى يحمرّ ويتماسك.", "أضف عصير الليمون وبقية الشبت.", "قدّمها وهي تغلي مع الخبز، وتخلّص من أي جمبري ذي رائحة قوية أو مريبة قبل الطبخ."],
-    },
-  },
-  {
-    id: 12,
     img: "/assets/recipes/musakhan.svg",
     type: TYPES.Dinner,
     title: L("Musakhan (Sumac Chicken and Onions)", "مسخّن الدجاج"),
@@ -470,7 +453,7 @@ const foodRecipes = [
     },
   },
   {
-    id: 13,
+    id: 12,
     img: "/assets/recipes/fatteh.svg",
     type: TYPES.Dinner,
     title: L("Chickpea Fatteh", "فتّة الحمص"),
@@ -487,7 +470,7 @@ const foodRecipes = [
     },
   },
   {
-    id: 14,
+    id: 13,
     img: "/assets/recipes/shorba-adas.svg",
     type: TYPES.Dinner,
     title: L("Lentil Soup (Shorbat Adas)", "شوربة العدس"),
@@ -504,7 +487,7 @@ const foodRecipes = [
     },
   },
   {
-    id: 15,
+    id: 14,
     img: "/assets/recipes/hummus.svg",
     type: TYPES.Snacks,
     title: L("Hummus with Tahini", "حمّص بالطحينة"),
@@ -521,7 +504,7 @@ const foodRecipes = [
     },
   },
   {
-    id: 16,
+    id: 15,
     img: "/assets/recipes/bulgur-bandora.svg",
     type: TYPES.Dinner,
     title: L("Bulgur with Tomato (Burghul bi Bandora)", "برغل بالبندورة"),
