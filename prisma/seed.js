@@ -1012,8 +1012,27 @@ async function syncRecipes() {
   console.log(`Recipes synced: ${foodRecipes.length} in the database, ${removed.count} old ones removed.`);
 }
 
+// `node prisma/seed.js --doctors-only` touches only the Doctor table. Doctors are matched by
+// email, so existing rows (and their appointments and linked accounts) are updated in place.
+// Doctors that are not in the list are removed only if they have no appointments.
+async function syncDoctors() {
+  for (const doctor of doctorsData) {
+    const existing = await prisma.doctor.findFirst({ where: { email: doctor.email } });
+    if (existing) await prisma.doctor.update({ where: { id: existing.id }, data: doctor });
+    else await prisma.doctor.create({ data: doctor });
+  }
+  const stale = await prisma.doctor.findMany({
+    where: { email: { notIn: doctorsData.map((d) => d.email) } },
+    select: { id: true, _count: { select: { appointments: true } } },
+  });
+  const removable = stale.filter((d) => d._count.appointments === 0).map((d) => d.id);
+  await prisma.doctor.deleteMany({ where: { id: { in: removable } } });
+  console.log(`Doctors synced: ${doctorsData.length} in the database, ${removable.length} old ones removed, ${stale.length - removable.length} kept because they have appointments.`);
+}
+
 async function main() {
   if (process.argv.includes("--recipes-only")) return syncRecipes();
+  if (process.argv.includes("--doctors-only")) return syncDoctors();
   console.log("🌱 بدأت عملية تنظيف البيانات القديمة...");
   
   // ترتيب الحذف لتجنب مشاكل العلاقات
