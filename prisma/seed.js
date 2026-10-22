@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
@@ -1027,7 +1028,20 @@ const nutritionGuideData = {
 };
 
 // --- الدالة الأساسية لتنفيذ الـ Seed ---
+// `node prisma/seed.js --recipes-only` touches only the FoodRecipe table: it upserts the
+// recipes above by id and removes any other recipe, leaving users, doctors, kitchens,
+// orders and the rest of the data alone.
+async function syncRecipes() {
+  for (const recipe of foodRecipes) {
+    const { id, ...data } = recipe;
+    await prisma.foodRecipe.upsert({ where: { id }, update: data, create: recipe });
+  }
+  const removed = await prisma.foodRecipe.deleteMany({ where: { id: { notIn: foodRecipes.map((r) => r.id) } } });
+  console.log(`Recipes synced: ${foodRecipes.length} in the database, ${removed.count} old ones removed.`);
+}
+
 async function main() {
+  if (process.argv.includes("--recipes-only")) return syncRecipes();
   console.log("🌱 بدأت عملية تنظيف البيانات القديمة...");
   
   // ترتيب الحذف لتجنب مشاكل العلاقات
