@@ -5,6 +5,8 @@ export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
 
 export const MAX_DAYS_AHEAD = 60;
 export const MAX_NOTE_LENGTH = 500;
+// Appointments carry a day, not a time, so a doctor's load is capped per day.
+export const MAX_APPOINTMENTS_PER_DAY = 10;
 
 export function isAppointmentStatus(value: unknown): value is AppointmentStatus {
   return typeof value === "string" && (APPOINTMENT_STATUSES as readonly string[]).includes(value);
@@ -24,6 +26,9 @@ export function nextStatuses(from: string): AppointmentStatus[] {
 export function canDoctorMove(from: string, to: string): boolean {
   return isAppointmentStatus(from) && isAppointmentStatus(to) && DOCTOR_TRANSITIONS[from].includes(to);
 }
+
+// Cancelled and completed visits no longer take a slot.
+export const ACTIVE_STATUSES: AppointmentStatus[] = ["PENDING", "CONFIRMED"];
 
 export function canPatientCancel(status: string): boolean {
   return status === "PENDING" || status === "CONFIRMED";
