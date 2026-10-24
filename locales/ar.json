@@ -103,6 +103,7 @@
     "forbidden": "غير مسموح لك بذلك",
     "appointmentInvalidDate": "اختر تاريخاً بين الغد و60 يوماً من الآن",
     "appointmentDuplicate": "سبق أن طلبت موعداً عند هذا الطبيب في هذا اليوم",
+    "appointmentDayFull": "هذا الطبيب ممتلئ في هذا اليوم، اختر يوماً آخر",
     "appointmentSaveFailed": "تعذر حفظ الموعد",
     "appointmentNotFound": "الموعد غير موجود",
     "appointmentTransition": "هذا التغيير غير مسموح لهذا الموعد",

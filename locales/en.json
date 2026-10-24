@@ -103,6 +103,7 @@
     "forbidden": "You are not allowed to do this",
     "appointmentInvalidDate": "Choose a date between tomorrow and 60 days from now",
     "appointmentDuplicate": "You already asked this doctor for that day",
+    "appointmentDayFull": "This doctor is fully booked that day, please choose another",
     "appointmentSaveFailed": "Could not save the appointment",
     "appointmentNotFound": "Appointment not found",
     "appointmentTransition": "That change is not allowed for this appointment",
