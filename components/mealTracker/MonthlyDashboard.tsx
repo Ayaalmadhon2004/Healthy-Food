@@ -1,5 +1,6 @@
 "use client";
 import MonthlyGrid from "@/components/mealTracker/MonthlyGrid";
+import CountUp from "@/components/CountUp";
 
 export interface MonthlyStats {
     avgCalories?: number;
@@ -31,9 +32,9 @@ export default function MonthlyDashboard({ data = {}, stats = {}, lang }: {
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 mb-10">
-            <StatCard label={isRtl ? "متوسط الاستهلاك" : "Average intake"} value={avg} unit={isRtl ? "سعرة" : "cal"} />
-            <StatCard label={isRtl ? "أيام الالتزام" : "Days on track"} value={commitment} unit={isRtl ? "يوم" : "days"} />
-            <StatCard label={isRtl ? "إجمالي الوجبات" : "Meals logged"} value={total} unit={isRtl ? "وجبة" : "meals"} />
+            <StatCard label={isRtl ? "متوسط الاستهلاك" : "Average intake"} value={avg} unit={isRtl ? "سعرة" : "cal"} lang={lang} />
+            <StatCard label={isRtl ? "أيام الالتزام" : "Days on track"} value={commitment} unit={isRtl ? "يوم" : "days"} lang={lang} />
+            <StatCard label={isRtl ? "إجمالي الوجبات" : "Meals logged"} value={total} unit={isRtl ? "وجبة" : "meals"} lang={lang} />
         </div>
 
         <MonthlyGrid 
@@ -48,7 +49,8 @@ export default function MonthlyDashboard({ data = {}, stats = {}, lang }: {
     );
     }
 
-function StatCard({ label, value, unit }: {
+function StatCard({ label, value, unit, lang }: {
+    lang: string;
     label: string;
     value: number;
     unit: string;
@@ -57,7 +59,7 @@ function StatCard({ label, value, unit }: {
         <div className="border-t-2 border-ink pt-3">
         <p className="text-sm text-ink-soft font-medium">{label}</p>
         <p className="mt-1 flex items-baseline gap-2">
-            <span className="text-4xl font-medium font-display tabular-nums text-ink">{value}</span>
+            <span className="text-4xl font-medium font-display tabular-nums text-ink"><CountUp value={value} locale={lang} /></span>
             <span className="text-sm text-ink-mute">{unit}</span>
         </p>
         </div>

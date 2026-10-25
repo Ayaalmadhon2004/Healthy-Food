@@ -1,7 +1,8 @@
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
+import CountUp from "@/components/CountUp";
 
 interface ProgressCardProps {
   calories: number;
@@ -17,6 +18,13 @@ const ProgressCard = memo(({ calories, goal = 2000, onGoalChange }: ProgressCard
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [barReady, setBarReady] = useState(false);
+
+  // Mount at 0 so the bar grows to its value on first paint.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setBarReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   const { percent, remaining, statusColor } = useMemo(() => {
     const p = Math.min(100, Math.round((calories / goal) * 100));
@@ -63,20 +71,20 @@ const ProgressCard = memo(({ calories, goal = 2000, onGoalChange }: ProgressCard
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-semibold text-lg text-ink">{content.title[lang]}</h3>
         <span className="font-medium text-olive-800 tabular-nums">
-          {percent}%
+          <CountUp value={percent} locale={lang} suffix="%" />
         </span>
       </div>
 
       <div className="mb-4 font-bold flex items-baseline gap-1">
-        <span className="text-4xl text-gray-900 tracking-tight">{calories}</span>
+        <span className="text-4xl text-gray-900 tracking-tight"><CountUp value={calories} locale={lang} /></span>
         <span className="text-ink-mute text-lg">/ {goal}</span>
         <span className="text-sm text-ink-mute font-medium mx-1">{content.unit[lang]}</span>
       </div>
 
       <div className="w-full h-2.5 bg-paper-deep rounded-sm mb-6 overflow-hidden">
         <div
-          className={`h-full transition-[width] duration-500 ease-out ${statusColor}`}
-          style={{ width: `${percent}%` }}
+          className={`h-full transition-[width,background-color] duration-700 ease-out ${statusColor}`}
+          style={{ width: `${barReady ? percent : 0}%` }}
         ></div>
       </div>
 

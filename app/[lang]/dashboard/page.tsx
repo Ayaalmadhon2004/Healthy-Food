@@ -6,6 +6,8 @@ import { useUserData } from "@/hooks/useUserData";
 import Link from "@/components/LocaleLink";
 import { ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import CountUp from "@/components/CountUp";
+import Reveal from "@/components/Reveal";
 import { getAllReportsAction } from "@/app/actions/reportActions";
 import { getDashboardStatsAction, getDoctorStatsAction } from "@/app/actions/statsActions";
 import type { DashboardStats } from "@/lib/dashboardStats";
@@ -13,7 +15,8 @@ import type { DoctorStats } from "@/lib/appointments";
 
 interface StatCardProps {
   title: string;
-  value: string;
+  value: number | undefined;
+  suffix?: string;
   isAr: boolean;
 }
 
@@ -30,10 +33,12 @@ function reportStatusLabel(status: string, isAr: boolean): string {
   return isAr ? "قيد المراجعة" : "Pending";
 }
 
-const StatCard = ({ title, value, isAr }: StatCardProps) => (
+const StatCard = ({ title, value, suffix, isAr }: StatCardProps) => (
   <div className="border-t-2 border-ink pt-3" dir={isAr ? "rtl" : "ltr"}>
     <p className="text-sm text-ink-soft font-medium">{title}</p>
-    <p className="text-4xl font-medium text-ink mt-1 tabular-nums font-display">{value}</p>
+    <p className="text-4xl font-medium text-ink mt-1 tabular-nums font-display">
+      {value === undefined ? "—" : <CountUp value={value} locale={isAr ? "ar" : "en"} suffix={suffix} />}
+    </p>
   </div>
 );
 
@@ -83,16 +88,14 @@ export default function DashboardHome() {
 
   // 2. واجهة الأدوار الإدارية (ORG / ADMIN / DOCTOR)
   if (userRole === "ORG" || userRole === "ADMIN" || userRole === "DOCTOR") {
-    const dash = "—";
-    const fmt = (n: number | undefined) => (n === undefined ? dash : n.toLocaleString(isAr ? "ar" : "en"));
     const stats = userRole === "DOCTOR" ? [
-      { title: isAr ? "عدد المرضى" : "Patients", value: fmt(doctorStats?.patients) },
-      { title: isAr ? "مواعيد مؤكدة قادمة" : "Confirmed upcoming", value: fmt(doctorStats?.upcoming) },
-      { title: isAr ? "طلبات تنتظر ردك" : "Waiting for your answer", value: fmt(doctorStats?.pending) },
+      { title: isAr ? "عدد المرضى" : "Patients", value: doctorStats?.patients },
+      { title: isAr ? "مواعيد مؤكدة قادمة" : "Confirmed upcoming", value: doctorStats?.upcoming },
+      { title: isAr ? "طلبات تنتظر ردك" : "Waiting for your answer", value: doctorStats?.pending },
     ] : [
-      { title: isAr ? "وجبات محجوزة لغد" : "Meals reserved for tomorrow", value: orgStats ? orgStats.reservedTomorrow.toLocaleString(isAr ? "ar" : "en") : dash },
-      { title: isAr ? "السعة المحجوزة لغد" : "Capacity reserved for tomorrow", value: orgStats?.capacityUsedPercent != null ? `${orgStats.capacityUsedPercent}%` : dash },
-      { title: isAr ? "بلاغات المناطق" : "Area reports", value: orgStats ? orgStats.areaReports.toLocaleString(isAr ? "ar" : "en") : dash },
+      { title: isAr ? "وجبات محجوزة لغد" : "Meals reserved for tomorrow", value: orgStats?.reservedTomorrow },
+      { title: isAr ? "السعة المحجوزة لغد" : "Capacity reserved for tomorrow", value: orgStats?.capacityUsedPercent ?? undefined, suffix: "%" },
+      { title: isAr ? "بلاغات المناطق" : "Area reports", value: orgStats?.areaReports },
     ];
 
     return (
@@ -109,7 +112,9 @@ export default function DashboardHome() {
         {stats.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8 gap-y-6 mb-14">
             {stats.map((stat, index) => (
-              <StatCard key={index} {...stat} isAr={isAr} />
+              <Reveal key={index} step={index}>
+                <StatCard {...stat} isAr={isAr} />
+              </Reveal>
             ))}
           </div>
         )}
