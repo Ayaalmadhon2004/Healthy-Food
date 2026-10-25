@@ -18,6 +18,7 @@ export default function Reveal({ children, className, step = 0, as: Tag = "div" 
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (el.getBoundingClientRect().top < window.innerHeight) return;
 
     el.dataset.reveal = "hidden";
