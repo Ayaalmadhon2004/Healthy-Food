@@ -24,7 +24,7 @@ const MealItem = memo(({ meal, onDelete, lang }: MealItemProps) => {
   const translatedOption = optionTranslations[meal.mealType || meal.option || ""]?.[lang] || meal.option;
 
   return (
-    <li className="flex items-center justify-between gap-4 py-4 border-b border-line">
+    <li className="settle flex items-center justify-between gap-4 py-4 border-b border-line">
       <div className="min-w-0">
         <p className="text-sm text-ink-mute">
           {translatedOption} <span className="tabular-nums">· {meal.calories} {lang === "ar" ? "سعرة" : "cal"}</span>

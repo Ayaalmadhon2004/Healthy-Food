@@ -50,7 +50,7 @@ export default async function TipsPage({ params }: LangParams) {
             return (
               <article
                 key={item.id}
-                className={`surface overflow-hidden flex flex-col ${featured ? "lg:col-span-3 lg:flex-row" : ""}`}
+                className={`surface card-lift overflow-hidden flex flex-col ${featured ? "lg:col-span-3 lg:flex-row" : ""}`}
               >
                 <div
                   className={`relative bg-paper-deep border-b border-line ${

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "@/components/LocaleLink";
 import { usePathname } from "next/navigation";
 import { Bell } from "lucide-react";
@@ -15,13 +15,18 @@ export default function NotificationBell({ mobile = false, onClick }: { mobile?:
   const { lang } = useLanguage();
   const pathname = usePathname();
   const [count, setCount] = useState(0);
+  const [wiggle, setWiggle] = useState(false);
+  const seen = useRef(0);
 
   const refresh = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications/unread", { cache: "no-store" });
       if (!res.ok) return;
       const data = (await res.json()) as { count?: number };
-      setCount(typeof data.count === "number" ? data.count : 0);
+      const next = typeof data.count === "number" ? data.count : 0;
+      if (next > seen.current) setWiggle(true);
+      seen.current = next;
+      setCount(next);
     } catch {
       // offline or server hiccup: keep the last number
     }
@@ -56,7 +61,7 @@ export default function NotificationBell({ mobile = false, onClick }: { mobile?:
 
   return (
     <Link href="/dashboard/appointments" aria-label={label} className="relative inline-flex items-center justify-center w-11 h-11 -mx-2 text-ink-soft hover:text-olive-800">
-      <Bell aria-hidden="true" className="w-5 h-5" strokeWidth={1.75} />
+      <Bell aria-hidden="true" className={`w-5 h-5 ${wiggle ? "bell-wiggle" : ""}`} strokeWidth={1.75} onAnimationEnd={() => setWiggle(false)} />
       {count > 0 && (
         <span aria-hidden="true" className="absolute top-1 end-0 min-w-[1.125rem] h-[1.125rem] px-1 rounded-full bg-clay-700 text-white flex items-center justify-center text-[0.6875rem] font-semibold leading-none">
           {count > 9 ? "9+" : count}

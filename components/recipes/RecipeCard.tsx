@@ -9,7 +9,7 @@ import type { Lang, Recipe } from "@/lib/types";
 const RecipeCard = ({ meal, lang, index }: { meal: Recipe; lang: Lang; index: number }) => {
   return (
     // استخدام article بدلاً من div يحسن الـ SEO والـ Accessibility
-    <article className="surface overflow-hidden flex flex-col">
+    <article className="surface card-lift overflow-hidden flex flex-col">
 
       {/* حاوية الصورة: منع CLS عبر حجز المساحة مسبقاً */}
       <div className="relative w-full aspect-[4/3] bg-paper-deep border-b border-line">

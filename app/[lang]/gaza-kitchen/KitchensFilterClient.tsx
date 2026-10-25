@@ -80,7 +80,7 @@ export default function KitchensFilterClient({ kitchens, lang }: { kitchens: Kit
             return (
               <article
                 key={kitchen.id}
-                className="surface flex flex-col overflow-hidden"
+                className="surface card-lift flex flex-col overflow-hidden"
               >
                 <div className="relative aspect-[16/9] bg-paper-deep border-b border-line">
                   <SafeImage

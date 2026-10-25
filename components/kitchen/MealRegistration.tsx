@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { Check } from "lucide-react";
 import { reserveMealAction , cancelMealAction , checkUserReservation } from "@/app/actions/mealActions";
 import { useUserData } from "@/hooks/useUserData";
 
@@ -213,11 +214,12 @@ export default function MealRegistration({ kitchenId, initialCount = 0, capacity
             </p>
 
             {message && (
-                <div role="status" className={`px-3 py-2.5 rounded-md text-sm font-medium border ${
+                <div role="status" className={`settle flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-medium border ${
                     status === "success"
                         ? "bg-olive-50 text-olive-900 border-olive-200"
                         : "bg-brick-50 text-brick-800 border-brick-200"
                 }`}>
+                    {status === "success" && <Check size={16} strokeWidth={2.25} className="tick-in shrink-0" aria-hidden="true" />}
                     {message}
                 </div>
             )}

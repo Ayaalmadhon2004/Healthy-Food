@@ -130,8 +130,8 @@ export default function AddKitchenModal({ lang = "en", kitchens = [], onSuccess 
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-ink/50 p-4 overflow-y-auto">
-          <div role="dialog" aria-modal="true" aria-labelledby="add-kitchen-title" className="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
+        <div className="modal-backdrop fixed inset-0 z-[999] flex items-center justify-center bg-ink/50 p-4 overflow-y-auto">
+          <div role="dialog" aria-modal="true" aria-labelledby="add-kitchen-title" className="modal-panel bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
             
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
               <h2 id="add-kitchen-title" className="text-xl font-black flex items-center gap-2 text-gray-800">
