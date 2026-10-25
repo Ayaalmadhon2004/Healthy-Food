@@ -1,6 +1,6 @@
 import { after, afterEach, describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { canDoctorMove, canPatientCancel, nextStatuses, parseAppointmentDate } from "../lib/appointments.ts";
+import { MAX_APPOINTMENTS_PER_DAY, canDoctorMove, canPatientCancel, nextStatuses, parseAppointmentDate } from "../lib/appointments.ts";
 import { cleanup, createDoctor, createUser, hasDatabase, prisma, signInAs } from "./helpers/db.js";
 import {
   cancelMyAppointmentAction,
@@ -70,6 +70,26 @@ describe("appointmentActions (real Postgres)", { skip: !hasDatabase && "DATABASE
       error: "You already asked this doctor for that day",
     });
     assert.deepEqual(await requestAppointmentAction(doctor.id, tomorrowPlus(2), ""), { success: true });
+  });
+
+  it("refuses a booking once the doctor's day is full, and frees the slot on cancel", async () => {
+    const doctor = await createDoctor();
+    const day = tomorrowPlus(3);
+    for (let i = 0; i < MAX_APPOINTMENTS_PER_DAY; i++) {
+      signInAs(await createUser());
+      assert.deepEqual(await requestAppointmentAction(doctor.id, day, ""), { success: true });
+    }
+    const late = await createUser();
+    signInAs(late);
+    assert.deepEqual(await requestAppointmentAction(doctor.id, day, ""), {
+      success: false,
+      error: "This doctor is fully booked that day, please choose another",
+    });
+    assert.deepEqual(await requestAppointmentAction(doctor.id, tomorrowPlus(4), ""), { success: true });
+
+    const one = await prisma.appointment.findFirst({ where: { doctorId: doctor.id, preferredDate: new Date(`${day}T00:00:00Z`) } });
+    await prisma.appointment.update({ where: { id: one.id }, data: { status: "CANCELLED" } });
+    assert.deepEqual(await requestAppointmentAction(doctor.id, day, ""), { success: true });
   });
 
   it("lets only the linked doctor move an appointment, one step at a time", async () => {

@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { getServerMessages } from "@/lib/i18n";
 import {
+  ACTIVE_STATUSES,
+  MAX_APPOINTMENTS_PER_DAY,
   MAX_NOTE_LENGTH,
   canDoctorMove,
   canPatientCancel,
@@ -35,10 +37,34 @@ export async function requestAppointmentAction(doctorId: number, date: string, n
   if (!doctor) return { success: false, error: m.doctorNotFound };
   if (doctor.userId === sessionUser.id) return { success: false, error: m.forbidden };
 
+  // Serializable transaction: two patients booking the last slot at once cannot both get it.
+  const book = () =>
+    prisma.$transaction(
+      async (tx) => {
+        const taken = await tx.appointment.count({
+          where: { doctorId, preferredDate, status: { in: ACTIVE_STATUSES } },
+        });
+        if (taken >= MAX_APPOINTMENTS_PER_DAY) return false;
+        await tx.appointment.create({
+          data: { doctorId, patientId: sessionUser.id, preferredDate, note: cleanNote || null },
+        });
+        return true;
+      },
+      { isolationLevel: "Serializable" },
+    );
+
   try {
-    await prisma.appointment.create({
-      data: { doctorId, patientId: sessionUser.id, preferredDate, note: cleanNote || null },
-    });
+    let booked: boolean;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        booked = await book();
+        break;
+      } catch (e) {
+        if ((e as { code?: string })?.code !== "P2034" || attempt >= 4) throw e;
+        await new Promise((r) => setTimeout(r, 25 * (attempt + 1) + Math.random() * 50));
+      }
+    }
+    if (!booked) return { success: false, error: m.appointmentDayFull };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return { success: false, error: m.appointmentDuplicate };
