@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "@/components/LocaleLink";
 import { ArrowRight } from "lucide-react";
 import HomeAnimatedSections from "@/components/HomeAnimatedSections";
+import Reveal from "@/components/Reveal";
 import SafeImage from "@/components/SafeImage";
 import JsonLd from "@/components/JsonLd";
 import { localePath, routeLang, type LangParams } from "@/lib/i18n-routing";
@@ -97,7 +98,7 @@ export default async function LandingPage({ params }: LangParams) {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+        <div className="settle-3 float-slow relative mx-auto w-full max-w-md lg:max-w-none">
           <SafeImage
             src="/assets/placeholders/hero-tray.svg"
             alt={isAr ? "صينية طعام مشتركة تتوسطها أطباق صغيرة وغصن زيتون" : "A shared tray of food with small dishes around it and an olive branch"}
@@ -120,7 +121,7 @@ export default async function LandingPage({ params }: LangParams) {
       {/* Featured recipe: one dish, given room */}
       <section className="bg-paper-deep border-y border-line">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 grid md:grid-cols-[1fr_1.1fr] gap-10 md:gap-16 items-center">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-line bg-paper">
+          <Reveal className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-line bg-paper">
             <SafeImage
               src="/assets/Lentil Soup.jpg"
               alt={isAr ? "وعاء شوربة عدس ساخنة" : "A bowl of hot lentil soup"}
@@ -130,15 +131,15 @@ export default async function LandingPage({ params }: LangParams) {
               sizes="(min-width: 768px) 45vw, 100vw"
               className="object-cover"
             />
-          </div>
-          <div>
+          </Reveal>
+          <Reveal step={2}>
             <p className="kicker">{t.featuredLabel}</p>
             <h2 className="mt-2 text-3xl md:text-4xl font-medium text-ink">{t.featuredTitle}</h2>
             <p className="mt-4 text-lg text-ink-soft leading-relaxed max-w-lg">{t.featuredText}</p>
             <Link href="/recipes" className="text-link mt-6 inline-flex items-center gap-2">
               {t.featuredLink} {arrow}
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -146,35 +147,35 @@ export default async function LandingPage({ params }: LangParams) {
       <section className="max-w-7xl mx-auto px-5 md:px-8 py-16 md:py-24 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div className="order-2 lg:order-1 grid grid-cols-2 gap-4 sm:gap-5">
           <div className="space-y-4 sm:space-y-5">
-            <div className="relative aspect-[5/3] overflow-hidden rounded-lg border border-line">
+            <Reveal step={0} className="relative aspect-[5/3] overflow-hidden rounded-lg border border-line">
               <SafeImage src="/assets/placeholders/tip-water.svg" alt="" kind="tip" hint="Droplet" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
-            </div>
-            <div className="relative aspect-square overflow-hidden rounded-lg border border-line">
+            </Reveal>
+            <Reveal step={1} className="relative aspect-square overflow-hidden rounded-lg border border-line">
               <SafeImage src="/assets/placeholders/tip-rest.svg" alt="" kind="tip" hint="Bed" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
-            </div>
+            </Reveal>
           </div>
           <div className="space-y-4 sm:space-y-5 pt-10 sm:pt-14">
-            <div className="relative aspect-square overflow-hidden rounded-lg border border-line">
+            <Reveal step={2} className="relative aspect-square overflow-hidden rounded-lg border border-line">
               <SafeImage src="/assets/placeholders/tip-leaf.svg" alt="" kind="tip" hint="Leaf" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
-            </div>
-            <div className="relative aspect-[5/3] overflow-hidden rounded-lg border border-line">
+            </Reveal>
+            <Reveal step={3} className="relative aspect-[5/3] overflow-hidden rounded-lg border border-line">
               <SafeImage src="/assets/placeholders/tip-move.svg" alt="" kind="tip" hint="Activity" fill sizes="(min-width: 1024px) 22vw, 45vw" className="object-cover" />
-            </div>
+            </Reveal>
           </div>
         </div>
-        <div className="order-1 lg:order-2">
+        <Reveal step={2} className="order-1 lg:order-2">
           <h2 className="text-3xl md:text-4xl font-medium text-ink max-w-[20ch]">{t.tipsTitle}</h2>
           <p className="mt-5 text-lg text-ink-soft leading-relaxed max-w-lg">{t.tipsText}</p>
           <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
             <Link href="/tips" className="text-link">{t.tipsLink}</Link>
             <Link href="/doctors" className="text-link">{t.doctorsLink}</Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Call to join */}
       <section className="px-5 md:px-8 pb-6">
-        <div className="max-w-7xl mx-auto bg-olive-800 text-white rounded-xl px-6 md:px-14 py-12 md:py-16 grid md:grid-cols-[1.2fr_1fr] gap-8 items-end">
+        <Reveal className="max-w-7xl mx-auto bg-olive-800 text-white rounded-xl px-6 md:px-14 py-12 md:py-16 grid md:grid-cols-[1.2fr_1fr] gap-8 items-end">
           <div>
             <h2 className="text-3xl md:text-4xl font-medium text-white max-w-[22ch]">{t.joinTitle}</h2>
             <p className="mt-4 text-olive-100 text-lg leading-relaxed max-w-xl">{t.joinText}</p>
@@ -183,7 +184,7 @@ export default async function LandingPage({ params }: LangParams) {
             <Link href="/signup" className="btn bg-white text-olive-900 hover:bg-olive-100 !px-6 !py-3">{t.join}</Link>
             <Link href="/report-area" className="btn border-olive-300 text-white hover:bg-olive-700 !px-6 !py-3">{t.report}</Link>
           </div>
-        </div>
+        </Reveal>
       </section>
     </div>
   );

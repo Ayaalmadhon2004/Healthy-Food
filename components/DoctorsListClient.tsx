@@ -46,7 +46,7 @@ export default function DoctorsListClient({ initialDoctors, lang: langProp }: { 
           return (
           <article
             key={doctor.id}
-            className="surface p-5 md:p-6 flex flex-col"
+            className="surface card-lift p-5 md:p-6 flex flex-col"
           >
             <div className="flex gap-5">
               <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0 overflow-hidden rounded-lg border border-line bg-paper-deep">

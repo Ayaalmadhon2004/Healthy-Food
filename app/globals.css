@@ -569,7 +569,13 @@ i { font-style: normal !important; }
   .btn, .chip { min-height: 2.75rem; }
 }
 
-/* ---------- Motion: one quiet entrance, nothing else ---------- */
+/* ---------- Motion: quiet, short, opacity and transform only ---------- */
+
+:root {
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-reveal: 480ms;
+  --dur-hover: 200ms;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   @keyframes settle {
@@ -586,6 +592,38 @@ i { font-style: normal !important; }
     60% { transform: translateX(3px); }
   }
   .animate-shake { animation: shake-x 240ms ease-in-out 1; }
+
+  /* Scroll reveal, driven by components/Reveal.tsx */
+  [data-reveal] {
+    transition: opacity var(--dur-reveal) var(--ease-out), transform var(--dur-reveal) var(--ease-out);
+  }
+  [data-reveal="hidden"] { opacity: 0; transform: translateY(12px); }
+  [data-reveal="shown"] { opacity: 1; transform: none; }
+
+  /* Slow drift for the hero illustration */
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(0.4deg); }
+  }
+  .float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+  /* Cards: small lift and a slow image zoom, mouse pointers only */
+  @media (hover: hover) {
+    .card-lift {
+      transition: transform var(--dur-hover) var(--ease-out), box-shadow var(--dur-hover) var(--ease-out);
+    }
+    .card-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px -8px rgb(40 36 28 / 0.25);
+    }
+    .card-lift img { transition: transform 500ms var(--ease-out); }
+    .card-lift:hover img { transform: scale(1.04); }
+  }
+
+  /* List rows: arrow nudges along the reading direction, number warms up */
+  .row-arrow { transition: transform var(--dur-hover) var(--ease-out), color var(--dur-hover); }
+  .group:hover .row-arrow { transform: translateX(4px); }
+  [dir="rtl"] .group:hover .row-arrow { transform: translateX(-4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
