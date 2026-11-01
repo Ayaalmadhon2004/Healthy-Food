@@ -1,5 +1,7 @@
 # Healthy Food and Gaza Kitchen Community
 
+**Live demo:** [gaza-food-project.vercel.app](https://gaza-food-project.vercel.app) · Arabic and English · installable PWA
+
 ## Overview
 
 **Healthy Food** is a community-driven platform designed to promote healthy eating, calorie awareness, and efficient food distribution. The project brings together health tracking, medical guidance, and community organization to tackle two main challenges:
