@@ -1,180 +1,243 @@
-# Healthy Food and Gaza Kitchen Community
+<div align="center">
 
-## Overview
+<img src="docs/banner.svg" alt="NutriFlow: eating well in Gaza, with what you have" width="100%">
 
-**Healthy Food** is a community-driven platform designed to promote healthy eating, calorie awareness, and efficient food distribution. The project brings together health tracking, medical guidance, and community organization to tackle two main challenges:
+<br>
 
-1. Helping individuals calculate daily calories and follow healthier eating habits.
-2. Supporting Gaza kitchen communities to organize food distribution and reduce wait times through digital coordination.
+![Next.js](https://img.shields.io/badge/Next.js_16-2b261f?style=flat-square&logo=nextdotjs&logoColor=f6f0e3)
+![React](https://img.shields.io/badge/React_19-4d5a2c?style=flat-square&logo=react&logoColor=f6f0e3)
+![Tailwind](https://img.shields.io/badge/Tailwind_4-6f7e44?style=flat-square&logo=tailwindcss&logoColor=f6f0e3)
+![Prisma](https://img.shields.io/badge/Prisma_7-b5613c?style=flat-square&logo=prisma&logoColor=f6f0e3)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-934b2f?style=flat-square&logo=postgresql&logoColor=f6f0e3)
+![Arabic + English](https://img.shields.io/badge/عربي_|_English-b68b35?style=flat-square)
 
----
+**[What it does](#what-it-does)** ·
+**[A look around](#a-look-around)** ·
+**[Run it locally](#run-it-locally)** ·
+**[How it's built](#how-its-built)** ·
+**[Roadmap](#roadmap)**
 
-## Project Goals
+</div>
 
-* Encourage healthy nutrition through calorie calculation and practical food tips.
-* Provide access to professional nutrition opinions and medical guidance.
-* Streamline food distribution workflows for Gaza kitchens using real-time data.
-* Reduce overcrowding and chaos during food distribution through a reservation system.
-* Build a scalable, user-friendly platform for both individuals and community kitchens.
+<br>
 
----
+## Why this exists
 
-# Your Journey to Health and Community Support
+Finding a hot meal in Gaza shouldn't depend on luck, and cooking with what's in the cupboard shouldn't depend on guesswork.
 
-### 1. Landing Page
+I built NutriFlow to put a few small, useful things in one calm place: where the community kitchens are serving today (and how many places are left), recipes that stretch short supplies, plain-language advice from doctors and dietitians, and a simple tracker for people who want to keep an eye on their calories.
 
-The journey begins at the **Landing Page**: *Eat Healthy, Live Healthy*. Users can explore recipes, track meals, and start their nutrition journey immediately. From here, you can **Browse Recipes** or **Start Tracking**. Authentication is required to personalize the experience and save progress.
-<img width="1857" height="861" alt="image" src="https://github.com/user-attachments/assets/239bd64f-768d-4192-9d5c-494a1594fcb6" />
+It's written in **Arabic and English**, works on a phone, and keeps the interface quiet on purpose: warm paper colours, olive green, clay red, very little noise.
 
+<br>
 
-### 2. Browse Recipes
+## What it does
 
-The **Browse Recipes** page is the hub for discovering meals that fit your lifestyle.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-* **Filtering:** Sort by Breakfast, Lunch, Dinner, or Snacks.
-* **Details:** View prep time, total calories, ingredients, and instructions.
-* **Action:** Users can **Log this Meal** to their tracker or **Add to Favorites** to save it for later.
-  <img width="1149" height="687" alt="image" src="https://github.com/user-attachments/assets/29482493-298e-4817-9e24-f5c933962554" />
+### 🍲 Community kitchens
+See what each kitchen is serving today, at what time, and how many meals are left. Filter by region (North, Gaza, Middle, Khan Younis, Rafah) and **reserve tomorrow's meal** so the kitchen knows how much to cook. Reservations run in a serializable transaction, so a kitchen can't be over-booked by two people at once.
 
+</td>
+<td width="50%" valign="top">
 
-### Favorites and Calorie Overview
+### 🥘 Recipes for short supplies
+Fifteen Palestinian dishes (foul medames, mujaddara, cauliflower maqluba, musakhan and more) with cooking time, calories, a nutrition breakdown, ingredients and steps. Filter by meal type, then save the ones you like to your favourites.
 
-When a recipe is added to Favorites, the system displays the **name, quantity, and calorie value**. Adjusting quantities updates the total calories automatically, helping users stay within their daily targets.
-<img width="1289" height="891" alt="image" src="https://github.com/user-attachments/assets/3f3626c1-4eba-4849-a2f4-d27a27849023" />
+</td>
+</tr>
+<tr>
+<td valign="top">
 
+### 📊 Meal tracker
+Log what you eat, set your own daily calorie goal (800 to 6,000), and watch the bar fill. A monthly view shows your average intake and how many days you stayed on track.
 
-### 3. Meal Tracker
+</td>
+<td valign="top">
 
-The **Meal Tracker** allows for easy daily calorie management.
+### 🩺 Doctors and appointments
+Browse physicians and dietitians, check where they work and when they're available, then request a visit. Doctors confirm or complete requests from their own dashboard, and patients get a notification when the status changes.
 
-* Log new meals throughout the day.
-* Monitor real-time progress toward a specific daily calorie goal.
-* Review a history of all meals added for the day with their specific calorie counts.
-  <img width="1571" height="815" alt="image" src="https://github.com/user-attachments/assets/ae5d1021-9304-4de3-bce6-6c70171ddd85" />
+</td>
+</tr>
+<tr>
+<td valign="top">
 
+### 💧 Health tips
+Eighteen short pieces on safe water, handwashing, oral rehydration, breastfeeding and feeding babies, spotting malnutrition, pregnancy, diabetes and blood pressure with limited food, food safety without a fridge, sleep and stress, and safe cooking fuel.
 
-### 4. Health and Nutrition Tips
+</td>
+<td valign="top">
 
-This section provides practical daily habits to improve well-being:
+### 📍 Area reports
+Residents can report a neighbourhood or camp that distribution isn't reaching. Kitchen organisers review each report and mark it *pending*, *seen* or *investigated*.
 
-* **Hydration:** Guidance on staying energized through water intake.
-* **Balanced Meals:** Instructions on balancing proteins, vegetables, and healthy fats.
-* **Rest and Movement:** The importance of sleep and daily physical activity.
-* **Mental Health:** Breathing techniques to reduce anxiety and stress.
-  <img width="1637" height="917" alt="image" src="https://github.com/user-attachments/assets/083546be-374b-4cd7-8822-5012a30891b2" />
+</td>
+</tr>
+</table>
 
+**Also in the box:** installable PWA with an offline page · full RTL layout for Arabic · support tickets · SEO (sitemap, robots, Open Graph, JSON-LD) · gentle motion that switches off when the visitor asks for reduced motion.
 
-### 5. Doctors and Appointments
+<br>
 
-The **Healthcare Professionals** section connects users with experts for personalized guidance. Users can browse profiles, check qualifications, view ratings, and **Book a Consultation** directly.
+## A look around
 
-* **Nutritionists:** For weight management and chronic disease prevention.
-* **Cardiologists:** For heart-healthy lifestyle guidance.
-* **Holistic Coaches:** Combining nutrition science with wellness practices.
-  <img width="1340" height="740" alt="image" src="https://github.com/user-attachments/assets/3c51d161-b4c6-4389-8277-52d1ec2e0861" />
+> Every screenshot below was taken from the running app, in its own colours.
 
+### The home page
 
-### 6. Gaza Kitchen Community (Integrated Distribution)
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="NutriFlow home page" width="760">
+</p>
 
-The **Gaza Kitchen Community** module helps families locate and reserve free meals.
+### Arabic, right to left
 
-* **Live Reservations:** A digital pre-ordering system that ensures a meal is saved for the user.
-* **Capacity Tracking:** Real-time indicators show the remaining meal count for each kitchen to prevent overcrowding.
-* **Filtering:** Locate kitchens by region (North, Gaza, Middle, Khan Younis, Rafah).
-* **Family Nutrition Guide:** Tailored advice for maximizing nutrition in emergency settings.
-<img width="1502" height="821" alt="image" src="https://github.com/user-attachments/assets/009f823c-3a31-434d-a94b-bb398efe6d7d" />
+<p align="center">
+  <img src="docs/screenshots/home-ar.png" alt="NutriFlow home page in Arabic, laid out right to left" width="760">
+</p>
 
----
+### Kitchens, recipes, tips and doctors
 
-## Features
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/kitchens.png" alt="Community kitchens with reservation cards"><br><sub><b>Community kitchens.</b> Today's menu, serving time, meals left and a reserve button.</sub></td>
+<td width="50%"><img src="docs/screenshots/recipes.png" alt="Recipe list with meal-type filters"><br><sub><b>Recipes.</b> Filter by breakfast, lunch, dinner or snack. Tap the heart to save one.</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/recipe-detail.png" alt="A single recipe with nutrition and steps"><br><sub><b>Recipe detail.</b> Time, calories, nutrition, ingredients and instructions.</sub></td>
+<td><img src="docs/screenshots/tips.png" alt="Health tips"><br><sub><b>Health tips.</b> Short, practical and written to be read quickly.</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/screenshots/doctors.png" alt="Doctors list with specialties and availability"><br><sub><b>Doctors.</b> Specialty, workplace, availability, and a button to request an appointment.</sub></td>
+</tr>
+</table>
 
-* **Nutrition Knowledge:** Essential nutrients and balanced diet education.
-* **Interactive Interface:** Responsive design optimized for both mobile and desktop.
-* **Content Management:** Easily updatable articles, tips, and kitchen listings.
-* **Bilingual Support:** Full Arabic and English integration for local and international accessibility.
+### Signed in
 
----
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/tracker.png" alt="Meal tracker with a calorie progress bar"><br><sub><b>Meal tracker.</b> Today's goal, a progress bar and the day's meals.</sub></td>
+<td width="50%"><img src="docs/screenshots/dashboard.png" alt="Personal dashboard"><br><sub><b>Dashboard.</b> A small menu that changes with your role.</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/screenshots/org-dashboard.png" alt="Kitchen management table for organisations"><br><sub><b>Kitchen management.</b> Organisers add, edit and remove their kitchens and see capacity at a glance.</sub></td>
+</tr>
+</table>
 
-## Tech Stack
+<br>
 
-* **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS 4
-* **Backend Logic:** Server Actions and Route Handlers
-* **Database and ORM:** PostgreSQL with **Prisma 7**
-* **Auth:** Supabase Auth (session cookies), roles `USER` / `ORG` / `ADMIN`
-* **State and validation:** Zustand, Zod
-* **Other:** Recharts, Lucide React, PWA (Serwist via `@serwist/next`; service worker source in `app/sw.ts`, generated `public/sw.js` is gitignored and built by `npm run build`, disabled in dev)
+## Run it locally
 
----
-
-## Installation and Setup
-
-Requirements: Node.js 22.18+ (the unit tests import TypeScript files directly), a PostgreSQL database and a Supabase project.
+You'll need **Node.js 22.18 or newer** (the unit tests import TypeScript directly), a **PostgreSQL** database and a **Supabase** project for sign-in.
 
 ```bash
 git clone https://github.com/Ayaalmadhon2004/Healthy-Food.git
 cd Healthy-Food
-cp .env.example .env        # then fill in the values
-npm install                 # also runs prisma generate
-npx prisma db push          # create the tables
-npx prisma db seed          # sample recipes, tips, doctors and kitchens
-npm run dev
+
+cp .env.example .env     # then fill in the values below
+npm install              # also runs prisma generate
+npx prisma db push       # create the tables
+npx prisma db seed       # recipes, tips, doctors and kitchens to play with
+npm run dev              # http://localhost:3000
 ```
 
-### Environment variables
+<details>
+<summary><b>Environment variables</b></summary>
 
-| Variable | Purpose |
+<br>
+
+| Variable | What it's for |
 | --- | --- |
-| `DATABASE_URL`, `DIRECT_URL` | PostgreSQL connection strings |
+| `DATABASE_URL`, `DIRECT_URL` | PostgreSQL connection strings (pooled for the app, direct for migrations) |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase client |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server only, used by sign-up |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only. Used by sign-up to create users |
 | `CRON_SECRET` | Required in production for `/api/cron/keep-alive` (`Authorization: Bearer <secret>`) |
+| `NEXT_PUBLIC_SITE_URL` | Public origin, used for canonical URLs, Open Graph, sitemap and robots |
 
-### Scripts
+</details>
+
+<details>
+<summary><b>Scripts</b></summary>
+
+<br>
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Development server |
-| `npm run build` / `npm start` | Production build and server (the build reads the seeded database) |
+| `npm run dev` | Development server (webpack) |
+| `npm run build` · `npm start` | Production build, and server on port 3001. The build reads the seeded database |
 | `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript check (`lib/` is TypeScript; pages and actions are still JavaScript) |
-| `npm test` | Unit tests (Node test runner) for dates, capacity and rate limiting |
+| `npm run typecheck` | `tsc --noEmit` for the app and the service worker |
+| `npm test` | Unit tests with the Node test runner: dates, capacity, rate limiting, appointments, meals, kitchens, reports, locales and more |
 
-CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against a temporary PostgreSQL.
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against a throwaway PostgreSQL on every pull request.
 
----
+</details>
 
-## Design Notes
+<br>
 
-* **Identity comes from the session.** Server Actions and API routes read the signed-in user from the Supabase session (`lib/auth.js`); they never trust a user id sent by the client. Kitchen management and area reports are restricted to `ORG` / `ADMIN`.
-* **Language is part of the URL.** Every page lives under `/en/...` or `/ar/...` (`app/[lang]`); bare paths such as `/recipes` redirect to the visitor's language (the `lang` cookie set by the language switcher, else `Accept-Language`, else English). Path helpers are in `lib/i18n-routing.ts`; the redirect decision is made in `proxy.ts`.
-* **Gaza time.** "Today", "tomorrow" and monthly statistics use the `Asia/Gaza` timezone (`lib/dates.js`), independent of the server timezone.
-* **Reservations** run in a serializable transaction (with retry), so a kitchen cannot be overbooked by concurrent requests.
-* **Kitchen capacity** is stored as a number; older `{ en, ar }` values are still read correctly (`lib/capacity.js`).
-* **Rate limiting** on login and sign-up is in-memory (`lib/rateLimit.js`); on serverless hosting use a shared store for strict limits.
+## How it's built
 
----
+| | |
+| --- | --- |
+| **Framework** | Next.js 16 (App Router), React 19, Server Actions and Route Handlers |
+| **Styling** | Tailwind CSS 4 with a small set of design tokens (see below) |
+| **Data** | PostgreSQL through Prisma 7 |
+| **Auth** | Supabase Auth with session cookies. Roles: `USER`, `ORG`, `ADMIN`, `DOCTOR` |
+| **State and validation** | Zustand, Zod |
+| **Icons and fonts** | Lucide, Inter, Poppins, and Cairo for Arabic (all bundled, no network at build time) |
+| **PWA** | Serwist service worker (`app/sw.ts`), generated at build time and disabled in dev |
 
-## Project Structure
+### A few decisions worth knowing about
+
+- **Identity comes from the session.** Server Actions and API routes read the user from the Supabase session in `lib/auth.ts` and never trust a user id sent by the browser. Kitchen management and area reports are limited to `ORG` and `ADMIN`.
+- **Language lives in the URL.** Every page is under `/en/...` or `/ar/...`. A bare path like `/recipes` redirects using the `lang` cookie, then `Accept-Language`, then English. The decision is made in `proxy.ts`.
+- **Gaza time.** "Today", "tomorrow" and monthly statistics use the `Asia/Gaza` timezone (`lib/dates.ts`), whatever the server's clock says.
+- **No double-booking.** Reservations run in a serializable transaction with retry. Doctors accept at most 10 appointment requests per day, and bookings are limited to the next 60 days.
+- **Messy data is welcome.** Kitchen capacity is stored as a number, but older values such as `"350-500 families"` or `{ en, ar }` are still read correctly (`lib/capacity.ts`).
+- **Rate limiting** protects login and sign-up (`lib/rateLimit.ts`).
+
+### The look
+
+The palette is warm paper with olive as the working colour and clay for emphasis, with ink instead of pure black. Surfaces are flat and separated by thin lines rather than shadows, radii stay small, and headings never go heavier than semibold. The tokens live in `app/globals.css`.
+
+| Paper | Paper deep | Ink | Olive | Olive light | Clay | Ochre | Sea |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| ![#f6f0e3](https://img.shields.io/badge/%20%20%20%20%20%20-f6f0e3-f6f0e3?style=flat-square) | ![#ede4d1](https://img.shields.io/badge/%20%20%20%20%20%20-ede4d1-ede4d1?style=flat-square) | ![#2b261f](https://img.shields.io/badge/%20%20%20%20%20%20-2b261f-2b261f?style=flat-square) | ![#4d5a2c](https://img.shields.io/badge/%20%20%20%20%20%20-4d5a2c-4d5a2c?style=flat-square) | ![#879852](https://img.shields.io/badge/%20%20%20%20%20%20-879852-879852?style=flat-square) | ![#b5613c](https://img.shields.io/badge/%20%20%20%20%20%20-b5613c-b5613c?style=flat-square) | ![#b68b35](https://img.shields.io/badge/%20%20%20%20%20%20-b68b35-b68b35?style=flat-square) | ![#548096](https://img.shields.io/badge/%20%20%20%20%20%20-548096-548096?style=flat-square) |
+
+Motion is kept light: content fades in as you scroll, numbers count up, progress bars fill, hearts pop when you save a recipe. All of it is skipped when the browser asks for reduced motion.
+
+### Project layout
 
 ```text
 Healthy-Food/
-├─ app/                 # Pages, layouts, API routes and Server Actions (app/actions)
-├─ components/          # Reusable UI, dashboard, kitchen and tracker components
-├─ context/, hooks/, store/   # Language, user and favorites state
-├─ lib/                 # Prisma, Supabase, auth, dates, capacity, rate limiting, validation
-├─ locales/             # Arabic and English dictionaries
-├─ prisma/              # Schema and seed
-├─ tests/               # Unit tests
-├─ public/              # Images, icons, manifest
-└─ proxy.js             # Session refresh and route protection
+├─ app/                 pages under [lang]/, API routes, Server Actions (app/actions)
+├─ components/          shared UI, plus dashboard, kitchen, recipes and tracker pieces
+├─ context/ hooks/ store/   language, user and favourites state
+├─ lib/                 prisma, supabase, auth, dates, capacity, rate limiting, validation
+├─ locales/             en.json and ar.json
+├─ prisma/              schema and seed
+├─ tests/               unit tests
+├─ docs/                README banner and screenshots
+├─ public/              images, illustrations, icons, manifest
+└─ proxy.ts             language routing, session refresh and route protection
 ```
 
----
+<br>
 
-## Future Improvements
+## Roadmap
 
-* Personalized nutrition plans based on user health data.
-* Advanced community forums for sharing local health tips.
-* Enhanced reporting tools for aid organizations to track distribution efficiency.
+- [ ] Nutrition plans tailored to a person's health data
+- [ ] A space for neighbours to share local health tips
+- [ ] Better reports for aid organisations on how distribution is going
 
----
+<br>
+
+<div align="center">
+
+Made with care by **[Aya Almadhon](https://github.com/Ayaalmadhon2004)**
+
+<sub>NutriFlow shares general nutrition guidance. It does not replace a doctor.</sub>
+
+</div>
