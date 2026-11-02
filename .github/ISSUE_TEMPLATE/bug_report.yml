@@ -1,0 +1,30 @@
+name: Bug report
+description: Something isn't working as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you see instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+    validations:
+      required: true
+  - type: dropdown
+    id: lang
+    attributes:
+      label: Language
+      options: [English, Arabic, Both]
+  - type: input
+    id: env
+    attributes:
+      label: Browser and device
+      placeholder: Chrome 130 on Android

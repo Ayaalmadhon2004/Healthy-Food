@@ -10,12 +10,17 @@
 ![Prisma](https://img.shields.io/badge/Prisma_7-b5613c?style=flat-square&logo=prisma&logoColor=f6f0e3)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-934b2f?style=flat-square&logo=postgresql&logoColor=f6f0e3)
 ![Arabic + English](https://img.shields.io/badge/عربي_|_English-b68b35?style=flat-square)
+[![CI](https://github.com/Ayaalmadhon2004/Healthy-Food/actions/workflows/ci.yml/badge.svg)](https://github.com/Ayaalmadhon2004/Healthy-Food/actions/workflows/ci.yml)
+![License: MIT](https://img.shields.io/badge/license-MIT-4d5a2c?style=flat-square)
 
 **[What it does](#what-it-does)** ·
 **[A look around](#a-look-around)** ·
 **[Run it locally](#run-it-locally)** ·
 **[How it's built](#how-its-built)** ·
-**[Roadmap](#roadmap)**
+**[Roadmap](#roadmap)** ·
+**[Contributing](#contributing)**
+
+[العربية](README.ar.md) · **English**
 
 </div>
 
@@ -220,6 +225,7 @@ Healthy-Food/
 ├─ prisma/              schema and seed
 ├─ tests/               unit tests
 ├─ docs/                README banner and screenshots
+├─ .github/             CI workflow, issue and pull request templates
 ├─ public/              images, illustrations, icons, manifest
 └─ proxy.ts             language routing, session refresh and route protection
 ```
@@ -231,6 +237,16 @@ Healthy-Food/
 - [ ] Nutrition plans tailored to a person's health data
 - [ ] A space for neighbours to share local health tips
 - [ ] Better reports for aid organisations on how distribution is going
+
+<br>
+
+## Contributing
+
+Fixes, translations, recipes and tips are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first, and report security problems privately as described in [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE) © Aya Almadhon
 
 <br>
 
