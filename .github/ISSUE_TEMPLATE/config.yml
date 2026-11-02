@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Ayaalmadhon2004/Healthy-Food/security/advisories/new
+    about: Please report security problems privately.
