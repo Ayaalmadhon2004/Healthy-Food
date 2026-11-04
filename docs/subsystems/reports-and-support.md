@@ -17,7 +17,7 @@ sources:
   - code: tests/rateLimit.test.js
   - code: tests/support.test.js
   - code: tests/reportAuthActions.test.js
-verified_at: 8b565be
+verified_at: 959592c
 ---
 
 # Area reports, support tickets and rate limiting
@@ -32,10 +32,10 @@ Residents report a neighbourhood that distribution does not reach at `/[lang]/re
 
 ## Rate limiting
 
-`lib/rateLimit.ts` is a durable fixed-window limiter in the `rate_limits` table. One `INSERT ... ON CONFLICT DO UPDATE` increments the counter atomically and uses the database clock, so several instances agree on window edges; about 1% of calls also delete expired rows. `lib/rateLimitCore.ts` holds the pure window logic and `getClientIp` (first `x-forwarded-for` entry, then `x-real-ip`). Keys: `signup:<ip>` 5 per 10 minutes, `login:<ip>` 10 per minute, `support:<userId>` 5 per 10 minutes. The assistant route has its own limit ([[nutrition-assistant]]).
+`lib/rateLimit.ts` is a durable fixed-window limiter in the `rate_limits` table. One `INSERT ... ON CONFLICT DO UPDATE` increments the counter atomically and uses the database clock, so several instances agree on window edges; about 1% of calls also delete expired rows. `lib/rateLimitCore.ts` holds the pure window logic and `getClientIp` (`x-vercel-forwarded-for`, then `x-real-ip`, then the LAST `x-forwarded-for` entry, then "unknown"; values that are empty or longer than 45 characters are ignored). Keys: `signup:<ip>` 5 per 10 minutes, `login:<ip>` 10 per minute, `support:<userId>` 5 per 10 minutes. The assistant route has its own limit ([[nutrition-assistant]]).
 
 > ⚠️ The limiter fails open: if the database call throws, it logs and allows the request. It protects against abuse, not outages; do not use it as an authorization gate.
 
-> ⚠️ `getClientIp` trusts `x-forwarded-for`. It is only meaningful behind a proxy that overwrites that header (as on Vercel); locally clients may all look alike or be `unknown`.
+> ⚠️ `getClientIp` assumes exactly one trusted proxy in front of the app (as on Vercel). The first `x-forwarded-for` entry is client-controlled, so it is never used; locally, without a proxy, every client can look alike or be `unknown`. Do not go back to the first entry: it let a guest dodge every rate limit by sending a fake header.
 
 > ⚠️ `lib/rateLimit.ts` writes raw SQL against `"rate_limits"` and its column names. Renaming `RateLimit` fields in `prisma/schema.prisma` breaks it without a type error.

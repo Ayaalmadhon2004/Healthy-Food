@@ -18,7 +18,7 @@ sources:
   - code: prisma/rag-setup.sql
   - code: .github/workflows/ci.yml
   - code: next.config.ts
-verified_at: ec34713
+verified_at: 959592c
 ---
 
 # Nutrition assistant (RAG)
@@ -78,6 +78,16 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ Ingest prunes stale chunks only for kinds that produced chunks in that run
 > (`lib/rag/store.ts:66`). Never call it with an empty keep-list; it refuses on purpose so a failed
 > build cannot wipe the table.
+
+> ⚠️ Chat history comes from the browser and can be forged. `lib/rag/chat.ts` declines the whole request
+> when any earlier USER turn contains an injection phrase; assistant turns are not trusted: `buildPrompt`
+> wraps them in `<previous_assistant_output untrusted="true">` (that tag is also in `DELIMITER_TAGS`) and
+> `capHistory` limits the total history sent. An old emergency turn is deliberately not replayed, or every
+> follow-up would be blocked.
+
+> ⚠️ `normalizeText` in `lib/rag/safety.ts` must strip zero-width and bidi control characters before
+> anything else. Turning them into spaces let "ig<ZWSP>nore previous instructions" split the word and slip
+> past triage.
 
 > ⚠️ Run `prisma/rag-setup.sql` before `prisma db push` (the `vector` extension must exist), and run
 > its two index statements after. Nothing in the repo applies them automatically.
