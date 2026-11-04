@@ -18,7 +18,7 @@ sources:
   - code: lib/rag/generate.ts
   - code: lib/rag/embed.ts
   - code: .github/workflows/ci.yml
-verified_at: d45844d
+verified_at: 496a084
 ---
 
 # Environment variables
@@ -36,7 +36,8 @@ Names only; values are never recorded. Template: `.env.example`. Assistant varia
 | `VERCEL_PROJECT_PRODUCTION_URL` | `lib/site.ts` | Set by Vercel; fallback for the site origin |
 | `NODE_ENV` | `lib/prisma.ts`, `next.config.ts`, cron route | Standard Node mode |
 | `LLM_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `ANTHROPIC_API_KEY` | `lib/rag/*` | Optional assistant providers |
-| `RAG_DISABLE_EMBEDDINGS`, `RAG_MODEL_CACHE_DIR` | `lib/rag/embed.ts` | Local embedding model switches |
+| `RAG_RETRIEVER` | `lib/rag/mode.ts` | Optional. `memory` (default) or `pgvector` |
+| `RAG_DISABLE_EMBEDDINGS`, `RAG_MODEL_CACHE_DIR` | `lib/rag/embed.ts` | Local embedding model switches, only used with `RAG_RETRIEVER=pgvector` |
 
 > ⚠️ `DIRECT_URL` is documented as the direct connection "for migrations", but `prisma.config.ts` reads only `DATABASE_URL`, and no app code reads `DIRECT_URL`. A pooled `DATABASE_URL` is therefore also what `prisma db push` uses. CI sets `DIRECT_URL` anyway.
 
