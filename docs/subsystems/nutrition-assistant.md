@@ -16,7 +16,7 @@ sources:
   - code: scripts/ingest-knowledge.ts
   - code: data/knowledge
   - code: prisma/rag-setup.sql
-verified_at: d4776e2
+verified_at: 4f15bf3
 ---
 
 # Nutrition assistant (RAG)
@@ -60,6 +60,13 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ Stored passages and the question are untrusted. `clean` in `lib/rag/prompt.ts:44` strips
 > delimiter tags after NFKC and zero-width removal; keep that order or fullwidth and invisible-character
 > lookalikes can close the `<context>` block.
+
+> ⚠️ Generic query words must not count as evidence. Raising `LEXICAL_GAIN` once let a lone "best" in
+> "best protein for muscle building" pull in breastfeeding and chlorine passages, which reads as the
+> assistant making things up. The cure is the stopword list in `lib/rag/normalize.ts` plus
+> `MIN_SCORE_SHARE` in `lib/rag/extractive.ts`, not a lower cutoff. In full-text-only mode a lone
+> content word such as "اسهال" among filler words still declines; vectors are what answer such questions,
+> and they could not be tried against the real model in the build sandbox.
 
 > ⚠️ A single weak full-text hit must not pass the relevance cutoff (`LEXICAL_GAIN` in
 > `lib/rag/fusion.ts:20`). Raising it makes one-word queries answerable but lets thin matches through;
