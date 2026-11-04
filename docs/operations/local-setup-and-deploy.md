@@ -11,7 +11,7 @@ sources:
   - code: prisma/rag-setup.sql
   - code: app/api/cron/keep-alive/route.ts
   - code: next.config.ts
-verified_at: 4d87cda
+verified_at: 496a084
 ---
 
 # Local setup and deploy
@@ -21,7 +21,7 @@ Assistant-specific setup is in `docs/assistant-setup.md`; variable meanings are 
 ## Local run
 
 1. Node.js 22.18 or newer (the unit tests import TypeScript directly), a PostgreSQL database and a Supabase project.
-2. `cp .env.example .env` and fill it in (never commit it).
+2. `cp .env.example .env` and fill it in (never commit `.env`; `.env.example` holds placeholders only and is committed).
 3. `npm install` (also runs `prisma generate`).
 4. If you want the assistant, run only the first statement of `prisma/rag-setup.sql` (`CREATE EXTENSION IF NOT EXISTS vector;`), then `npx prisma db push`, then `npm run ingest`. The two index statements at the end of that file need the table to exist and are only used by `RAG_RETRIEVER=pgvector`.
 5. `npx prisma db seed` for recipes, tips, doctors, kitchens and the nutrition guide. `node prisma/seed.js --recipes-only` refreshes only recipes.
@@ -42,3 +42,7 @@ The README targets Vercel with Supabase PostgreSQL; the repo has no Vercel confi
 > ⚠️ With `CRON_SECRET` unset, the route is open in development and returns 401 in production. Set the secret before relying on it.
 
 After a deploy, run `/docs-sync` (see `docs/CLAUDE.md`).
+
+> ⚠️ `.gitignore` ignores `.env*`, so `.env.example` needs its own `!.env.example` line. It was missed once: the file
+> existed only on one machine, the README told everyone to copy it, and a fresh clone had nothing to copy. Keep real
+> values out of it; it must contain placeholders only.
