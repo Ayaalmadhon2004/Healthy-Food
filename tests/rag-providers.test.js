@@ -87,3 +87,14 @@ test("extractive answer matches Arabic with the article and spelling variants", 
   const answer = buildExtractiveAnswer({ passages, question: "كيف أحفظ المياه المغلية؟", lang: "ar", disclaimer: "د." });
   assert.ok(answer.includes("احفظ الماء المغلي"), answer);
 });
+
+test("extractive opening line comes from the top-ranked passage, not from the sentence with the most shared words", () => {
+  const passages = [
+    chunk(1, "Child malnutrition", "Child malnutrition\nA child with a MUAC below 11.5 cm is severely malnourished and needs treatment."),
+    chunk(2, "Women malnutrition", "Women malnutrition\nA woman is acutely malnourished when her MUAC is below 230 mm, and malnourished women need screening."),
+  ];
+  const answer = buildExtractiveAnswer({ passages, question: "How can I tell if my child is acutely malnourished with MUAC?", lang: "en", disclaimer: "D." });
+  const lines = answer.split("\n");
+  assert.ok(lines[0].includes("11.5 cm") && lines[0].endsWith("[1]"), lines[0]);
+  assert.ok(lines.some((l) => l.startsWith("- ") && l.endsWith("[2]")), answer);
+});
