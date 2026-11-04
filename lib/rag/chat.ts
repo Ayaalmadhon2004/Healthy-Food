@@ -3,6 +3,7 @@ import { getServerMessages } from "@/lib/i18n";
 import type { ServerMessages } from "@/lib/i18n";
 import { MIN_RELEVANCE, RETRIEVE_TIMEOUT_MS, RETRIEVE_TOP_K } from "@/lib/rag/constants";
 import { detectLang } from "@/lib/rag/language";
+import { OVERVIEW_MAX_POINTS, OVERVIEW_TOPICS, isOverviewRequest } from "@/lib/rag/overview";
 import { generate as defaultGenerate } from "@/lib/rag/providers";
 import type { AnswerGenerator } from "@/lib/rag/generate";
 import { buildPrompt, uniqueChunks } from "@/lib/rag/prompt";
@@ -106,10 +107,20 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   }
 
   // 2. Retrieve. Any failure of the knowledge store reads as "unavailable"; the cause is logged without the question.
+  // A general request for tips names no topic, so it is answered with the best passage of each core topic instead.
+  const overview = isOverviewRequest(question);
   let chunks: RetrievedChunk[];
   try {
-    const found = await withTimeout(retrieve(question, { lang, topK: RETRIEVE_TOP_K, minScore: MIN_RELEVANCE }), RETRIEVE_TIMEOUT_MS);
-    chunks = uniqueChunks(found.filter((c) => c.score >= MIN_RELEVANCE)).slice(0, RETRIEVE_TOP_K);
+    if (overview) {
+      const perTopic = await withTimeout(
+        Promise.all(OVERVIEW_TOPICS[lang].map((topic) => retrieve(topic, { lang, topK: 1, minScore: MIN_RELEVANCE }))),
+        RETRIEVE_TIMEOUT_MS,
+      );
+      chunks = uniqueChunks(perTopic.flat().filter((c) => c.score >= MIN_RELEVANCE)).slice(0, OVERVIEW_MAX_POINTS);
+    } else {
+      const found = await withTimeout(retrieve(question, { lang, topK: RETRIEVE_TOP_K, minScore: MIN_RELEVANCE }), RETRIEVE_TIMEOUT_MS);
+      chunks = uniqueChunks(found.filter((c) => c.score >= MIN_RELEVANCE)).slice(0, RETRIEVE_TOP_K);
+    }
   } catch (error) {
     console.error("chat: retrieval failed:", describeFailure(error));
     yield { type: "meta", mode: "answer", citations: [] };
@@ -127,7 +138,7 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   const prompt = buildPrompt({ question, lang, chunks, history });
   yield { type: "meta", mode: "answer", citations: prompt.passages.map(toCitation) };
 
-  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, passages: prompt.passages, question, lang, disclaimer: m.disclaimer, signal });
+  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, passages: prompt.passages, question, lang, disclaimer: m.disclaimer, overviewIntro: overview ? m.overviewIntro : undefined, signal });
   const iterator = events[Symbol.asyncIterator]();
   try {
     let next = await iterator.next();

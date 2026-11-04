@@ -107,3 +107,21 @@ export function buildExtractiveAnswer({ passages, question, lang, disclaimer }: 
   }
   return [`${headLine.join(" ")} [${head.passage + 1}]`, ...bullets, `${CAUTION_LABEL[lang]} ${disclaimer}`].join("\n");
 }
+
+export interface OverviewInput {
+  passages: readonly RetrievedChunk[];
+  /** Localized sentence that introduces the list (server.chat.overviewIntro). */
+  intro: string;
+  lang: Lang;
+  disclaimer: string;
+}
+
+/** One cited point per passage (its opening sentence) under a fixed introduction. Used for general requests for tips. */
+export function buildOverviewAnswer({ passages, intro, lang, disclaimer }: OverviewInput): string {
+  const points = passages.flatMap((passage, index) => {
+    const sentence = sentencesOf(passage)[0];
+    return sentence ? [`- ${sentence} [${index + 1}]`] : [];
+  });
+  if (points.length === 0) return "";
+  return [intro, ...points, `${CAUTION_LABEL[lang]} ${disclaimer}`].join("\n");
+}

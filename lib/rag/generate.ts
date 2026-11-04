@@ -20,6 +20,8 @@ export interface GenerateInput {
   lang?: Lang;
   /** Localized "general information, ask a doctor" line for key-less answers. */
   disclaimer?: string;
+  /** Set for a general request for tips: the answer is one point per passage under this introduction. */
+  overviewIntro?: string;
   signal?: AbortSignal;
 }
 

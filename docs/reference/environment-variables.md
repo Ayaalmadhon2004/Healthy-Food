@@ -18,7 +18,7 @@ sources:
   - code: lib/rag/generate.ts
   - code: lib/rag/embed.ts
   - code: .github/workflows/ci.yml
-verified_at: 8b565be
+verified_at: d45844d
 ---
 
 # Environment variables
