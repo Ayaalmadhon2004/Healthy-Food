@@ -9,6 +9,10 @@ export const CHUNK_OVERLAP_CHARS = 120;
 
 const LANGS: readonly Lang[] = ["ar", "en"];
 
+/** Longest ingredient line; longer lists continue on the next line (extractive answers cut sentences at 240 chars). */
+const MAX_LIST_LINE_CHARS = 220;
+const LIST_SEPARATOR: Record<Lang, string> = { en: ", ", ar: "، " };
+
 const LABELS: Record<Lang, Record<string, string>> = {
   en: {
     type: "Meal type",
@@ -21,10 +25,10 @@ const LABELS: Record<Lang, Record<string, string>> = {
     location: "Location",
     region: "Region",
     distribution: "Distribution time",
-    capacity: "Capacity",
-    meal: "Today's meal",
     access: "Access",
-    contact: "Contact",
+    contact: "To reach the kitchen, call",
+    step: "Step",
+    liveInfo: "Today's menu and remaining places are on the Kitchens page of the app (Gaza Kitchen in the menu).",
   },
   ar: {
     type: "نوع الوجبة",
@@ -37,10 +41,10 @@ const LABELS: Record<Lang, Record<string, string>> = {
     location: "الموقع",
     region: "المنطقة",
     distribution: "وقت التوزيع",
-    capacity: "الطاقة الاستيعابية",
-    meal: "وجبة اليوم",
     access: "طريقة الاستفادة",
-    contact: "للتواصل",
+    contact: "للتواصل مع المطبخ اتصلوا على",
+    step: "الخطوة",
+    liveInfo: "قائمة وجبة اليوم والأماكن المتبقية موجودة في صفحة المطابخ في التطبيق (مطبخ غزة في القائمة).",
   },
 };
 
@@ -156,13 +160,45 @@ export function chunkDocument(params: {
   }));
 }
 
-function line(label: string, value: string): string | null {
-  const v = value.trim();
-  return v ? `${label}: ${v}` : null;
+/** Ends a line with a full stop unless it already ends with sentence punctuation. */
+function sentence(text: string): string {
+  const t = text.trim();
+  if (!t) return "";
+  return /[.!?؟۔…]$/.test(t) ? t : `${t}.`;
 }
 
-function numbered(items: string[]): string {
-  return items.map((item, i) => `${i + 1}. ${item.trim()}`).join("\n");
+function line(label: string, value: string): string | null {
+  const v = value.trim();
+  return v ? sentence(`${label}: ${v}`) : null;
+}
+
+/** "Ingredients: a, b, c." on one line; a very long list continues on further lines, each a sentence of its own. */
+function ingredientLines(label: string, items: string[], lang: Lang): string[] {
+  const sep = LIST_SEPARATOR[lang];
+  const lines: string[] = [];
+  let current = `${label}: `;
+  let empty = true;
+  for (const raw of items) {
+    const item = raw.trim();
+    if (!item) continue;
+    if (!empty && current.length + sep.length + item.length > MAX_LIST_LINE_CHARS) {
+      lines.push(sentence(current.replace(/[,،]\s*$/, "")));
+      current = "";
+      empty = true;
+    }
+    current += empty ? item : `${sep}${item}`;
+    empty = false;
+  }
+  if (!empty) lines.push(sentence(current));
+  return lines;
+}
+
+/** One step per line: "Step 1: Warm the beans." */
+function stepLines(label: string, steps: string[]): string[] {
+  return steps
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s, i) => sentence(`${label} ${i + 1}: ${s}`));
 }
 
 export interface RecipeRow {
@@ -194,17 +230,19 @@ export function recipeToChunks(row: RecipeRow): ChunkInput[] {
       .map(([key, value]) => `${key} ${value[lang]}`.trim())
       .filter(Boolean)
       .join(lang === "ar" ? "، " : ", ");
-    const ingredients = pickList(row.ingredients, lang);
-    const steps = pickList(row.instructions, lang);
-    const body = [
-      line(L.type, type[lang]),
-      line(L.time, time[lang]),
-      line(L.calories, cal[lang]),
-      line(L.nutrition, nutrition),
-      ingredients.length ? `${L.ingredients}:\n${ingredients.map((x) => `- ${x.trim()}`).join("\n")}` : null,
-      steps.length ? `${L.steps}:\n${numbered(steps)}` : null,
+    const ingredients = ingredientLines(L.ingredients, pickList(row.ingredients, lang), lang);
+    const steps = stepLines(L.step, pickList(row.instructions, lang));
+    // One fact per line; the basics share one sentence so it is long enough to be quoted on its own.
+    const basics = [
+      [L.type, type[lang]],
+      [L.time, time[lang]],
+      [L.calories, cal[lang]],
     ]
-      .filter((x): x is string => x !== null)
+      .filter(([, value]) => value.trim())
+      .map(([label, value]) => `${label}: ${value.trim()}`)
+      .join(LIST_SEPARATOR[lang]);
+    const body = [basics ? sentence(basics) : null, line(L.nutrition, nutrition), ...ingredients, ...steps]
+      .filter((x): x is string => Boolean(x))
       .join("\n");
     out.push(...chunkDocument({ baseKey: `recipe:${row.id}`, kind: "RECIPE", lang, title: title[lang], body }));
   }
@@ -241,7 +279,9 @@ export interface KitchenRow {
   location?: unknown;
   region?: unknown;
   distributionTime?: unknown;
+  /** Accepted for row compatibility but never embedded: it changes daily (see docs/knowledge-base.md). */
   capacity?: unknown;
+  /** Accepted for row compatibility but never embedded: it changes daily (see docs/knowledge-base.md). */
   todaysMeal?: unknown;
   accessInfo?: unknown;
   contact?: string | null;
@@ -253,16 +293,20 @@ export function kitchenToChunks(row: KitchenRow): ChunkInput[] {
     const name = pickText(asLocalizedField(row.name), lang);
     if (!name) continue;
     const L = LABELS[lang];
+    const field = (value: unknown): string => pickText(asLocalizedField(value), lang).trim();
+    const region = field(row.region);
+    const location = field(row.location);
+    const place = location && region ? `${location} (${L.region}: ${region})` : location || (region ? `${L.region}: ${region}` : "");
+    const contact = (row.contact ?? "").trim();
+    // Today's meal and remaining capacity change daily, so they are NOT embedded; the last line points to the live page.
     const body = [
-      line(L.region, pickText(asLocalizedField(row.region), lang)),
-      line(L.location, pickText(asLocalizedField(row.location), lang)),
-      line(L.distribution, pickText(asLocalizedField(row.distributionTime), lang)),
-      line(L.capacity, pickText(asLocalizedField(row.capacity), lang)),
-      line(L.meal, pickText(asLocalizedField(row.todaysMeal), lang)),
-      line(L.access, pickText(asLocalizedField(row.accessInfo), lang)),
-      line(L.contact, row.contact ?? ""),
+      place ? sentence(location ? `${L.location}: ${place}` : place) : null,
+      line(L.distribution, field(row.distributionTime)),
+      line(L.access, field(row.accessInfo)),
+      contact ? sentence(`${L.contact} ${contact}`) : null,
+      L.liveInfo,
     ]
-      .filter((x): x is string => x !== null)
+      .filter((x): x is string => Boolean(x))
       .join("\n");
     out.push(...chunkDocument({ baseKey: `kitchen:${row.id}`, kind: "KITCHEN", lang, title: name, body }));
   }

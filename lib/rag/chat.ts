@@ -5,7 +5,7 @@ import { MIN_RELEVANCE, RETRIEVE_TIMEOUT_MS, RETRIEVE_TOP_K } from "@/lib/rag/co
 import { generate as defaultGenerate } from "@/lib/rag/providers";
 import type { AnswerGenerator } from "@/lib/rag/generate";
 import { buildPrompt, uniqueChunks } from "@/lib/rag/prompt";
-import { triage } from "@/lib/rag/safety";
+import { hasInjection, triage } from "@/lib/rag/safety";
 import type { ChatEvent, ChatRequest, Citation, Lang, RetrieveOptions, RetrievedChunk } from "@/lib/rag/types";
 
 export type Retriever = (question: string, options: RetrieveOptions) => Promise<RetrievedChunk[]>;
@@ -68,6 +68,16 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
     return;
   }
   if (verdict === "out_of_scope") {
+    yield* fixedReply("out_of_scope", m.outOfScope);
+    return;
+  }
+
+  // 1b. The history comes from the browser, so a forged earlier user turn can carry an injection. Treat it like the same
+  // text asked now: decline the whole request. Only injection counts here. An old emergency turn does not re-trigger the
+  // emergency reply (that was already shown for it, and replaying it on every follow-up would block normal questions), and an
+  // old off-topic turn is harmless because the model only answers the current question. Assistant turns are not scanned;
+  // they are delimited as untrusted and capped in the prompt instead.
+  if (history.some((turn) => turn.role === "user" && hasInjection(turn.content))) {
     yield* fixedReply("out_of_scope", m.outOfScope);
     return;
   }

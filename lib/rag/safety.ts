@@ -11,6 +11,9 @@ export function normalizeText(input: string): string {
   return input
     .normalize("NFKC")
     .toLowerCase()
+    // zero-width and bidi control characters, removed so they cannot split a word: "ig\u200Bnore" -> "ignore"; keeps "ignore"
+    // https://regex101.com/?regex=%5B%5Cu200B-%5Cu200F%5Cu202A-%5Cu202E%5Cu2060-%5Cu2064%5CuFEFF%5D&flags=g
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]/g, "")
     // diacritics and tatweel: "مَرْحَبًا" -> "مرحبا"; keeps "مرحبا"
     // https://regex101.com/?regex=%5B%5Cu064B-%5Cu065F%5Cu0670%5Cu0640%5D
     .replace(/[ً-ٰٟـ]/g, "")
@@ -167,4 +170,9 @@ export function triage(question: string, _lang?: Lang): TriageResult {
   if (INJECTION.test(text)) return "out_of_scope";
   if (OFF_TOPIC.test(text) && !FOOD_HINT.test(text)) return "out_of_scope";
   return "ok";
+}
+
+/** True when the text contains a prompt-injection phrase. Used on earlier user turns, where only injection (not topic) matters. */
+export function hasInjection(text: string): boolean {
+  return INJECTION.test(normalizeText(text));
 }
