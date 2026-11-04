@@ -5,7 +5,7 @@ import { ArrowUpRight, Leaf, Send, Square, ShieldCheck, RotateCcw } from "lucide
 import { MAX_HISTORY_TURNS, MAX_QUESTION_CHARS } from "@/lib/rag/constants";
 import type { ChatEvent, ChatRequest } from "@/lib/rag/types";
 import type { Lang } from "@/lib/types";
-import MessageBubble from "./MessageBubble";
+import MessageBubble, { formatWait } from "./MessageBubble";
 import { streamChat } from "./chatStream";
 import type { AssistantDict, ChatMessage } from "./types";
 
@@ -37,6 +37,26 @@ function buildHistory(messages: ChatMessage[]): ChatRequest["history"] {
     .filter((m) => m.status === "done" && m.content.trim())
     .slice(-MAX_HISTORY_TURNS * 2)
     .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_HISTORY_CONTENT) }));
+}
+
+/** Short state shown to screen readers; never the streamed text, which would be re-announced on every delta. */
+function statusText(message: ChatMessage | undefined, t: AssistantDict, lang: Lang): string {
+  if (!message) return "";
+  switch (message.status) {
+    case "streaming":
+      return t.status_answering;
+    case "done":
+      return t.status_ready;
+    case "stopped":
+      return t.stopped;
+    default: {
+      const error = message.error;
+      if (!error) return "";
+      return error.code === "rate_limited"
+        ? t.errors.rate_limited.replace("{time}", formatWait(lang, error.retryAfter ?? 1))
+        : t.errors[error.code];
+    }
+  }
 }
 
 interface Props {
@@ -157,9 +177,14 @@ export default function AssistantChat({ lang, t }: Props) {
   const length = draft.length;
   const nearLimit = length > MAX_QUESTION_CHARS * 0.9;
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+  const status = statusText(lastAssistant, t, lang);
+  // Spoken once, when the reply is known to be an emergency; the streaming text itself is not a live region.
+  const emergencyAlert = lastAssistant?.mode === "emergency" ? t.modes.emergency : "";
 
   return (
     <div className="space-y-6">
+      <p role="status" className="sr-only">{status}</p>
+      <p role="alert" className="sr-only">{emergencyAlert}</p>
       <div className="rounded-lg border border-olive-300 bg-olive-50 p-4 flex gap-3 text-ink-soft">
         <ShieldCheck size={22} strokeWidth={1.75} aria-hidden="true" className="shrink-0 mt-0.5 text-olive-700" />
         <div>
@@ -193,7 +218,7 @@ export default function AssistantChat({ lang, t }: Props) {
         </section>
       ) : (
         <div className="space-y-4">
-          <div role="log" aria-live="polite" aria-relevant="additions text" className="space-y-4">
+          <div className="space-y-4">
             {messages.map((m) => (
               <MessageBubble
                 key={m.id}

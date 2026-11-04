@@ -17,7 +17,7 @@ interface Props {
 
 const SECONDS_PER_MINUTE = 60;
 
-function formatWait(lang: Lang, seconds: number): string {
+export function formatWait(lang: Lang, seconds: number): string {
   const unit = seconds >= SECONDS_PER_MINUTE ? "minute" : "second";
   const value = unit === "minute" ? Math.ceil(seconds / SECONDS_PER_MINUTE) : Math.max(1, Math.ceil(seconds));
   try {
@@ -45,7 +45,7 @@ function ErrorNotice({ message, t, lang, onRetry }: { message: ChatMessage; t: A
   const waiting = error.code === "rate_limited" && left > 0;
 
   return (
-    <div role="alert" className="mt-3 rounded-md border border-brick-300 bg-brick-50 p-3 text-sm text-brick-800">
+    <div className="mt-3 rounded-md border border-brick-300 bg-brick-50 p-3 text-sm text-brick-800">
       <p>{text}</p>
       {error.code !== "invalid_request" && (
         <button type="button" onClick={onRetry} disabled={waiting} className="btn btn-quiet mt-2 text-sm">
@@ -84,7 +84,6 @@ export default function MessageBubble({ message, t, lang, canRetry, onRetry }: P
   return (
     <div className="flex">
       <article
-        role={emergency ? "alert" : undefined}
         aria-busy={streaming}
         className={`max-w-full w-full sm:max-w-[92%] rounded-xl rounded-es-sm border px-4 py-3.5 text-ink ${tone}`}
       >

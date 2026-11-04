@@ -19,6 +19,9 @@ export interface AssistantDict {
   new_chat: string;
   you: string;
   assistant: string;
+  loading: string;
+  status_answering: string;
+  status_ready: string;
   thinking: string;
   stopped: string;
   sources: string;

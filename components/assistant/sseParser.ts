@@ -1,9 +1,12 @@
-import type { ChatEvent } from "@/lib/rag/types";
+import { KNOWLEDGE_KINDS, type KnowledgeKind } from "@/lib/rag/constants";
+import type { ChatAnswerMode, ChatEvent } from "@/lib/rag/types";
 
 // Pure parser for the POST /api/chat stream: events are `data: <json>` blocks separated by a blank line.
 // A network chunk can end in the middle of an event (even in the middle of the JSON), so the caller keeps
 // the returned `rest` and passes it back with the next chunk.
 
+const FALLBACK_KIND: KnowledgeKind = "DOCUMENT";
+type ErrorEvent = Extract<ChatEvent, { type: "error" }>;
 const EVENT_TYPES = new Set(["meta", "delta", "done", "error"]);
 const MODES = new Set(["answer", "no_context", "emergency", "out_of_scope"]);
 const ERROR_CODES = new Set(["rate_limited", "invalid_request", "unavailable"]);
@@ -18,6 +21,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** A kind the server could not have sent (or a non-string) falls back to the generic one instead of leaking through. */
+export function toKind(value: unknown): KnowledgeKind {
+  return (KNOWLEDGE_KINDS as readonly unknown[]).includes(value) ? (value as KnowledgeKind) : FALLBACK_KIND;
+}
+
 function toCitations(value: unknown): Extract<ChatEvent, { type: "meta" }>["citations"] {
   if (!Array.isArray(value)) return [];
   const out: Extract<ChatEvent, { type: "meta" }>["citations"] = [];
@@ -26,7 +34,7 @@ function toCitations(value: unknown): Extract<ChatEvent, { type: "meta" }>["cita
     const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
     out.push({
       id: typeof raw.id === "number" ? raw.id : out.length,
-      kind: (typeof raw.kind === "string" ? raw.kind : "DOCUMENT") as never,
+      kind: toKind(raw.kind),
       title: raw.title,
       sourceName: str(raw.sourceName),
       sourceUrl: str(raw.sourceUrl),
@@ -42,7 +50,7 @@ export function toChatEvent(value: unknown): ChatEvent | null {
   switch (value.type) {
     case "meta":
       if (typeof value.mode !== "string" || !MODES.has(value.mode)) return null;
-      return { type: "meta", mode: value.mode as never, citations: toCitations(value.citations) };
+      return { type: "meta", mode: value.mode as ChatAnswerMode, citations: toCitations(value.citations) };
     case "delta":
       return typeof value.text === "string" ? { type: "delta", text: value.text } : null;
     case "done":
@@ -50,7 +58,7 @@ export function toChatEvent(value: unknown): ChatEvent | null {
     default: {
       if (typeof value.code !== "string" || !ERROR_CODES.has(value.code)) return null;
       const retryAfter = typeof value.retryAfter === "number" && Number.isFinite(value.retryAfter) ? value.retryAfter : undefined;
-      return { type: "error", code: value.code as never, ...(retryAfter === undefined ? {} : { retryAfter }) };
+      return { type: "error", code: value.code as ErrorEvent["code"], ...(retryAfter === undefined ? {} : { retryAfter }) };
     }
   }
 }

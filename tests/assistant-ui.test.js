@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseSseChunk, flushSse } from "@/components/assistant/sseParser";
+import { parseSseChunk, flushSse, toKind } from "@/components/assistant/sseParser";
+import { createIdleTimer, STREAM_IDLE_TIMEOUT_MS } from "@/components/assistant/idleTimer";
 import { parseAnswer, parseInline, safeHttpUrl } from "@/components/assistant/answerFormat";
 
 const ev = (o) => `data: ${JSON.stringify(o)}\n\n`;
@@ -98,4 +99,77 @@ test("safeHttpUrl: only http(s)", () => {
   for (const bad of ["javascript:alert(1)", "JaVaScRiPt:alert(1)", "data:text/html,<b>", "//evil.com", "/relative", "", null, undefined, "not a url", "ftp://x.org"]) {
     assert.equal(safeHttpUrl(bad), null, String(bad));
   }
+});
+
+test("sse: citation kind is validated against the known kinds", () => {
+  const cite = (kind) => ({ type: "meta", mode: "answer", citations: [{ id: 1, title: "T", kind }] });
+  const kindOf = (kind) => parseSseChunk("", ev(cite(kind))).events[0].citations[0].kind;
+  for (const k of ["RECIPE", "TIP", "KITCHEN", "GUIDE", "DOCUMENT"]) assert.equal(kindOf(k), k);
+  assert.equal(kindOf("<script>"), "DOCUMENT");
+  assert.equal(kindOf("recipe"), "DOCUMENT");
+  assert.equal(kindOf(42), "DOCUMENT");
+  assert.equal(kindOf(undefined), "DOCUMENT");
+  assert.equal(toKind("__proto__"), "DOCUMENT");
+});
+
+function fakeClock() {
+  let now = 0;
+  let next = 1;
+  const pending = new Map();
+  return {
+    api: {
+      set: (fn, ms) => {
+        const id = next++;
+        pending.set(id, { at: now + ms, fn });
+        return id;
+      },
+      clear: (id) => pending.delete(id),
+    },
+    advance(ms) {
+      now += ms;
+      for (const [id, t] of [...pending]) if (t.at <= now) { pending.delete(id); t.fn(); }
+    },
+  };
+}
+
+test("idle timer: fires once after a quiet period", () => {
+  const clock = fakeClock();
+  let fired = 0;
+  createIdleTimer(1000, () => fired++, clock.api);
+  clock.advance(999);
+  assert.equal(fired, 0);
+  clock.advance(1);
+  assert.equal(fired, 1);
+  clock.advance(5000);
+  assert.equal(fired, 1);
+});
+
+test("idle timer: activity restarts the countdown", () => {
+  const clock = fakeClock();
+  let fired = 0;
+  const timer = createIdleTimer(1000, () => fired++, clock.api);
+  for (let i = 0; i < 5; i++) {
+    clock.advance(900);
+    timer.reset();
+  }
+  assert.equal(fired, 0);
+  clock.advance(1000);
+  assert.equal(fired, 1);
+  timer.reset();
+  clock.advance(5000);
+  assert.equal(fired, 1, "does not re-arm after firing");
+});
+
+test("idle timer: stop cancels it", () => {
+  const clock = fakeClock();
+  let fired = 0;
+  const timer = createIdleTimer(1000, () => fired++, clock.api);
+  timer.stop();
+  timer.reset();
+  clock.advance(10_000);
+  assert.equal(fired, 0);
+});
+
+test("idle timeout constant is a sane, named value", () => {
+  assert.ok(STREAM_IDLE_TIMEOUT_MS >= 10_000 && STREAM_IDLE_TIMEOUT_MS <= 120_000);
 });

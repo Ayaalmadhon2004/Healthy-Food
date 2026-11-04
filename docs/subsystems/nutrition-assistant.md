@@ -18,7 +18,7 @@ sources:
   - code: prisma/rag-setup.sql
   - code: .github/workflows/ci.yml
   - code: next.config.ts
-verified_at: 959592c
+verified_at: 31393b6
 ---
 
 # Nutrition assistant (RAG)
@@ -88,6 +88,16 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ `normalizeText` in `lib/rag/safety.ts` must strip zero-width and bidi control characters before
 > anything else. Turning them into spaces let "ig<ZWSP>nore previous instructions" split the word and slip
 > past triage.
+
+> ⚠️ The streaming answer must NOT sit in an `aria-live` region (every delta would be read out). The chat
+> has a separate sr-only `role="status"` for short states and a `role="alert"` used only for emergencies;
+> the bubbles themselves carry no `role="alert"`, or the emergency text is announced twice
+> (`components/assistant/AssistantChat.tsx`).
+
+> ⚠️ A stalled stream aborts after `STREAM_IDLE_TIMEOUT_MS` of silence (`components/assistant/idleTimer.ts`)
+> and shows the "unavailable" state with retry; a user Stop must stay a different path ("stopped").
+> Component tests import the timer from its own file because the test loader cannot resolve extensionless
+> relative imports.
 
 > ⚠️ Run `prisma/rag-setup.sql` before `prisma db push` (the `vector` extension must exist), and run
 > its two index statements after. Nothing in the repo applies them automatically.
