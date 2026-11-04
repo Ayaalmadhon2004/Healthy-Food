@@ -6,7 +6,7 @@ updated: 2026-11-04
 sources:
   - code: lib/rag/providers.ts
   - code: prisma/rag-setup.sql
-verified_at: 5603716
+verified_at: 25f22e5
 ---
 
 # Nutrition assistant: free setup
@@ -38,3 +38,17 @@ Local development and CI need a Postgres with the `vector` extension (for exampl
 4. Start the app and open `/ar/assistant` or `/en/assistant`.
 
 See `docs/knowledge-base.md` for adding documents and `docs/assistant-evaluation.md` for the tests.
+
+## Troubleshooting: "The assistant is not available right now"
+
+That message means retrieval failed, not that the question was refused. Find the server log line `chat: retrieval failed:` (Vercel: Logs, filter on `/api/chat`). It ends with the error name and database codes:
+
+| Log line contains | Meaning | Fix |
+| --- | --- | --- |
+| `42P01` | table `knowledge_chunks` does not exist | run `prisma/rag-setup.sql`, then `npx prisma db push` |
+| `P1001` or `Can't reach database server` | `DATABASE_URL` missing or wrong on the host | set `DATABASE_URL` (and `DIRECT_URL`) in the host's environment variables, then redeploy |
+| `42704` or `type "vector"` | the `vector` extension is missing | `CREATE EXTENSION vector;` (rag-setup.sql) |
+| none, and the answer is "no reliable information" | the table exists but is empty | run `npm run ingest` against that database |
+| `retrieval timed out` | database too slow or unreachable from the host | check the connection string (use the pooled one on serverless) |
+
+A preview deployment needs its own environment variables; a production-only variable is not visible to previews.

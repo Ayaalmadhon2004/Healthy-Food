@@ -21,6 +21,23 @@ export interface ChatDeps {
 const defaultRetrieve: Retriever = async (question, options) => (await import("@/lib/rag/retrieve")).retrieve(question, options);
 const defaultGetMessages = async (lang: Lang): Promise<ServerMessages["chat"]> => (await getServerMessages(lang)).chat;
 
+// A database error code (Prisma "P2010", Postgres "42P01"): letters and digits only, so no request text can leak in.
+// https://regex101.com/?regex=%5E%5BA-Z0-9%5D%7B3%2C6%7D%24
+const ERROR_CODE = /^[A-Z0-9]{3,6}$/;
+
+/** What went wrong, safe for the server log: error names and database codes, never messages or the question. */
+export function describeFailure(error: unknown): string {
+  const parts: string[] = [];
+  let current: unknown = error;
+  for (let depth = 0; depth < 3 && current instanceof Error; depth++) {
+    const { code, meta } = current as { code?: unknown; meta?: { code?: unknown } };
+    const codes = [code, meta?.code].filter((c): c is string => typeof c === "string" && ERROR_CODE.test(c));
+    parts.push([current.name, ...codes].join(" "));
+    current = current.cause;
+  }
+  return parts.length ? parts.join(" <- ") : typeof error;
+}
+
 /** Rejects if `work` takes longer than `ms`, so a stuck database or model download cannot hang the stream. */
 async function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -88,7 +105,7 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
     const found = await withTimeout(retrieve(question, { lang, topK: RETRIEVE_TOP_K, minScore: MIN_RELEVANCE }), RETRIEVE_TIMEOUT_MS);
     chunks = uniqueChunks(found.filter((c) => c.score >= MIN_RELEVANCE)).slice(0, RETRIEVE_TOP_K);
   } catch (error) {
-    console.error("chat: retrieval failed:", error instanceof Error ? error.name : typeof error);
+    console.error("chat: retrieval failed:", describeFailure(error));
     yield { type: "meta", mode: "answer", citations: [] };
     yield { type: "error", code: "unavailable" };
     return;

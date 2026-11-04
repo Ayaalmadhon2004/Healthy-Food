@@ -27,7 +27,7 @@ sources:
   - code: components/assistant/idleTimer.ts
   - code: components/assistant/sseParser.ts
   - code: app/[lang]/assistant/loading.tsx
-verified_at: 5603716
+verified_at: 25f22e5
 ---
 
 # Nutrition assistant (RAG)
