@@ -18,7 +18,13 @@ sources:
   - code: prisma/rag-setup.sql
   - code: .github/workflows/ci.yml
   - code: next.config.ts
-verified_at: 31393b6
+  - code: components/assistant/AssistantChat.tsx
+  - code: components/assistant/MessageBubble.tsx
+  - code: components/assistant/chatStream.ts
+  - code: components/assistant/idleTimer.ts
+  - code: components/assistant/sseParser.ts
+  - code: app/[lang]/assistant/loading.tsx
+verified_at: 52abf18
 ---
 
 # Nutrition assistant (RAG)

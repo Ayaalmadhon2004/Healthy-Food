@@ -20,7 +20,7 @@ sources:
   - code: app/[lang]/layout.tsx
   - code: tests/locales.test.js
   - code: tests/i18nRouting.test.js
-verified_at: 8b565be
+verified_at: 52abf18
 ---
 
 # Architecture overview
