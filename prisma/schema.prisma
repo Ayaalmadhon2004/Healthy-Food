@@ -213,3 +213,30 @@ model Notification {
   @@index([userId, read, createdAt])
   @@map("notifications")
 }
+
+// One retrievable passage of the nutrition assistant's knowledge base (RAG). Built by
+// scripts/ingest-knowledge.ts from the app's own recipes/tips/kitchens plus curated, sourced documents
+// about nutrition in Gaza. `embedding` is a pgvector column Prisma cannot read or write, so it is only
+// touched through raw SQL in lib/rag/. Run prisma/rag-setup.sql once before `prisma db push`.
+model KnowledgeChunk {
+  id         Int                         @id @default(autoincrement())
+  // Stable key such as "recipe:12:en" or "doc:who-ors:ar:0"; ingestion upserts on it, so re-running is safe.
+  sourceKey  String                      @unique
+  kind       String // RECIPE | TIP | KITCHEN | GUIDE | DOCUMENT
+  lang       String // "ar" | "en"
+  title      String
+  content    String
+  // Diacritic-stripped, letter-normalised copy of title + content used for full-text search (see lib/rag/normalize.ts).
+  searchText String
+  // Where the information comes from; required for DOCUMENT chunks, shown to the user as a citation.
+  sourceName String?
+  sourceUrl  String?
+  // Publication or last-verified date of the source, as printed there.
+  sourceDate String?
+  embedding  Unsupported("vector(384)")?
+  createdAt  DateTime                    @default(now())
+  updatedAt  DateTime                    @updatedAt
+
+  @@index([kind, lang])
+  @@map("knowledge_chunks")
+}

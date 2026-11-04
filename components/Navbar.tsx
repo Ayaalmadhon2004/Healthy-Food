@@ -91,7 +91,7 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-4 ps-6 border-s border-line">
                 <Link href="/login" className="inline-flex items-center min-h-11 text-[0.9375rem] font-medium text-ink hover:text-olive-700">{t.signIn}</Link>
-                <Link href="/signup" className="btn btn-primary !py-1.5 min-h-10">{t.signUp}</Link>
+                <Link href="/signup" className="btn btn-primary !py-1.5 min-h-10 whitespace-nowrap">{t.signUp}</Link>
               </div>
             )}
           </div>

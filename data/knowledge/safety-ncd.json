@@ -1,0 +1,30 @@
+[
+  {
+    "id": "safety-hypertension",
+    "title": {
+      "ar": "ارتفاع ضغط الدم: الدواء والملح ومتى تطلب الرعاية",
+      "en": "High blood pressure: medicines, salt and when to seek care"
+    },
+    "content": {
+      "ar": "بحسب صحيفة وقائع منظمة الصحة العالمية، لا تظهر أعراض عند معظم المصابين بارتفاع ضغط الدم، لذا فقياس الضغط هو أفضل طريقة لمعرفته. يوصى باتباع غذاء صحي قليل الملح مع النشاط البدني، وقد يحتاج بعض الناس إلى أدوية. يجب تناول الأدوية كما وصفها مقدم الرعاية الصحية، وعدم تفويت الجرعات أو مشاركة الدواء مع الآخرين. إذا لم تتوفر أدويتك فاسأل عاملًا صحيًا عمّا تفعله. اطلب الرعاية فورًا إذا كان الضغط مرتفعًا جدًا مع أعراض مثل صداع شديد أو ألم في الصدر أو صعوبة في التنفس أو ارتباك.",
+      "en": "According to the WHO hypertension fact sheet, most people with high blood pressure have no symptoms, so measuring blood pressure is the best way to know. A healthy, low-salt diet and physical activity are recommended, and some people also need medicines. Take medicines as prescribed by your health care professional, and do not miss doses or share medicines. If you cannot get your medicine, ask a health worker what to do. Seek care immediately if blood pressure is very high together with symptoms such as severe headache, chest pain, difficulty breathing or confusion."
+    },
+    "sourceName": "WHO",
+    "sourceUrl": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  },
+  {
+    "id": "safety-diabetes",
+    "title": {
+      "ar": "السكري: الغذاء والعلاج وأعراض تستدعي المراجعة",
+      "en": "Diabetes: diet, treatment and symptoms that need a check"
+    },
+    "content": {
+      "ar": "تذكر منظمة الصحة العالمية أن المصابين بالسكري من النوع الأول يحتاجون إلى حقن الإنسولين للبقاء على قيد الحياة، وأن بعض المصابين بالنوع الثاني يحتاجون إلى أدوية قد تشمل الإنسولين. يمكن علاج السكري بالغذاء والنشاط البدني والدواء، وتُتجنَّب مضاعفاته بالفحص المنتظم والعلاج في الوقت المناسب. تنصح المنظمة بغذاء صحي وتجنّب السكر والدهون المشبعة. من الأعراض الشائعة: زيادة العطش وكثرة التبول والتعب وتشوش الرؤية، وقد تظهر فجأة في النوع الأول. راجع مقدم الرعاية الصحية عند ظهورها، وإذا لم يتوفر دواؤك فاسأل عاملًا صحيًا عمّا تفعله.",
+      "en": "WHO states that people with type 1 diabetes need insulin injections to survive, and some people with type 2 diabetes need medicines that can include insulin. Diabetes can be treated with diet, physical activity and medication, and its complications avoided through regular screening and timely treatment. WHO advises a healthy diet and avoiding sugar and saturated fat. Common symptoms include increased thirst, frequent urination, tiredness and blurred vision, and in type 1 they may start suddenly. See a health care provider if they appear, and if you cannot get your medicine, ask a health worker what to do."
+    },
+    "sourceName": "WHO",
+    "sourceUrl": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  }
+]

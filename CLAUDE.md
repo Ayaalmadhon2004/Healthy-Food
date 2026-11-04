@@ -7,3 +7,9 @@
 - Do not add `Co-Authored-By: Claude ...` or `Claude-Session: ...` trailers to commit messages,
   and do not add "Generated with Claude Code" lines to pull request descriptions.
 - Write commit messages as a normal developer would: short, plain, no mention of AI.
+
+## docs
+
+`docs/` is a wiki maintained by an LLM. Page format, which page to update, and the
+`/docs-sync` workflow all live in [`docs/CLAUDE.md`](docs/CLAUDE.md).
+Start at [`docs/index.md`](docs/index.md).

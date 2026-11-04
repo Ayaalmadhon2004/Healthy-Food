@@ -31,7 +31,24 @@ export function decide(state: WindowState, now: number, { limit, windowMs }: Rat
   return { ok: false, retryAfter: Math.max(1, Math.ceil(remainingMs / MS_PER_SECOND)) };
 }
 
+// An IPv6 address is at most 45 characters; anything longer is not an address and must not become a database key.
+const MAX_IP_CHARS = 45;
+
+function validIp(value: string | null): string | null {
+  const ip = value?.trim() ?? "";
+  return ip && ip.length <= MAX_IP_CHARS ? ip : null;
+}
+
+/**
+ * Client address for rate limiting. Order of trust:
+ *  1. `x-vercel-forwarded-for` and 2. `x-real-ip`: set by the platform edge, which overwrites any client-supplied value.
+ *  3. `x-forwarded-for`: a client can send its own entries, and each proxy APPENDS the address it saw, so the FIRST entry is
+ *     attacker-controlled. We take the LAST entry, i.e. the one added by the nearest proxy. This assumes exactly one trusted
+ *     proxy in front of the app; with more, the last entry is that proxy's address and limits become shared (safe, not bypassable).
+ * Falls back to "unknown" (one shared bucket) when nothing usable is present.
+ */
 export function getClientIp(request: { headers: Headers }): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  return forwarded ? forwarded.split(",")[0].trim() : request.headers.get("x-real-ip") || "unknown";
+  const { headers } = request;
+  const forwarded = headers.get("x-forwarded-for")?.split(",").pop() ?? null;
+  return validIp(headers.get("x-vercel-forwarded-for")?.split(",")[0] ?? null) ?? validIp(headers.get("x-real-ip")) ?? validIp(forwarded) ?? "unknown";
 }

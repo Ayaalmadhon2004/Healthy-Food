@@ -55,6 +55,50 @@
       "failed": "Something went wrong. Please try again."
     }
   },
+  "assistant": {
+    "title": "Nutrition assistant",
+    "subtitle": "Ask about food, cooking and feeding your family. Answers come only from NutriFlow's own recipes, tips and guides, with the sources shown.",
+    "disclaimer_title": "General information, not medical advice",
+    "disclaimer": "This assistant does not replace a doctor. For a sick child, a pregnant woman or any serious symptom, see a doctor. In an emergency, go to the nearest clinic or hospital right away.",
+    "empty_title": "What would you like to know?",
+    "empty_text": "Ask in Arabic or English. Short, specific questions work best.",
+    "suggestions_label": "Try one of these",
+    "suggestions": [
+      "How can I cook lentils without a fridge and save them for the next day?",
+      "How do I prepare oral rehydration solution for a child with diarrhea?",
+      "What can I feed a toddler when food is limited?",
+      "How can someone with diabetes eat when food is scarce?",
+      "How do I make clean water safe to drink when fuel is short?"
+    ],
+    "input_label": "Your question",
+    "input_placeholder": "Type your question here",
+    "input_hint": "Enter to send, Shift+Enter for a new line",
+    "send": "Send",
+    "stop": "Stop",
+    "new_chat": "New conversation",
+    "you": "You",
+    "assistant": "Assistant",
+    "loading": "Loading the assistant...",
+    "status_answering": "Answering...",
+    "status_ready": "Answer ready",
+    "thinking": "Looking through the sources",
+    "stopped": "Stopped before the answer was finished.",
+    "sources": "Sources",
+    "open_source": "Open source",
+    "jump_to_source": "Go to source {n}",
+    "modes": {
+      "emergency": "This may be an emergency",
+      "no_context": "No matching source",
+      "out_of_scope": "Outside what this assistant covers"
+    },
+    "retry": "Try again",
+    "errors": {
+      "rate_limited": "You have asked many questions in a short time. Please wait {time} before asking again.",
+      "unavailable": "The assistant is not available right now. Please try again in a little while.",
+      "network": "The connection was lost. Check your internet and try again.",
+      "invalid_request": "That question could not be sent. Shorten it or rephrase it and try again."
+    }
+  },
   "server": {
     "unauthorized": "Unauthorized",
     "somethingWrong": "Something went wrong",
@@ -109,6 +153,18 @@
     "appointmentTransition": "That change is not allowed for this appointment",
     "doctorNotFound": "Doctor not found",
     "userNotFound": "No account with that email",
-    "doctorAlreadyLinked": "That account is already linked to another doctor"
+    "doctorAlreadyLinked": "That account is already linked to another doctor",
+    "chat": {
+      "emergency": "This sounds like it may need urgent medical care. Please go to the nearest clinic or medical point right now, or ask the people around you to help you get there. Do not wait and do not try to treat this at home with food or drinks.",
+      "emergencyDoctors": "You can also find doctors in the Doctors page of this app.",
+      "noContext": "I could not find reliable information about this in my sources, so I would rather not guess. Try asking in a different way, or ask a doctor or a nutrition worker at the nearest medical point.",
+      "outOfScope": "I can only help with food, nutrition, safe water and healthy eating, especially with limited ingredients. Please ask me something about those.",
+      "rateLimited": "You have asked many questions in a short time. Please wait a little and try again.",
+      "unavailable": "The assistant is not available right now. Please try again in a few minutes.",
+      "invalidRequest": "The question could not be read. Please write a shorter question and try again.",
+      "refusal": "I cannot answer this. Please ask a doctor or a nutrition worker.",
+      "truncated": "The answer was cut short. Ask me to continue or to be more specific.",
+      "disclaimer": "This is general information, not medical advice. For a health problem, ask a doctor."
+    }
   }
 }

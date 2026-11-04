@@ -1,0 +1,16 @@
+[
+  {
+    "id": "safety-hand-hygiene",
+    "title": {
+      "ar": "غسل اليدين في الطوارئ ومتى يجب غسلهما",
+      "en": "Handwashing in emergencies and when to do it"
+    },
+    "content": {
+      "ar": "توصي مراكز مكافحة الأمراض الأمريكية (CDC) في حالات الكوارث بغسل اليدين بالصابون والماء النظيف كلما أمكن. إذا لم يتوفر صابون وماء فاستعمل معقّم يدين يحتوي على 60% كحول على الأقل (تجد النسبة على الملصق). لا يصلح المعقّم لليدين المتسختين بوضوح أو الدهنيتين إلا إذا لم تتوفر نقطة غسل. وإذا لم يتوفر صابون، فإن فرك اليدين تحت ماء جارٍ يزيل بعض الجراثيم رغم أنه أقل فاعلية من الصابون. اغسل يديك قبل تناول الطعام أو تحضيره، وبعد استخدام المرحاض، وبعد تغيير الحفاضات أو تنظيف الطفل، وقبل وبعد معالجة الجروح أو رعاية مريض.",
+      "en": "The US CDC recommends washing hands with soap and clean water whenever possible in emergencies. If soap and water are not available, use a hand sanitizer with at least 60% alcohol (check the label). Sanitizer is not suitable for hands that are visibly dirty or greasy unless no handwashing station is available. Rubbing hands under running water without soap rinses off some germs, although it is less effective than using soap. Wash hands before eating or preparing food, after using the toilet, after changing diapers or cleaning a child who has used the toilet, and before and after treating wounds or caring for someone who is sick."
+    },
+    "sourceName": "CDC",
+    "sourceUrl": "https://www.cdc.gov/natural-disasters/media/pdfs/2024/08/factsheet-wash-your-hands-1-508.pdf",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "acute-malnutrition-muac-gaza",
+    "title": {
+      "ar": "سوء التغذية الحاد عند الأطفال: قياس محيط منتصف الذراع وعلاج المجتمع",
+      "en": "Acute malnutrition in children: MUAC screening and community treatment"
+    },
+    "content": {
+      "ar": "بحسب مقال في المجلة الصحية لشرق المتوسط (منظمة الصحة العالمية) عن عمل الأونروا في غزة، يُقاس محيط منتصف الذراع (MUAC) للأطفال من 6 إلى 59 شهراً بشريط خاص على الذراع اليسرى العلوية. يُصنَّف الطفل بسوء تغذية حاد متوسط إذا كان القياس بين 11.5 و12.5 سم دون وذمة تغذوية، وبسوء تغذية حاد وخيم إذا كان القياس أقل من 11.5 سم أو وُجدت وذمة انطباعية ثنائية الجانب. وتُعالج الحالات غير المصحوبة بمضاعفات في برامج العيادات الخارجية التي توفر الغذاء العلاجي الجاهز (RUTF) والتغذية التكميلية، بينما تُحال الحالات الوخيمة المصحوبة بمضاعفات إلى مراكز تثبيت تديرها منظمة الصحة العالمية. وإذا كان قياس طفلك أقل من 12.5 سم أو لاحظتم تورماً في الجسم، فاطلبوا تقييماً وعلاجاً من أقرب عيادة تغذية.",
+      "en": "According to an article in the WHO Eastern Mediterranean Health Journal on UNRWA's work in Gaza, mid-upper arm circumference (MUAC) of children aged 6-59 months is measured with a tape on the left upper arm. A child is classed as moderately acutely malnourished with a MUAC of 11.5 to 12.5 cm without nutritional oedema, and as severely malnourished with a MUAC below 11.5 cm or bilateral pitting oedema. Uncomplicated cases are managed in outpatient programmes that provide ready-to-use therapeutic food (RUTF) and supplementary feeding, while severe cases with complications are referred to stabilization centres run by WHO. If your child's MUAC is below 12.5 cm, or the child has swelling of the body, ask the nearest nutrition clinic for assessment and treatment."
+    },
+    "sourceName": "WHO EMRO - Eastern Mediterranean Health Journal (UNRWA nutrition in Gaza)",
+    "sourceUrl": "https://applications.emro.who.int/EMHJ/V31/04/1020-3397-2025-3104-274-280-eng.pdf",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  }
+]

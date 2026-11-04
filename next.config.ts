@@ -41,6 +41,8 @@ const PROTECTED_PAGES = [
 ];
 
 const nextConfig: NextConfig = {
+  // The local embedding model ships native binaries (onnxruntime); keep it out of the webpack bundle.
+  serverExternalPackages: ["@huggingface/transformers", "onnxruntime-node", "sharp"],
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,

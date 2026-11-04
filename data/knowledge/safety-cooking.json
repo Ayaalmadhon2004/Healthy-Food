@@ -1,0 +1,30 @@
+[
+  {
+    "id": "safety-cooking-carbon-monoxide",
+    "title": {
+      "ar": "الطهي بأمان: خطر أول أكسيد الكربون",
+      "en": "Safe cooking: the carbon monoxide danger"
+    },
+    "content": {
+      "ar": "تحذر مراكز مكافحة الأمراض الأمريكية (CDC) من أن المولدات والمشاوي وسخانات الطهي المحمولة وأي أجهزة تحرق البنزين أو الغاز أو الفحم لا يجوز استعمالها داخل البيت أو الخيمة أو القبو أو المرآب، ولا حتى قرب نافذة مفتوحة. يتراكم غاز أول أكسيد الكربون في الأماكن المغلقة أو شبه المغلقة، وقد يسمّم الناس والحيوانات ويقتلهم. ابقِ المولدات في الخارج بعيدًا عن الأبواب والنوافذ. إذا شعرتَ بدوار أو خفة في الرأس أو غثيان وشككتَ في التسمم بهذا الغاز فاطلب رعاية طبية عاجلة.",
+      "en": "The US CDC warns that generators, grills, camp stoves and other devices that burn gasoline, propane, natural gas or charcoal should never be used inside a home, tent, camper, basement or garage, or even outside near an open window. Carbon monoxide builds up in enclosed or partly enclosed spaces and can poison and kill people and animals. Keep generators outdoors, away from doors, windows and vents. If you feel dizzy, light-headed or nauseous and suspect carbon monoxide poisoning, seek prompt medical attention."
+    },
+    "sourceName": "CDC",
+    "sourceUrl": "https://www.cdc.gov/natural-disasters/psa-toolkit/avoiding-carbon-monoxide-poisoning.html",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  },
+  {
+    "id": "safety-cooking-smoke",
+    "title": {
+      "ar": "دخان الطهي داخل البيوت وأثره على الصحة",
+      "en": "Household cooking smoke and health"
+    },
+    "content": {
+      "ar": "تذكر منظمة الصحة العالمية أن الاحتراق غير الكامل للوقود الصلب والكيروسين المستخدم في الطهي يسبب تلوثًا للهواء داخل البيوت، وأن التعرض له مرتبط بالسكتة الدماغية وأمراض القلب ومرض الانسداد الرئوي المزمن وسرطان الرئة. وتعدّ إرشادات المنظمة أن الكهرباء والغاز الطبيعي وغاز البترول المسال والغاز الحيوي والإيثانول والطاقة الشمسية وقودًا نظيفًا. عند عدم توفر الوقود النظيف فالمهم إدراك أن دخان الطهي يضر بالصحة، لذا اسأل الجهات الصحية أو الإغاثية عن بدائل متاحة.",
+      "en": "WHO states that incomplete combustion of solid fuels and kerosene used for cooking causes household air pollution, and that exposure is linked to stroke, ischaemic heart disease, chronic obstructive pulmonary disease and lung cancer. WHO guidelines treat electricity, natural gas, liquefied petroleum gas, biogas, ethanol and solar as clean options. When clean fuel is not available, the key point is that cooking smoke harms health, so ask health or aid agencies about alternatives that may be available."
+    },
+    "sourceName": "WHO",
+    "sourceUrl": "https://www.who.int/news-room/fact-sheets/detail/household-air-pollution-and-health",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  }
+]
