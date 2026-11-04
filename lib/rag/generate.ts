@@ -3,6 +3,7 @@
 import Anthropic, { APIConnectionError, APIError, AuthenticationError, RateLimitError } from "@anthropic-ai/sdk";
 import type { MessageParam, MessageStreamEvent, StopReason, TextBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { CHAT_MAX_TOKENS, CHAT_MODEL } from "@/lib/rag/constants";
+import type { Lang, RetrievedChunk } from "@/lib/rag/types";
 
 const REQUEST_TIMEOUT_MS = 60_000;
 const MAX_RETRIES = 1;
@@ -12,6 +13,11 @@ export interface GenerateInput {
   messages: MessageParam[];
   /** Localized fixed notes appended when the model refuses or is cut off. */
   notes: { refusal: string; truncated: string };
+  /** The numbered passages the prompt was built from; used by generators that do not call a model. */
+  passages?: readonly RetrievedChunk[];
+  lang?: Lang;
+  /** Localized "general information, ask a doctor" line for key-less answers. */
+  disclaimer?: string;
   signal?: AbortSignal;
 }
 

@@ -2,7 +2,7 @@
 import { getServerMessages } from "@/lib/i18n";
 import type { ServerMessages } from "@/lib/i18n";
 import { MIN_RELEVANCE, RETRIEVE_TIMEOUT_MS, RETRIEVE_TOP_K } from "@/lib/rag/constants";
-import { generate as defaultGenerate } from "@/lib/rag/generate";
+import { generate as defaultGenerate } from "@/lib/rag/providers";
 import type { AnswerGenerator } from "@/lib/rag/generate";
 import { buildPrompt, uniqueChunks } from "@/lib/rag/prompt";
 import { triage } from "@/lib/rag/safety";
@@ -94,7 +94,7 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   const prompt = buildPrompt({ question, lang, chunks, history });
   yield { type: "meta", mode: "answer", citations: prompt.passages.map(toCitation) };
 
-  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, signal });
+  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, passages: prompt.passages, lang, disclaimer: m.disclaimer, signal });
   const iterator = events[Symbol.asyncIterator]();
   try {
     let next = await iterator.next();
