@@ -6,6 +6,7 @@ updated: 2026-11-04
 sources:
   - code: scripts/ingest-knowledge.ts
   - code: lib/rag/chunking.ts
+  - code: tests/rag-chunking.test.js
   - code: data/knowledge
 verified_at: d4776e2
 ---
@@ -39,7 +40,17 @@ Ingestion only upserts (keyed by `sourceKey`); it never deletes. If a recipe is 
 
 ## Chunking
 
-`lib/rag/chunking.ts` (pure, unit-testable): one chunk per language per row, key `recipe:12:ar`, `tip:3:en`, `kitchen:1:ar`, `doc:<id>:ar`. Text over about 900 characters is split on paragraph/sentence boundaries with a ~120 character overlap; split chunks are keyed `...:ar:1`, `...:ar:2`. Every chunk starts with the document title so it is self-contained.
+`lib/rag/chunking.ts` (pure, unit-tested in `tests/rag-chunking.test.js`): one chunk per language per row, key `recipe:12:ar`, `tip:3:en`, `kitchen:1:ar`, `doc:<id>:ar`. The language is its own `:` segment because retrieval de-duplicates ar/en twins by removing the `ar`/`en` segments (`sourceStem` in `lib/rag/fusion.ts`). Text over about 900 characters is split on paragraph/sentence boundaries with a ~120 character overlap; split chunks are keyed `...:ar:1`, `...:ar:2`. Every chunk starts with the document title so it is self-contained. Ar and en may split into a different number of parts.
+
+Recipe text is written as one fact per line, each a full sentence, because the extractive answerer (`lib/rag/extractive.ts`) quotes whole sentences (split on `. ! ? ؟` and newlines, ignoring those under 25 characters and cutting those over 240): a basics line (type, time, calories), a nutrition line, `Ingredients: a, b, c.` (a very long list continues on further lines of at most 220 characters) and one `Step n: ...` line per step.
+
+> ⚠️ Keep every fact line at 25 characters or more and under 240. A bare `Calories: 320 cal` line would be dropped by the extractive answerer, and a long blob would be cut mid-sentence.
+
+### Kitchens: what is embedded and what is not
+
+Kitchen rows change every day. The chunk keeps the stable facts (name, region, location, distribution time, access information) and the contact phone number, because the phone number is the reason someone looks for a kitchen. It does NOT embed today's meal or the capacity: a stored chunk is only refreshed when `npm run ingest` runs, so it would answer with food that is no longer served or places that are gone, which is worse than no answer. Instead the last line of every kitchen chunk (localized) says that today's menu and remaining places are on the Kitchens page of the app (shown in the menu as "Gaza Kitchen"). `KitchenRow` still accepts `capacity` and `todaysMeal` so the Prisma row can be passed as is; they are ignored.
+
+> ⚠️ Do not add `todaysMeal` or `capacity` back to the kitchen chunk. A test (`tests/rag-chunking.test.js`) fails if the chunk changes when only those fields change. The phone number can also go stale: re-run ingestion after editing a kitchen's contact.
 
 ## Add a curated document
 

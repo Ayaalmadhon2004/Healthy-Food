@@ -7,24 +7,32 @@ repository. The rules are in [`CLAUDE.md`](CLAUDE.md).
 
 ## Start here
 
-1. [[nutrition-assistant]] -- how the assistant answers, and its traps
-2. [[free-by-default-assistant]] -- why it costs nothing to run
-
-More pages are added as work touches new areas; the rest of the app (recipes, kitchens, tracker,
-doctors, auth) is not documented here yet.
+1. [[overview]] -- app layout, proxy, data layer, i18n, PWA
+2. [[auth-and-roles]] -- sign-in, roles, where authorization is checked
+3. [[gaza-time-and-reservation-day]] -- how days are defined everywhere
+4. [[community-kitchens]], [[meal-tracker]], [[doctors-and-appointments]], [[recipes-tips-and-favorites]], [[reports-and-support]] -- the feature subsystems
+5. [[nutrition-assistant]] -- how the assistant answers, and its traps
+6. [[free-by-default-assistant]] -- why it costs nothing to run
+7. [[local-setup-and-deploy]], [[environment-variables]], [[npm-scripts-and-ci]] -- running and checking the app
 
 ---
 
 ## concepts
 
-_None yet._
+- [[gaza-time-and-reservation-day]] -- Asia/Gaza days, instants vs UTC calendar dates
 
 ## architecture
 
-_None yet._
+- [[overview]] -- routing under app/[lang], proxy.ts, Prisma/Supabase, i18n, PWA
 
 ## subsystems
 
+- [[auth-and-roles]] -- Supabase sign-in, USER/ORG/ADMIN/DOCTOR, authorization placement
+- [[community-kitchens]] -- kitchens, serialized meal reservations, capacity, org dashboard
+- [[recipes-tips-and-favorites]] -- cached content, favorites toggle
+- [[meal-tracker]] -- meals, calorie goal, monthly stats
+- [[doctors-and-appointments]] -- booking, status flow, notifications, doctor linking
+- [[reports-and-support]] -- area reports, support tickets, rate limiter
 - [[nutrition-assistant]] -- triage, hybrid retrieval, answer generation, knowledge base
 
 ## decisions
@@ -33,10 +41,12 @@ _None yet._
 
 ## reference
 
-_None yet._
+- [[environment-variables]] -- every env var the code reads (names only)
+- [[npm-scripts-and-ci]] -- package scripts and the CI pipeline order
 
 ## operations
 
+- [[local-setup-and-deploy]] -- install, db push, seed, run, deploy, keep-alive cron
 - [[assistant-setup]] -- free setup, env vars, first run
 - [[knowledge-base]] -- adding documents, source policy, how the current batch was gathered
 - [[assistant-evaluation]] -- evaluation set, targets, offline and live runs
