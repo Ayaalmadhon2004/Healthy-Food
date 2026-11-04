@@ -65,7 +65,8 @@ export async function countChunks(): Promise<number> {
  */
 export async function deleteStaleChunks(kinds: string[], keepKeys: string[]): Promise<number> {
   if (kinds.length === 0 || keepKeys.length === 0) return 0;
+  // Prisma.join expands to one parameter per value, which every driver adapter handles (an array parameter does not).
   return prisma.$executeRaw`
     DELETE FROM knowledge_chunks
-    WHERE kind = ANY(${kinds}::text[]) AND NOT ("sourceKey" = ANY(${keepKeys}::text[]))`;
+    WHERE kind IN (${Prisma.join(kinds)}) AND "sourceKey" NOT IN (${Prisma.join(keepKeys)})`;
 }

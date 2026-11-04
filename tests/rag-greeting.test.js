@@ -57,3 +57,23 @@ test("the chat client accepts the greeting mode instead of dropping it", () => {
   assert.equal(events[0].type, "meta");
   assert.equal(events[0].mode, "greeting");
 });
+
+const { detectLang } = await import("../lib/rag/language.ts");
+
+test("the answer language follows the message, not the page", () => {
+  assert.equal(detectLang("مرحبا", "en"), "ar");
+  assert.equal(detectLang("كيف أغلي الماء؟", "en"), "ar");
+  assert.equal(detectLang("How do I boil water?", "ar"), "en");
+  assert.equal(detectLang("ماء water ماء", "en"), "ar", "more Arabic letters than Latin ones");
+  assert.equal(detectLang("12345 ؟", "en"), "en", "no letters at all: keep the page language");
+  assert.equal(detectLang("", "ar"), "ar");
+});
+
+test("an Arabic message on an English page gets the Arabic reply", async () => {
+  const { events } = await run("مرحبا", "en");
+  assert.equal(events[0].mode, "greeting");
+  assert.equal(events[1].text, "WELCOME", "the fake messages are language-neutral, so check the language passed to getMessages");
+  const seen = [];
+  for await (const e of runChat({ question: "مرحبا", lang: "en", history: [] }, { getMessages: async (l) => { seen.push(l); return messages; }, retrieve: async () => [], generate: async function* () {} })) void e;
+  assert.deepEqual(seen, ["ar"]);
+});
