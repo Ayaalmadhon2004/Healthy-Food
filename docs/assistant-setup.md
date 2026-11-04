@@ -27,6 +27,8 @@ Everything runs at no cost by default.
 - `GEMINI_API_KEY`, `GEMINI_MODEL` (default `gemini-2.5-flash`; free-tier model names change, set it to a current one).
 - `RAG_MODEL_CACHE_DIR`: where the embedding model is cached. `RAG_DISABLE_EMBEDDINGS=1` skips it (full-text search only).
 
+Local development and CI need a Postgres with the `vector` extension (for example the `pgvector/pgvector:pg16` image); with plain `postgres:16`, `prisma db push` fails with `type "vector" does not exist`.
+
 ## First run
 
 1. Run `prisma/rag-setup.sql` in the Supabase SQL editor.

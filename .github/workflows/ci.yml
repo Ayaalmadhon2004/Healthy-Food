@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        # pgvector image: the assistant's knowledge_chunks table has a vector column.
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: healthy_food
@@ -35,6 +36,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       # Action tests run against the real database, so the schema must exist first.
+      # The vector extension must exist before db push creates knowledge_chunks.
+      - run: echo "CREATE EXTENSION IF NOT EXISTS vector;" | npx prisma db execute --stdin
       - run: npx prisma db push
       - run: npm test
       # The build reads recipes/tips from the database while generating pages.
