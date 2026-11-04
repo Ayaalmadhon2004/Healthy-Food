@@ -46,7 +46,9 @@ async function main(): Promise<void> {
 
   usedDatabase = true;
   const { recipeChunks, tipChunks, kitchenChunks } = await import("@/lib/rag/sources");
-  const { embedPassages } = await import("@/lib/rag/embed");
+  const { retrieverMode } = await import("@/lib/rag/mode");
+  const useEmbeddings = retrieverMode() === "pgvector";
+  const { embedPassages } = useEmbeddings ? await import("@/lib/rag/embed") : { embedPassages: async (texts: string[]) => texts.map(() => null) };
   const { upsertChunks, deleteStaleChunks } = await import("@/lib/rag/store");
 
   const chunks = [...(await recipeChunks()), ...(await tipChunks()), ...(await kitchenChunks()), ...curated];
@@ -68,7 +70,7 @@ async function main(): Promise<void> {
   const producedKinds = [...new Set(chunks.map((c) => c.kind))];
   const removed = await deleteStaleChunks(producedKinds, chunks.map((c) => c.sourceKey));
   if (removed) console.log(`Removed ${removed} stale chunk(s).`);
-  if (withoutVector) console.warn(`${withoutVector} chunk(s) have no embedding (embedder unavailable): full-text search only.`);
+  if (useEmbeddings && withoutVector) console.warn(`${withoutVector} chunk(s) have no embedding (embedder unavailable): full-text search only.`);
 }
 
 main()

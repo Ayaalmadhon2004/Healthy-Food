@@ -6,6 +6,9 @@ import { MIN_RELEVANCE, RETRIEVE_TOP_K } from "@/lib/rag/constants";
 import type { KnowledgeKind } from "@/lib/rag/constants";
 import { embedQuery } from "@/lib/rag/embed";
 import { buildTsQuery, dedupeByStem, reciprocalRankFusion, relevanceScore, toVectorLiteral } from "@/lib/rag/fusion";
+import { buildMemoryIndex, searchMemoryIndex } from "@/lib/rag/memoryIndex";
+import type { MemoryIndex } from "@/lib/rag/memoryIndex";
+import { retrieverMode } from "@/lib/rag/mode";
 import { toTsQueryTerms } from "@/lib/rag/normalize";
 import type { Lang, RetrieveOptions, RetrievedChunk } from "@/lib/rag/types";
 
@@ -63,7 +66,43 @@ async function lexicalSearch(tsQuery: string, vector: number[] | null, limit: nu
     LIMIT ${limit}`;
 }
 
+const INDEX_TTL_MS = 5 * 60 * 1000;
+let cachedIndex: { index: MemoryIndex; builtAt: number } | null = null;
+let building: Promise<MemoryIndex> | null = null;
+
+/** Test hook: forget the cached index. */
+export function resetMemoryIndex(): void {
+  cachedIndex = null;
+  building = null;
+}
+
+async function loadMemoryIndex(): Promise<MemoryIndex> {
+  if (cachedIndex && Date.now() - cachedIndex.builtAt < INDEX_TTL_MS) return cachedIndex.index;
+  building ??= (async () => {
+    try {
+      const rows = await prisma.$queryRaw<ChunkRow[]>`
+        SELECT "id", "sourceKey", "kind", "lang", "title", "content", "sourceName", "sourceUrl", "sourceDate"
+        FROM knowledge_chunks`;
+      const index = buildMemoryIndex(rows);
+      cachedIndex = { index, builtAt: Date.now() };
+      return index;
+    } catch (error) {
+      // Serve the last good index if the database blips; only fail when there is nothing to serve.
+      if (cachedIndex) return cachedIndex.index;
+      throw new KnowledgeStoreUnavailableError({ cause: error });
+    } finally {
+      building = null;
+    }
+  })();
+  return building;
+}
+
 export async function retrieve(question: string, opts: RetrieveOptions): Promise<RetrievedChunk[]> {
+  if (retrieverMode() === "memory") return searchMemoryIndex(await loadMemoryIndex(), question, opts);
+  return retrieveFromDatabase(question, opts);
+}
+
+async function retrieveFromDatabase(question: string, opts: RetrieveOptions): Promise<RetrievedChunk[]> {
   const topK = opts.topK ?? RETRIEVE_TOP_K;
   const minScore = opts.minScore ?? MIN_RELEVANCE;
   const limit = Math.max(MIN_CANDIDATES, topK * CANDIDATE_FACTOR);

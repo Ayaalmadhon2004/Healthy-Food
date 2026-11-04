@@ -7,6 +7,9 @@ sources:
   - code: lib/rag/chat.ts
   - code: lib/rag/safety.ts
   - code: lib/rag/retrieve.ts
+  - code: lib/rag/memoryIndex.ts
+  - code: lib/rag/ngram.ts
+  - code: lib/rag/mode.ts
   - code: lib/rag/fusion.ts
   - code: lib/rag/normalize.ts
   - code: lib/rag/prompt.ts
@@ -24,7 +27,7 @@ sources:
   - code: components/assistant/idleTimer.ts
   - code: components/assistant/sseParser.ts
   - code: app/[lang]/assistant/loading.tsx
-verified_at: 52abf18
+verified_at: 3ec1eeb
 ---
 
 # Nutrition assistant (RAG)
@@ -40,8 +43,10 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 
 1. **Triage** (`lib/rag/safety.ts`): emergency, out-of-scope or prompt-injection questions get a fixed
    reply and never reach retrieval or a model.
-2. **Retrieve** (`lib/rag/retrieve.ts`): hybrid search, vectors plus Postgres full-text, merged with
-   reciprocal rank fusion (`lib/rag/fusion.ts`). Passages below `MIN_RELEVANCE` are dropped.
+2. **Retrieve** (`lib/rag/retrieve.ts`): by default (`RAG_RETRIEVER` unset) an in-memory index (`lib/rag/memoryIndex.ts`)
+   scores every passage with BM25 plus hashed character n-gram similarity (`lib/rag/ngram.ts`); no model, no pgvector.
+   `RAG_RETRIEVER=pgvector` switches to the database-side hybrid search (e5 vectors plus Postgres full-text, merged by
+   rank fusion in `lib/rag/fusion.ts`). Passages below `MIN_RELEVANCE` are dropped either way.
 3. **No passages left** means a fixed "no reliable information" reply, with no model call.
 4. **Answer** from exactly those passages, streamed as SSE events (`meta`, `delta`, `done` or `error`).
 
@@ -52,8 +57,8 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 - `npm run ingest` (`scripts/ingest-knowledge.ts`) rebuilds chunks from the database plus
   `data/knowledge/*.json`. See `docs/knowledge-base.md` for how documents are added and how the current
   batch was gathered.
-- Embeddings are local (`lib/rag/embed.ts`, multilingual-e5-small). If the model cannot load, search
-  degrades to full-text only.
+- Default retrieval needs no embeddings. In `pgvector` mode embeddings are local (`lib/rag/embed.ts`, multilingual-e5-small);
+  if the model cannot load, search degrades to full-text only. `npm run ingest` skips embedding in the default mode.
 
 ## Traps
 
@@ -68,6 +73,13 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ Stored passages and the question are untrusted. `clean` in `lib/rag/prompt.ts:44` strips
 > delimiter tags after NFKC and zero-width removal; keep that order or fullwidth and invisible-character
 > lookalikes can close the `<context>` block.
+
+> ⚠️ The in-memory retriever's calibration (`relevanceOf` in `lib/rag/memoryIndex.ts`) was measured on 25 answerable
+> and 8 unanswerable questions over the 19 curated documents (`tests/eval/retrieval-cases.json`): top-3 hit 24/25,
+> answerable accepted 92%, unanswerable rejected 88%. The sample is small and the known miss is real: "best protein for
+> muscle building" is accepted because the word "building" appears in a breastfeeding sentence. The n-gram vectors
+> measure shared spelling, not meaning; a truly semantic model is better where it can run. Re-measure after adding
+> recipes, tips and kitchens, and add the new failures to the cases file.
 
 > ⚠️ Generic query words must not count as evidence. Raising `LEXICAL_GAIN` once let a lone "best" in
 > "best protein for muscle building" pull in breastfeeding and chlorine passages, which reads as the
