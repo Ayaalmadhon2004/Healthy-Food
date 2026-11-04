@@ -10,6 +10,8 @@ sources:
   - code: lib/rag/memoryIndex.ts
   - code: lib/rag/ngram.ts
   - code: lib/rag/mode.ts
+  - code: lib/rag/language.ts
+  - code: tests/rag-store.test.js
   - code: lib/rag/fusion.ts
   - code: lib/rag/normalize.ts
   - code: lib/rag/prompt.ts
@@ -27,7 +29,7 @@ sources:
   - code: components/assistant/idleTimer.ts
   - code: components/assistant/sseParser.ts
   - code: app/[lang]/assistant/loading.tsx
-verified_at: 03d7bd5
+verified_at: d72ddad
 ---
 
 # Nutrition assistant (RAG)
@@ -97,6 +99,17 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ Ingest prunes stale chunks only for kinds that produced chunks in that run
 > (`lib/rag/store.ts:66`). Never call it with an empty keep-list; it refuses on purpose so a failed
 > build cannot wipe the table.
+
+> ⚠️ The reply language follows the message, not the page (`detectLang` in `lib/rag/language.ts`): more Arabic
+> letters than Latin ones means Arabic. It counts letters only, because the Arabic question mark and Arabic digits sit
+> inside the Arabic Unicode block and would otherwise tip a digits-only message into Arabic. Retrieval, the fixed
+> replies and the generator all receive this detected language, not `ChatRequest.lang`.
+
+> ⚠️ The store's SQL is covered by `tests/rag-store.test.js`, which needs a real Postgres (CI has one) and skips itself
+> without `DATABASE_URL` or the table. Array parameters (`ANY($1::text[])`) were replaced by `Prisma.join` because
+> driver adapters differ in how they send arrays. The SQL and the Prisma-generated table were also run once against
+> Postgres with pgvector (PGlite) during development: insert, update, vectors, prune, both index statements, and both
+> retrievers.
 
 > ⚠️ A message counts as a greeting only when EVERY word is a greeting, thanks or filler word (`greetingKind` in
 > `lib/rag/safety.ts`). Keep it that strict: "hi, how do I boil water?" must stay a question, and the emergency and

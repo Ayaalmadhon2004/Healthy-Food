@@ -6,7 +6,7 @@ updated: 2026-11-04
 sources:
   - code: lib/rag/providers.ts
   - code: prisma/rag-setup.sql
-verified_at: 25f22e5
+verified_at: d72ddad
 ---
 
 # Nutrition assistant: free setup
@@ -29,6 +29,10 @@ Everything runs at no cost by default.
 - `RAG_MODEL_CACHE_DIR`, `RAG_DISABLE_EMBEDDINGS=1`: only used in `pgvector` mode.
 
 Local development and CI need a Postgres with the `vector` extension (for example the `pgvector/pgvector:pg16` image); with plain `postgres:16`, `prisma db push` fails with `type "vector" does not exist`.
+
+## What the setup commands create
+
+`npx prisma db push` creates the `knowledge_chunks` table from `prisma/schema.prisma` (a `vector(384)` column, a unique `sourceKey`, an index on `kind, lang`). It needs the `vector` extension to exist first. The two index statements at the end of `prisma/rag-setup.sql` are only used by `RAG_RETRIEVER=pgvector`; skip them in the default mode. Prisma does not know about them, so a later `db push` may offer to drop them.
 
 ## First run
 

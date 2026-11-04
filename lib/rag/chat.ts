@@ -2,6 +2,7 @@
 import { getServerMessages } from "@/lib/i18n";
 import type { ServerMessages } from "@/lib/i18n";
 import { MIN_RELEVANCE, RETRIEVE_TIMEOUT_MS, RETRIEVE_TOP_K } from "@/lib/rag/constants";
+import { detectLang } from "@/lib/rag/language";
 import { generate as defaultGenerate } from "@/lib/rag/providers";
 import type { AnswerGenerator } from "@/lib/rag/generate";
 import { buildPrompt, uniqueChunks } from "@/lib/rag/prompt";
@@ -74,7 +75,8 @@ function* fixedReply(mode: "emergency" | "out_of_scope" | "no_context" | "greeti
 }
 
 export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGenerator<ChatEvent> {
-  const { question, lang, history } = req;
+  const { question, history } = req;
+  const lang = detectLang(question, req.lang);
   const { retrieve = defaultRetrieve, generate = defaultGenerate, getMessages = defaultGetMessages, signal } = deps;
   const m = await getMessages(lang);
 
