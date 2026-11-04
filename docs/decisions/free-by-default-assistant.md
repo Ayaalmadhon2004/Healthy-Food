@@ -9,7 +9,7 @@ sources:
   - code: lib/rag/gemini.ts
   - code: lib/rag/generate.ts
   - raw: docs/assistant-setup.md
-verified_at: c9ae59e
+verified_at: d45844d
 ---
 
 # Free by default assistant
@@ -22,7 +22,7 @@ set (Gemini free tier), and Claude only when `LLM_PROVIDER=anthropic` is set exp
 which matters for health content for families in Gaza. Embeddings are local and the database is a free
 Supabase tier.
 
-**How extractive answers are built.** The sentences that share words with the question are ranked (`lib/rag/extractive.ts`); the opening line comes from the highest-ranked passage that has a matching sentence (retrieval's judgement beats a sentence that merely shares more words), the next best sentences are cited bullets, at most two per passage, and passages scoring far below the best are skipped. If no sentence matches, it falls back to the opening of the top passage.
+**How extractive answers are built.** The sentences that share words with the question are ranked (`lib/rag/extractive.ts`); the opening line comes from the highest-ranked passage that has a matching sentence (retrieval's judgement beats a sentence that merely shares more words), the next best sentences are cited bullets, at most two per passage, and passages scoring far below the best are skipped. If no sentence matches, it falls back to the opening of the top passage. A general request for tips (see [[nutrition-assistant]]) is answered by `buildOverviewAnswer`: one cited point per passage, each its opening sentence, under a localized introduction.
 
 **Cost of the choice.** Extractive answers read less smoothly than a model's and cannot combine
 passages. Gemini's free tier has rate limits and its model names change (`GEMINI_MODEL` overrides the
