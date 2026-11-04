@@ -26,9 +26,22 @@ export function normalizeArabic(text: string): string {
     .trim();
 }
 
-/** The text the full-text index is built on: title and content, normalised. */
+// Definite article and the one-letter particles that fuse with it (wal-, bil-, kal-, fal-, lil-). Only this
+// family is removed: a bare leading ب/و/ل/ك can be part of the word (بيض "egg"), so it is left alone.
+// A word must keep at least 3 letters after the removal.
+const ARABIC_ARTICLE_PREFIX = /^(?:وال|بال|كال|فال|لل|ال)(?=[\u0621-\u064A]{3,}$)/u;
+
+/** Light stemming for matching: drops the Arabic definite article so "المجدرة" and "مجدرة" meet. */
+export function stripArabicArticle(token: string): string {
+  return token.replace(ARABIC_ARTICLE_PREFIX, "");
+}
+
+/** The text the full-text index is built on: title and content, normalised and article-stripped. */
 export function toSearchText(title: string, content: string): string {
-  return normalizeArabic(`${title}\n${content}`);
+  return normalizeArabic(`${title}\n${content}`)
+    .split(" ")
+    .map(stripArabicArticle)
+    .join(" ");
 }
 
 // Already normalised (alef/ya/ta-marbuta unified) because tokens are compared after normalizeArabic.
@@ -52,9 +65,11 @@ export function toTsQueryTerms(question: string): string[] {
   const seen = new Set<string>();
   const terms: string[] = [];
   for (const token of tokens) {
-    if (token.length < 2 || STOPWORDS.has(token) || seen.has(token)) continue;
-    seen.add(token);
-    terms.push(token);
+    if (token.length < 2 || STOPWORDS.has(token)) continue;
+    const stem = stripArabicArticle(token);
+    if (seen.has(stem)) continue;
+    seen.add(stem);
+    terms.push(stem);
   }
   return terms;
 }

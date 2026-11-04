@@ -22,7 +22,7 @@ test("normalizeArabic unifies letters, strips diacritics and digits", () => {
 
 test("toTsQueryTerms drops stopwords and short tokens", () => {
   assert.deepEqual(toTsQueryTerms("What is the best protein for breakfast?"), ["best", "protein", "breakfast"]);
-  assert.deepEqual(toTsQueryTerms("ما هي أفضل مصادر البروتين؟"), ["مصادر", "البروتين"]);
+  assert.deepEqual(toTsQueryTerms("ما هي أفضل مصادر البروتين؟"), ["مصادر", "بروتين"]);
   assert.deepEqual(toTsQueryTerms("a ? !"), []);
 });
 
@@ -88,4 +88,15 @@ test("embedding uses an injected embedder, prefixes and never throws", async () 
     console.warn = warn;
     setEmbedderForTests(null);
   }
+});
+
+test("Arabic definite article is stripped on both sides so inflected forms match", () => {
+  assert.deepEqual(toTsQueryTerms("المجدّرة"), toTsQueryTerms("مجدّرة"));
+  assert.equal(toSearchText("", "المجدرة"), toSearchText("", "مجدرة"));
+});
+
+test("article stripping leaves short words and non-article prefixes alone", () => {
+  assert.deepEqual(toTsQueryTerms("بيض"), ["بيض"]);
+  assert.deepEqual(toTsQueryTerms("الماء"), ["ماء"]);
+  assert.deepEqual(toTsQueryTerms("الاب"), ["الاب"]);
 });

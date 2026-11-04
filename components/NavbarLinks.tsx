@@ -30,6 +30,7 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
       recipes: "الوصفات",
       tracker: "متابعة الوجبات",
       tips: "نصائح صحية",
+      assistant: "مساعد التغذية",
       doctors: "الأطباء",
       kitchen: "مطبخ غزة",
       reports: "بلاغات المناطق",
@@ -43,6 +44,7 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
       recipes: "Recipes",
       tracker: "Meal Tracker",
       tips: "Health Tips",
+      assistant: "Assistant",
       doctors: "Doctors",
       kitchen: "Gaza Kitchen",
       reports: "Area Reports", 
@@ -92,6 +94,7 @@ export default function NavbarLinks({ className, userRole, onClick, mobile = fal
       {link("/recipes", t.recipes)}
       {link("/tracker", t.tracker)}
       {link("/tips", t.tips)}
+      {link("/assistant", t.assistant)}
       {link("/doctors", t.doctors)}
       {link("/gaza-kitchen", t.kitchen)}
 

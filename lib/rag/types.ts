@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { Lang } from "@/lib/types";
-import { MAX_HISTORY_MESSAGE_CHARS, MAX_HISTORY_TURNS, MAX_QUESTION_CHARS, MESSAGES_PER_TURN } from "./constants";
-import type { KnowledgeKind } from "./constants";
+import { MAX_HISTORY_MESSAGE_CHARS, MAX_HISTORY_TURNS, MAX_QUESTION_CHARS, MESSAGES_PER_TURN } from "@/lib/rag/constants";
+import type { KnowledgeKind } from "@/lib/rag/constants";
 
 export type { Lang, KnowledgeKind };
 
