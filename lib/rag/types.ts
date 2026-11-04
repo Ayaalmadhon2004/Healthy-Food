@@ -65,7 +65,7 @@ export type ChatRequest = z.infer<typeof chatRequestSchema>;
  *  - then zero or more "delta" with text pieces in order,
  *  - then exactly one "done", or one "error" instead.
  */
-export type ChatAnswerMode = "answer" | "no_context" | "emergency" | "out_of_scope";
+export type ChatAnswerMode = "answer" | "no_context" | "emergency" | "out_of_scope" | "greeting";
 
 export type ChatEvent =
   | { type: "meta"; mode: ChatAnswerMode; citations: Citation[] }

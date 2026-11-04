@@ -27,7 +27,7 @@ sources:
   - code: components/assistant/idleTimer.ts
   - code: components/assistant/sseParser.ts
   - code: app/[lang]/assistant/loading.tsx
-verified_at: 25f22e5
+verified_at: 03d7bd5
 ---
 
 # Nutrition assistant (RAG)
@@ -42,7 +42,8 @@ nutrition in Gaza. Free by default: see [[free-by-default-assistant]].
 user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 
 1. **Triage** (`lib/rag/safety.ts`): emergency, out-of-scope or prompt-injection questions get a fixed
-   reply and never reach retrieval or a model.
+   reply and never reach retrieval or a model. A message that is only a greeting or a thank-you gets a fixed welcome
+   (mode `greeting`) the same way.
 2. **Retrieve** (`lib/rag/retrieve.ts`): by default (`RAG_RETRIEVER` unset) an in-memory index (`lib/rag/memoryIndex.ts`)
    scores every passage with BM25 plus hashed character n-gram similarity (`lib/rag/ngram.ts`); no model, no pgvector.
    `RAG_RETRIEVER=pgvector` switches to the database-side hybrid search (e5 vectors plus Postgres full-text, merged by
@@ -96,6 +97,11 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ Ingest prunes stale chunks only for kinds that produced chunks in that run
 > (`lib/rag/store.ts:66`). Never call it with an empty keep-list; it refuses on purpose so a failed
 > build cannot wipe the table.
+
+> ⚠️ A message counts as a greeting only when EVERY word is a greeting, thanks or filler word (`greetingKind` in
+> `lib/rag/safety.ts`). Keep it that strict: "hi, how do I boil water?" must stay a question, and the emergency and
+> injection checks run before it. A new answer mode also has to be added to `MODES` in
+> `components/assistant/sseParser.ts`, or the chat client silently drops the reply.
 
 > ⚠️ Chat history comes from the browser and can be forged. `lib/rag/chat.ts` declines the whole request
 > when any earlier USER turn contains an injection phrase; assistant turns are not trusted: `buildPrompt`

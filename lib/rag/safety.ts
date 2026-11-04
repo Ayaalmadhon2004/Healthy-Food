@@ -2,7 +2,7 @@
 // Bias: a missed emergency is worse than a false alarm, but anything unclear is "ok" (the model + prompt handle it).
 import type { Lang } from "@/lib/types";
 
-export type TriageResult = "emergency" | "out_of_scope" | "ok";
+export type TriageResult = "emergency" | "out_of_scope" | "greeting" | "thanks" | "ok";
 
 const ARABIC_INDIC_ZERO = 0x0660;
 
@@ -157,6 +157,28 @@ const FOOD_HINT = compile([
   "مطبخ", "مكونات", "صحه", "صحي", "مريض", "اسهال", "تقيؤ", "قيء", "حراره", "وزن", "سوء تغذيه", "تعقيم", "تنقيه",
 ]);
 
+// Words (already normalised like normalizeText output) that make up a greeting or a thank-you. A message counts only
+// when EVERY word is in one of these sets and at least one is a real greeting or thanks word, so "hi, how do I boil
+// water?" stays a question.
+const GREETING_WORDS = new Set([
+  "hello", "hi", "hey", "hiya", "hullo", "greetings", "morning", "afternoon", "evening", "salam", "salaam", "assalamu", "alaikum", "alaykum", "peace", "sup",
+  "مرحبا", "اهلا", "اهلين", "وسهلا", "هلا", "هلو", "هاي", "سلام", "السلام", "عليكم", "ورحمه", "وبركاته", "صباح", "مساء", "الخير", "النور", "حياك", "حياكم", "كيفك", "حالك", "اخبارك", "اخباركم",
+]);
+const THANKS_WORDS = new Set(["thanks", "thank", "thx", "cheers", "شكرا", "شكراً", "يسلمو", "يسلموا", "العافيه", "يعطيك", "جزاك", "خيرا", "جزيلا", "الف"]);
+const FILLER_WORDS = new Set([
+  "good", "there", "everyone", "all", "dear", "again", "please", "the", "assistant", "bot", "how", "are", "you", "so", "very", "much", "a", "lot", "and", "to", "whats", "up", "it", "going", "is", "your",
+  "يا", "و", "الله", "من", "فضلك", "كيف", "شو", "ايش", "جدا", "كتير", "لك", "ليك", "عليك", "بك", "مساعد",
+]);
+const MAX_GREETING_WORDS = 8;
+
+function greetingKind(text: string): "greeting" | "thanks" | null {
+  const words = text.replace(/'/g, "").split(" ").filter(Boolean);
+  if (words.length === 0 || words.length > MAX_GREETING_WORDS) return null;
+  if (!words.every((w) => GREETING_WORDS.has(w) || THANKS_WORDS.has(w) || FILLER_WORDS.has(w))) return null;
+  if (words.some((w) => THANKS_WORDS.has(w))) return "thanks";
+  return words.some((w) => GREETING_WORDS.has(w)) ? "greeting" : null;
+}
+
 /**
  * Decide how to handle a question before touching retrieval or the model.
  * `lang` is accepted for symmetry with the other helpers; both languages are always checked because users mix them.
@@ -168,6 +190,8 @@ export function triage(question: string, _lang?: Lang): TriageResult {
 
   if (EMERGENCY_RULES.some((rule) => rule.all.every((re) => re.test(text)))) return "emergency";
   if (INJECTION.test(text)) return "out_of_scope";
+  const social = greetingKind(text);
+  if (social) return social;
   if (OFF_TOPIC.test(text) && !FOOD_HINT.test(text)) return "out_of_scope";
   return "ok";
 }

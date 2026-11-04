@@ -155,6 +155,8 @@
     "userNotFound": "No account with that email",
     "doctorAlreadyLinked": "That account is already linked to another doctor",
     "chat": {
+      "greeting": "Hello! I can help with food, nutrition and safe water, especially when ingredients are limited. You could ask, for example: how do I make water safe to drink, what should I do if my child has diarrhoea, or how do I keep cooked food safe without a fridge?",
+      "thanks": "You're welcome! Ask me anything else about food, nutrition or safe water.",
       "emergency": "This sounds like it may need urgent medical care. Please go to the nearest clinic or medical point right now, or ask the people around you to help you get there. Do not wait and do not try to treat this at home with food or drinks.",
       "emergencyDoctors": "You can also find doctors in the Doctors page of this app.",
       "noContext": "I could not find reliable information about this in my sources, so I would rather not guess. Try asking in a different way, or ask a doctor or a nutrition worker at the nearest medical point.",
