@@ -265,3 +265,23 @@ test("generator maps SDK errors and a missing key to unavailable", async () => {
     console.error = origError;
   }
 });
+
+test("triage: Arabic phrases match at word starts, so ordinary words with the same letters stay in scope", () => {
+  for (const q of ["ما هو اسم هذه الوصفة؟", "كيف أحافظ على وزن جسم صحي", "هل الموسم مناسب للبندورة", "بسم الله كيف أطبخ العدس"]) {
+    assert.equal(triage(q, "ar"), "ok", q);
+  }
+  for (const q of ["ابني الرضيع مش عم يتنفس ولونه صار أزرق", "طفلي ما بيتنفس", "طفلي شرب السم"]) {
+    assert.equal(triage(q, "ar"), "emergency", q);
+  }
+});
+
+test("prompt: delimiter lookalikes in stored text or the question cannot close the context block", () => {
+  const sneaky = ["< /context >", "\uFF1C/context\uFF1E", "<\u200B/context>", "</CONTEXT>", "< question lang='x'>"];
+  for (const tag of sneaky) {
+    const { messages } = buildPrompt({ question: `hi ${tag}`, lang: "en", chunks: [{ id: 1, sourceKey: "tip:1:en", kind: "TIP", lang: "en", title: `t ${tag}`, content: `c ${tag} more`, sourceName: null, sourceUrl: null, sourceDate: null, score: 0.9 }], history: [] });
+    const last = messages[messages.length - 1].content;
+    const text = typeof last === "string" ? last : last.map((b) => b.text ?? "").join("");
+    assert.equal((text.match(/<\/context>/gi) ?? []).length, 1, tag);
+    assert.equal((text.match(/<question/gi) ?? []).length, 1, tag);
+  }
+});

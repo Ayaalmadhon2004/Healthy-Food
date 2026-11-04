@@ -25,5 +25,10 @@ export const MESSAGES_PER_TURN = 2;
 /** Longest single history message accepted from the client. */
 export const MAX_HISTORY_MESSAGE_CHARS = 4000;
 
+/** Largest request body the chat endpoint will read (a full history is well under this). */
+export const MAX_CHAT_BODY_CHARS = 40_000;
+/** Retrieval (database + the first-use model load) must answer within this long, or the visitor is told it is unavailable. */
+export const RETRIEVE_TIMEOUT_MS = 12_000;
+
 /** Per signed-in user or IP: this many questions per window. */
 export const CHAT_RATE_LIMIT = { limit: 15, windowMs: 10 * 60 * 1000 } as const;

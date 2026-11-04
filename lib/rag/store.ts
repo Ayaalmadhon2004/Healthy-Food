@@ -58,3 +58,14 @@ export async function countChunks(): Promise<number> {
   const rows = await prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) AS count FROM knowledge_chunks`;
   return Number(rows[0]?.count ?? 0);
 }
+
+/**
+ * Remove chunks of the given kinds whose sourceKey is no longer produced (deleted recipe, shorter document...).
+ * Refuses to run with an empty keep-list so a failed build can never wipe the table.
+ */
+export async function deleteStaleChunks(kinds: string[], keepKeys: string[]): Promise<number> {
+  if (kinds.length === 0 || keepKeys.length === 0) return 0;
+  return prisma.$executeRaw`
+    DELETE FROM knowledge_chunks
+    WHERE kind = ANY(${kinds}::text[]) AND NOT ("sourceKey" = ANY(${keepKeys}::text[]))`;
+}

@@ -144,6 +144,7 @@ const corpus = [
   { id: 1, sourceKey: "recipe:1:en", lang: "en", kind: "RECIPE", title: "Foul Medames", content: "Foul Medames. Ingredients: fava beans, garlic, lemon juice, olive oil, cumin. Steps: simmer the fava beans until soft, mash lightly, add lemon and oil." },
   { id: 2, sourceKey: "recipe:1:ar", lang: "ar", kind: "RECIPE", title: "فول مدمس", content: "فول مدمس. المكونات: فول، ثوم، عصير ليمون، زيت زيتون، كمون. الخطوات: اسلق الفول حتى ينضج ثم اهرسه قليلا وأضف الليمون والزيت." },
   { id: 3, sourceKey: "recipe:7:en", lang: "en", kind: "RECIPE", title: "Mujaddara", content: "Mujaddara. Ingredients: brown lentils, rice, onions, oil, cumin. Steps: cook the lentils, add rice and water, top with fried onions." },
+  { id: 13, sourceKey: "recipe:7:ar", lang: "ar", kind: "RECIPE", title: "مجدّرة", content: "مجدّرة. المكونات: عدس بني، أرز، بصل، زيت، كمون. الطريقة: اسلق العدس ثم أضف الأرز وقلّب البصل المحمّر فوقه." },
   { id: 4, sourceKey: "recipe:7:ar", lang: "ar", kind: "RECIPE", title: "مجدّرة العدس والأرز", content: "مجدّرة العدس والأرز. المكونات: عدس، أرز، بصل، زيت، كمون. الخطوات: اطبخ العدس ثم أضف الأرز والماء وزيّنها بالبصل المقلي." },
   { id: 5, sourceKey: "recipe:6:en", lang: "en", kind: "RECIPE", title: "Cauliflower Maqluba", content: "Cauliflower Maqluba. Ingredients: cauliflower, rice, tomato, potato. Steps: fry the cauliflower, layer with rice, cook and flip." },
   { id: 6, sourceKey: "recipe:6:ar", lang: "ar", kind: "RECIPE", title: "مقلوبة القرنبيط", content: "مقلوبة القرنبيط. المكونات: قرنبيط، أرز، بندورة، بطاطا. الخطوات: قلّ القرنبيط ورتّبه مع الأرز واطبخ ثم اقلب." },
@@ -285,7 +286,7 @@ test("ranking: every grounded eval question has an expected-keyword in the corpu
   assert.ok(covered.length >= 8, `only ${covered.length} grounded questions have a keyword in the sample corpus`);
 });
 
-test("ranking defect: Arabic definite article/prefixes prevent exact-token match ('المجدّرة' vs 'مجدّرة')", { todo: "normalize.ts toTsQueryTerms does not strip ال/و/ب/ل clitics, so FTS misses inflected Arabic" }, () => {
+test("ranking defect: Arabic definite article/prefixes prevent exact-token match ('المجدّرة' vs 'مجدّرة')", () => {
   const top = rank("شو مكونات المجدّرة وكيف بتنطبخ؟", "ar");
   assert.ok(top[0]?.sourceKey.startsWith("recipe:7:"));
 });

@@ -47,7 +47,7 @@ async function main(): Promise<void> {
   usedDatabase = true;
   const { recipeChunks, tipChunks, kitchenChunks } = await import("@/lib/rag/sources");
   const { embedPassages } = await import("@/lib/rag/embed");
-  const { upsertChunks } = await import("@/lib/rag/store");
+  const { upsertChunks, deleteStaleChunks } = await import("@/lib/rag/store");
 
   const chunks = [...(await recipeChunks()), ...(await tipChunks()), ...(await kitchenChunks()), ...curated];
   console.log(`Built ${chunks.length} chunks:`);
@@ -62,6 +62,12 @@ async function main(): Promise<void> {
     stored += await upsertChunks(batch, embeddings);
   }
   console.log(`Upserted ${stored} chunks.`);
+
+  // Drop chunks of anything that no longer exists. Only kinds that produced chunks this run are pruned,
+  // so an empty source (for instance no curated documents yet) never erases what is stored.
+  const producedKinds = [...new Set(chunks.map((c) => c.kind))];
+  const removed = await deleteStaleChunks(producedKinds, chunks.map((c) => c.sourceKey));
+  if (removed) console.log(`Removed ${removed} stale chunk(s).`);
   if (withoutVector) console.warn(`${withoutVector} chunk(s) have no embedding (embedder unavailable): full-text search only.`);
 }
 

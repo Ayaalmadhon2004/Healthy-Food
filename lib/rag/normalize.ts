@@ -38,10 +38,8 @@ export function stripArabicArticle(token: string): string {
 
 /** The text the full-text index is built on: title and content, normalised and article-stripped. */
 export function toSearchText(title: string, content: string): string {
-  return normalizeArabic(`${title}\n${content}`)
-    .split(" ")
-    .map(stripArabicArticle)
-    .join(" ");
+  // Per word (not per space) so "المكونات:" loses its article even with punctuation attached.
+  return normalizeArabic(`${title}\n${content}`).replace(/[\p{L}\p{N}]+/gu, stripArabicArticle);
 }
 
 // Already normalised (alef/ya/ta-marbuta unified) because tokens are compared after normalizeArabic.

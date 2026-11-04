@@ -51,12 +51,13 @@ const ARABIC = /[؀-ۿ]/;
 // https://regex101.com/?regex=%5B.*%2B%3F%5E%24%7B%7D()%7C%5B%5C%5D%5C%5C%5D&flags=g
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** A phrase matches inside the normalized text; Latin phrases must start at a word start (suffixes allowed). */
+/** A phrase matches at a word start in the normalized text (suffixes allowed), so "سم" no longer fires inside "اسم" or "جسم". */
 function compile(phrases: readonly string[]): RegExp {
   const parts = phrases.map((p) => {
     const n = normalizeText(p);
     // Latin phrases: lookbehind rejects a match inside a word ("code" in "decode"), allows suffixes ("program" in "programming").
-    return ARABIC.test(n) ? escapeRegex(n) : `(?<![a-z0-9])${escapeRegex(n)}`;
+    // Arabic phrases: same idea, but a leading و/ف and the article (ال, بال, كال, لل) may precede ("السم", "بالانتخابات"), but a bare ب is not allowed so "بسم الله" stays quiet.
+    return ARABIC.test(n) ? `(?<![\\u0621-\\u064A])(?:[وف])?(?:[بلك]?ال|لل)?${escapeRegex(n)}` : `(?<![a-z0-9])${escapeRegex(n)}`;
   });
   return new RegExp(parts.join("|"));
 }
@@ -112,7 +113,7 @@ const EMERGENCY_RULES: Rule[] = [
   // Poisoning / overdose / swallowed harmful substance
   single([
     "poison", "swallowed bleach", "drank bleach", "swallowed detergent", "swallowed pills", "overdose", "swallowed chemicals", "drank gasoline", "drank petrol", "drank kerosene",
-    "تسمم", "شرب كلور", "شرب منظف", "بلع حبوب", "جرعه زائده", "جرعة زائدة", "شرب بنزين", "شرب كاز", "بلع مادة",
+    "تسمم", "شرب سم", "شرب السم", "بلع سم", "بلع السم", "ابتلع سم", "شرب كلور", "شرب منظف", "بلع حبوب", "جرعه زائده", "جرعة زائدة", "شرب بنزين", "شرب كاز", "بلع مادة",
   ]),
   // Self-harm
   single([

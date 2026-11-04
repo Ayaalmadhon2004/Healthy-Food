@@ -1,7 +1,7 @@
 import { getServerMessages } from "@/lib/i18n";
 import { getSessionUser } from "@/lib/auth";
 import { getClientIp, rateLimit } from "@/lib/rateLimit";
-import { CHAT_RATE_LIMIT } from "@/lib/rag/constants";
+import { CHAT_RATE_LIMIT, MAX_CHAT_BODY_CHARS } from "@/lib/rag/constants";
 import { encodeSseEvent, runChat } from "@/lib/rag/chat";
 import { chatRequestSchema } from "@/lib/rag/types";
 import type { ChatEvent } from "@/lib/rag/types";
@@ -50,11 +50,16 @@ async function* single(event: ChatEvent): AsyncGenerator<ChatEvent> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  let payload: unknown;
-  try {
-    payload = await request.json();
-  } catch {
-    payload = null;
+  // Refuse oversized bodies before reading them into memory; the text is parsed by hand so the cap also holds without a Content-Length.
+  let payload: unknown = null;
+  const declared = Number(request.headers.get("content-length") ?? 0);
+  if (!(declared > MAX_CHAT_BODY_CHARS)) {
+    try {
+      const text = await request.text();
+      payload = text.length > MAX_CHAT_BODY_CHARS ? null : JSON.parse(text);
+    } catch {
+      payload = null;
+    }
   }
 
   const parsed = chatRequestSchema.safeParse(payload);

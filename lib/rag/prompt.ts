@@ -34,10 +34,16 @@ export function buildSystem(): TextBlockParam[] {
 
 // Tags that could close or fake our delimiters: matches "</context>" and '<passage n="1">', rejects "<b>".
 // https://regex101.com/?regex=%3C%5C%2F%3F%5Cs*(context%7Cpassage%7Cquestion)%5Cb%5B%5E%3E%5D*%3E&flags=gi
-const DELIMITER_TAGS = /<\/?\s*(context|passage|question)\b[^>]*>/gi;
+// Tags that could close or fake the delimiters, with optional spaces: matches "< /context >", rejects "a < b".
+// https://regex101.com/?regex=%3C%5Cs*%5C%2F%3F%5Cs*(context%7Cpassage%7Cquestion)%5Cb%5B%5E%3E%5D*%3E&flags=gi
+const DELIMITER_TAGS = /<\s*\/?\s*(context|passage|question)\b[^>]*>/gi;
+// Zero-width and bidi control characters that can hide a tag: matches U+200B in "a\u200Bb", rejects "ab".
+// https://regex101.com/?regex=%5B%5Cu200B-%5Cu200F%5Cu202A-%5Cu202E%5Cu2060-%5Cu2064%5CuFEFF%5D&flags=g
+const INVISIBLE = /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]/g;
 
 function clean(text: string): string {
-  return text.replace(DELIMITER_TAGS, " ").trim();
+  // NFKC turns fullwidth "＜" into "<" first, so lookalikes cannot dodge the tag filter.
+  return text.normalize("NFKC").replace(INVISIBLE, "").replace(DELIMITER_TAGS, " ").trim();
 }
 
 // Characters unsafe inside a quoted attribute: matches the '"' in 'a"b', rejects "ab".

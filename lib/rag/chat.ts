@@ -1,7 +1,7 @@
 // Orchestrator: triage -> retrieve -> (decline | generate). Emits the ChatEvent protocol documented in ./types.
 import { getServerMessages } from "@/lib/i18n";
 import type { ServerMessages } from "@/lib/i18n";
-import { MIN_RELEVANCE, RETRIEVE_TOP_K } from "@/lib/rag/constants";
+import { MIN_RELEVANCE, RETRIEVE_TIMEOUT_MS, RETRIEVE_TOP_K } from "@/lib/rag/constants";
 import { generate as defaultGenerate } from "@/lib/rag/generate";
 import type { AnswerGenerator } from "@/lib/rag/generate";
 import { buildPrompt, uniqueChunks } from "@/lib/rag/prompt";
@@ -20,6 +20,19 @@ export interface ChatDeps {
 
 const defaultRetrieve: Retriever = async (question, options) => (await import("@/lib/rag/retrieve")).retrieve(question, options);
 const defaultGetMessages = async (lang: Lang): Promise<ServerMessages["chat"]> => (await getServerMessages(lang)).chat;
+
+/** Rejects if `work` takes longer than `ms`, so a stuck database or model download cannot hang the stream. */
+async function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error("retrieval timed out")), ms);
+  });
+  try {
+    return await Promise.race([work, timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 export function toCitation(chunk: RetrievedChunk): Citation {
   return {
@@ -62,7 +75,7 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   // 2. Retrieve. Any failure of the knowledge store reads as "unavailable"; the cause is logged without the question.
   let chunks: RetrievedChunk[];
   try {
-    const found = await retrieve(question, { lang, topK: RETRIEVE_TOP_K, minScore: MIN_RELEVANCE });
+    const found = await withTimeout(retrieve(question, { lang, topK: RETRIEVE_TOP_K, minScore: MIN_RELEVANCE }), RETRIEVE_TIMEOUT_MS);
     chunks = uniqueChunks(found.filter((c) => c.score >= MIN_RELEVANCE)).slice(0, RETRIEVE_TOP_K);
   } catch (error) {
     console.error("chat: retrieval failed:", error instanceof Error ? error.name : typeof error);
