@@ -11,7 +11,7 @@ sources:
   - code: prisma/rag-setup.sql
   - code: app/api/cron/keep-alive/route.ts
   - code: next.config.ts
-verified_at: 8b565be
+verified_at: 4d87cda
 ---
 
 # Local setup and deploy
@@ -23,7 +23,7 @@ Assistant-specific setup is in `docs/assistant-setup.md`; variable meanings are 
 1. Node.js 22.18 or newer (the unit tests import TypeScript directly), a PostgreSQL database and a Supabase project.
 2. `cp .env.example .env` and fill it in (never commit it).
 3. `npm install` (also runs `prisma generate`).
-4. If you want the assistant, create the pgvector extension first with `prisma/rag-setup.sql`, then `npx prisma db push`.
+4. If you want the assistant, run only the first statement of `prisma/rag-setup.sql` (`CREATE EXTENSION IF NOT EXISTS vector;`), then `npx prisma db push`, then `npm run ingest`. The two index statements at the end of that file need the table to exist and are only used by `RAG_RETRIEVER=pgvector`.
 5. `npx prisma db seed` for recipes, tips, doctors, kitchens and the nutrition guide. `node prisma/seed.js --recipes-only` refreshes only recipes.
 6. `npm run dev` serves on port 3000; `npm run build` then `npm start` serves on 3001.
 

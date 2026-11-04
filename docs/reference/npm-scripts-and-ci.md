@@ -9,7 +9,7 @@ sources:
   - code: tests/helpers/db.js
   - code: tests/helpers/hooks.mjs
   - code: prisma/rag-setup.sql
-verified_at: 8b565be
+verified_at: 4d87cda
 ---
 
 # npm scripts and CI
