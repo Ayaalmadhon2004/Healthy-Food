@@ -11,6 +11,7 @@ sources:
   - code: lib/rag/ngram.ts
   - code: lib/rag/mode.ts
   - code: lib/rag/language.ts
+  - code: lib/rag/overview.ts
   - code: tests/rag-store.test.js
   - code: lib/rag/fusion.ts
   - code: lib/rag/normalize.ts
@@ -29,7 +30,7 @@ sources:
   - code: components/assistant/idleTimer.ts
   - code: components/assistant/sseParser.ts
   - code: app/[lang]/assistant/loading.tsx
-verified_at: 4d87cda
+verified_at: 14cf68e
 ---
 
 # Nutrition assistant (RAG)
@@ -50,6 +51,9 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
    scores every passage with BM25 plus hashed character n-gram similarity (`lib/rag/ngram.ts`); no model, no pgvector.
    `RAG_RETRIEVER=pgvector` switches to the database-side hybrid search (e5 vectors plus Postgres full-text, merged by
    rank fusion in `lib/rag/fusion.ts`). Passages below `MIN_RELEVANCE` are dropped either way.
+   A short request for general guidance that names no topic ("nutrition tips for people in Gaza",
+   `isOverviewRequest` in `lib/rag/overview.ts`) is searched once per core topic (`OVERVIEW_TOPICS`) and answered with
+   the best passage of each (at most six), one cited point per passage under `server.chat.overviewIntro`.
 3. **No passages left** means a fixed "no reliable information" reply, with no model call.
 4. **Answer** from exactly those passages, streamed as SSE events (`meta`, `delta`, `done` or `error`).
 
@@ -99,6 +103,12 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ Ingest prunes stale chunks only for kinds that produced chunks in that run
 > (`lib/rag/store.ts:66`). Never call it with an empty keep-list; it refuses on purpose so a failed
 > build cannot wipe the table.
+
+> ⚠️ `isOverviewRequest` must stay narrow: it needs a guidance word (tips, advice, نصائح...) and NO topic word from
+> `SPECIFIC_WORDS`, and arabic words are compared without their article ("الإسهال" is the topic "اسهال"). Without the
+> article step, "نصائح لعلاج الإسهال" was treated as a general request and answered with the overview instead of the
+> diarrhoea passage. The overview shows each passage's opening sentence, so a document whose first sentence is not
+> advice (for example how MUAC is measured) produces a weak point; write curated documents with the key advice first.
 
 > ⚠️ The reply language follows the message, not the page (`detectLang` in `lib/rag/language.ts`): more Arabic
 > letters than Latin ones means Arabic. It counts letters only, because the Arabic question mark and Arabic digits sit
