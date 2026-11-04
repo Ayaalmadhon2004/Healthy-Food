@@ -30,7 +30,7 @@
 
 Finding a hot meal in Gaza shouldn't depend on luck, and cooking with what's in the cupboard shouldn't depend on guesswork.
 
-I built NutriFlow to put a few small, useful things in one calm place: where the community kitchens are serving today (and how many places are left), recipes that stretch short supplies, plain-language advice from doctors and dietitians, and a simple tracker for people who want to keep an eye on their calories.
+I built NutriFlow to put a few small, useful things in one calm place: where the community kitchens are serving today (and how many places are left), recipes that stretch short supplies, plain-language advice from doctors and dietitians, and a simple tracker for people who want to keep an eye on their calories, and an assistant that answers food and nutrition questions from sourced material instead of guessing.
 
 It's written in **Arabic and English**, works on a phone, and keeps the interface quiet on purpose: warm paper colours, olive green, clay red, very little noise.
 
@@ -78,6 +78,14 @@ Eighteen short pieces on safe water, handwashing, oral rehydration, breastfeedin
 
 ### 📍 Area reports
 Residents can report a neighbourhood or camp that distribution isn't reaching. Kitchen organisers review each report and mark it *pending*, *seen* or *investigated*.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top">
+
+### 🤖 Nutrition assistant
+Ask a question in Arabic or English ("my child has diarrhoea, what do I do?", "how do I make water safe to drink?") and get a short answer built **only from the knowledge base**: the app's own recipes, tips and kitchens plus 19 curated documents on nutrition and food safety in Gaza (WHO, UNICEF, the Nutrition Cluster, IPC, CDC), each with its source. Every sentence carries a `[1]`-style citation. If the sources do not cover a question it says so instead of guessing, urgent signs ("my baby is not breathing") get a fixed "go to the nearest clinic now" reply, and it never gives medication doses. **Free to run**: no API key is needed. See [docs/assistant-setup.md](docs/assistant-setup.md).
 
 </td>
 </tr>
@@ -135,7 +143,7 @@ Residents can report a neighbourhood or camp that distribution isn't reaching. K
 
 ## Run it locally
 
-You'll need **Node.js 22.18 or newer** (the unit tests import TypeScript directly), a **PostgreSQL** database and a **Supabase** project for sign-in.
+You'll need **Node.js 22.18 or newer** (the unit tests import TypeScript directly), a **PostgreSQL** database with the **`vector` extension** (Supabase has it; locally the `pgvector/pgvector:pg16` Docker image does) and a **Supabase** project for sign-in.
 
 ```bash
 git clone https://github.com/Ayaalmadhon2004/Healthy-Food.git
@@ -143,10 +151,16 @@ cd Healthy-Food
 
 cp .env.example .env     # then fill in the values below
 npm install              # also runs prisma generate
+
+# One statement, in the Supabase SQL editor or psql (the schema has a vector column):
+#   CREATE EXTENSION IF NOT EXISTS vector;
 npx prisma db push       # create the tables
 npx prisma db seed       # recipes, tips, doctors and kitchens to play with
+npm run ingest           # build the assistant's knowledge base from the database and data/knowledge
 npm run dev              # http://localhost:3000
 ```
+
+Without the last two setup steps everything except the assistant works; the assistant still greets you but answers real questions with "not available right now". If it does, see the troubleshooting table in [docs/assistant-setup.md](docs/assistant-setup.md): the server log line `chat: retrieval failed:` ends with a database error code that tells you which step is missing. Run `npm run ingest` again after you change recipes, tips, kitchens or the documents in `data/knowledge/`.
 
 <details>
 <summary><b>Environment variables</b></summary>
@@ -160,6 +174,9 @@ npm run dev              # http://localhost:3000
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only. Used by sign-up to create users |
 | `CRON_SECRET` | Required in production for `/api/cron/keep-alive` (`Authorization: Bearer <secret>`) |
 | `NEXT_PUBLIC_SITE_URL` | Public origin, used for canonical URLs, Open Graph, sitemap and robots |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | Optional. A free Google AI Studio key makes the assistant's wording smoother; without it answers are assembled from the sources |
+| `LLM_PROVIDER` | Optional. `extractive` (default), `gemini` or `anthropic`. `anthropic` is paid and is never chosen unless set |
+| `RAG_RETRIEVER` | Optional. `memory` (default, needs no model) or `pgvector` (database-side search with a local embedding model) |
 
 </details>
 
@@ -172,11 +189,12 @@ npm run dev              # http://localhost:3000
 | --- | --- |
 | `npm run dev` | Development server (webpack) |
 | `npm run build` · `npm start` | Production build, and server on port 3001. The build reads the seeded database |
+| `npm run ingest` | Rebuild the assistant's knowledge base (recipes, tips, kitchens and `data/knowledge/*.json`). Add `-- --dry-run` to validate the documents without a database |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` for the app and the service worker |
-| `npm test` | Unit tests with the Node test runner: dates, capacity, rate limiting, appointments, meals, kitchens, reports, locales and more |
+| `npm test` | Unit tests with the Node test runner: dates, capacity, rate limiting, appointments, meals, kitchens, reports, locales, and the assistant (safety, retrieval quality, prompt, streaming, chunking) and more |
 
-CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against a throwaway PostgreSQL on every pull request.
+CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against a throwaway PostgreSQL (the `pgvector/pgvector:pg16` image, with the `vector` extension created before `db push`) on every pull request.
 
 </details>
 
@@ -190,6 +208,7 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against 
 | **Styling** | Tailwind CSS 4 with a small set of design tokens (see below) |
 | **Data** | PostgreSQL through Prisma 7 |
 | **Auth** | Supabase Auth with session cookies. Roles: `USER`, `ORG`, `ADMIN`, `DOCTOR` |
+| **Assistant** | Retrieval-augmented answers: BM25 plus character n-gram similarity over a Postgres knowledge base, safety triage before any retrieval, fixed replies for emergencies, greetings and out-of-scope questions, streamed over Server-Sent Events. No model required (`lib/rag/`) |
 | **State and validation** | Zustand, Zod |
 | **Icons and fonts** | Lucide, Inter, Poppins, and Cairo for Arabic (all bundled, no network at build time) |
 | **PWA** | Serwist service worker (`app/sw.ts`), generated at build time and disabled in dev |
@@ -201,7 +220,9 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, tests and a build against 
 - **Gaza time.** "Today", "tomorrow" and monthly statistics use the `Asia/Gaza` timezone (`lib/dates.ts`), whatever the server's clock says.
 - **No double-booking.** Reservations run in a serializable transaction with retry. Doctors accept at most 10 appointment requests per day, and bookings are limited to the next 60 days.
 - **Messy data is welcome.** Kitchen capacity is stored as a number, but older values such as `"350-500 families"` or `{ en, ar }` are still read correctly (`lib/capacity.ts`).
-- **Rate limiting** protects login and sign-up (`lib/rateLimit.ts`).
+- **Rate limiting** protects login, sign-up and the assistant (`lib/rateLimit.ts`).
+- **The assistant answers only from its sources.** A question is checked for emergencies, prompt injection and off-topic requests first; then passages are retrieved, and anything below a relevance cutoff is declined with "I could not find reliable information". Stored text and chat history are treated as untrusted. Answers are free by default and follow the language of the message, not the page.
+- **The curated documents were gathered through web search summaries**, not the original pages, so each one is dated with its access date. Check a document against its `sourceUrl` before relying on it for anything important (see [docs/knowledge-base.md](docs/knowledge-base.md)).
 
 ### The look
 
@@ -221,10 +242,13 @@ Healthy-Food/
 ├─ components/          shared UI, plus dashboard, kitchen, recipes and tracker pieces
 ├─ context/ hooks/ store/   language, user and favourites state
 ├─ lib/                 prisma, supabase, auth, dates, capacity, rate limiting, validation
+├─ lib/rag/             the assistant: safety, retrieval, prompt, answer generation, chunking
+├─ data/knowledge/      curated, sourced documents the assistant reads (JSON, Arabic and English)
+├─ scripts/             ingest-knowledge.ts, which builds the knowledge base
 ├─ locales/             en.json and ar.json
-├─ prisma/              schema and seed
-├─ tests/               unit tests
-├─ docs/                README banner and screenshots
+├─ prisma/              schema, seed and rag-setup.sql
+├─ tests/               unit tests and the assistant's evaluation set (tests/eval)
+├─ docs/                documentation wiki (start at docs/index.md), banner and screenshots
 ├─ .github/             CI workflow, issue and pull request templates
 ├─ public/              images, illustrations, icons, manifest
 └─ proxy.ts             language routing, session refresh and route protection
@@ -234,6 +258,8 @@ Healthy-Food/
 
 ## Roadmap
 
+- [ ] Check every curated document against its original page and add the topics still missing (formula with limited water, feeding children 6-24 months, storing flour and lentils without a fridge)
+- [ ] An assistant screenshot taken from a running, populated instance
 - [ ] Nutrition plans tailored to a person's health data
 - [ ] A space for neighbours to share local health tips
 - [ ] Better reports for aid organisations on how distribution is going
