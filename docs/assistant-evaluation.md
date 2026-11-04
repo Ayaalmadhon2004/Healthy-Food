@@ -1,3 +1,14 @@
+---
+title: Assistant evaluation
+type: operation
+created: 2026-11-04
+updated: 2026-11-04
+sources:
+  - code: tests/rag-eval.test.js
+  - code: tests/eval/run-live.mjs
+verified_at: d4776e2
+---
+
 # Nutrition assistant: evaluation
 
 This describes how the bilingual (Arabic/English) nutrition assistant is checked, what the targets are, and how to run the checks.

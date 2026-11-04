@@ -1,3 +1,15 @@
+---
+title: Knowledge base: adding and verifying documents
+type: operation
+created: 2026-11-04
+updated: 2026-11-04
+sources:
+  - code: scripts/ingest-knowledge.ts
+  - code: lib/rag/chunking.ts
+  - code: data/knowledge
+verified_at: d4776e2
+---
+
 # Knowledge base (RAG)
 
 The nutrition assistant answers only from passages stored in the `KnowledgeChunk` table. Passages come from two places:

@@ -1,3 +1,14 @@
+---
+title: Assistant: free setup
+type: operation
+created: 2026-11-04
+updated: 2026-11-04
+sources:
+  - code: lib/rag/providers.ts
+  - code: prisma/rag-setup.sql
+verified_at: d4776e2
+---
+
 # Nutrition assistant: free setup
 
 Everything runs at no cost by default.
