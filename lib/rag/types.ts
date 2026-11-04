@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Lang } from "@/lib/types";
-import { KNOWLEDGE_KINDS, MAX_HISTORY_TURNS, MAX_QUESTION_CHARS } from "./constants";
+import { MAX_HISTORY_MESSAGE_CHARS, MAX_HISTORY_TURNS, MAX_QUESTION_CHARS, MESSAGES_PER_TURN } from "./constants";
 import type { KnowledgeKind } from "./constants";
 
 export type { Lang, KnowledgeKind };
@@ -53,8 +53,8 @@ export const chatRequestSchema = z.object({
   question: z.string().trim().min(1).max(MAX_QUESTION_CHARS),
   lang: z.enum(["ar", "en"]),
   history: z
-    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) }))
-    .max(MAX_HISTORY_TURNS * 2)
+    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(MAX_HISTORY_MESSAGE_CHARS) }))
+    .max(MAX_HISTORY_TURNS * MESSAGES_PER_TURN)
     .default([]),
 });
 export type ChatRequest = z.infer<typeof chatRequestSchema>;

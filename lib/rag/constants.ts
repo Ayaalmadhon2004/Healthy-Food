@@ -20,6 +20,10 @@ export const MIN_RELEVANCE = 0.35;
 /** A question is limited to this many characters; the conversation to this many turns. */
 export const MAX_QUESTION_CHARS = 600;
 export const MAX_HISTORY_TURNS = 6;
+/** One turn is a user message plus the assistant's reply. */
+export const MESSAGES_PER_TURN = 2;
+/** Longest single history message accepted from the client. */
+export const MAX_HISTORY_MESSAGE_CHARS = 4000;
 
 /** Per signed-in user or IP: this many questions per window. */
 export const CHAT_RATE_LIMIT = { limit: 15, windowMs: 10 * 60 * 1000 } as const;
