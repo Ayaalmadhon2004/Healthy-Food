@@ -67,7 +67,7 @@ export function encodeSseEvent(event: ChatEvent): string {
   return `data: ${JSON.stringify(event)}\n\n`;
 }
 
-function* fixedReply(mode: "emergency" | "out_of_scope" | "no_context", text: string): Generator<ChatEvent> {
+function* fixedReply(mode: "emergency" | "out_of_scope" | "no_context" | "greeting", text: string): Generator<ChatEvent> {
   yield { type: "meta", mode, citations: [] };
   yield { type: "delta", text };
   yield { type: "done" };
@@ -86,6 +86,10 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   }
   if (verdict === "out_of_scope") {
     yield* fixedReply("out_of_scope", m.outOfScope);
+    return;
+  }
+  if (verdict === "greeting" || verdict === "thanks") {
+    yield* fixedReply("greeting", verdict === "thanks" ? m.thanks : m.greeting);
     return;
   }
 

@@ -8,7 +8,7 @@ import type { ChatAnswerMode, ChatEvent } from "@/lib/rag/types";
 const FALLBACK_KIND: KnowledgeKind = "DOCUMENT";
 type ErrorEvent = Extract<ChatEvent, { type: "error" }>;
 const EVENT_TYPES = new Set(["meta", "delta", "done", "error"]);
-const MODES = new Set(["answer", "no_context", "emergency", "out_of_scope"]);
+const MODES = new Set(["answer", "no_context", "emergency", "out_of_scope", "greeting"]);
 const ERROR_CODES = new Set(["rate_limited", "invalid_request", "unavailable"]);
 
 export interface SseParseResult {
