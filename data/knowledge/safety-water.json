@@ -1,0 +1,30 @@
+[
+  {
+    "id": "safety-water-boiling",
+    "title": {
+      "ar": "تعقيم مياه الشرب بالغلي في الطوارئ",
+      "en": "Making drinking water safe by boiling in an emergency"
+    },
+    "content": {
+      "ar": "الغلي أفضل طريقة لقتل الجراثيم في المياه، بحسب مراكز مكافحة الأمراض والوقاية منها الأمريكية (CDC). اغلِ الماء الصافي حتى يصل إلى غليان متصاعد لمدة دقيقة واحدة. إذا كان الماء عكرًا فصفِّه أولًا بقطعة قماش أو اتركه يرتاح حتى تترسب الشوائب ثم اغله. بعد الغلي خزّن الماء في أوعية نظيفة ومعقّمة ذات أغطية محكمة. تنبيه: الغلي والمطهرات لا تجعل الماء الملوث بالوقود أو المواد الكيميائية السامة آمنًا، والمطهرات الكيميائية أقل فاعلية من الغلي ضد بعض الطفيليات مثل الجيارديا والكريبتوسبوريديوم. إذا استعملتَ مادة التبييض فاتبع التعليمات المكتوبة على عبوتها.",
+      "en": "Boiling is the best way to kill germs in water, according to the US CDC. Bring clear water to a rolling boil for 1 minute. If the water is cloudy, first filter it through a cloth or let it settle, then boil it. After boiling, keep the water in clean, sanitized containers with tight covers. Note: boiling or disinfecting will not make water safe if it is contaminated with fuel or toxic chemicals, and chemical disinfectants work less well than boiling against some parasites such as Giardia and Cryptosporidium. If you use bleach, follow the instructions on its label."
+    },
+    "sourceName": "CDC",
+    "sourceUrl": "https://www.cdc.gov/water-emergency/about/index.html",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  },
+  {
+    "id": "safety-water-storage",
+    "title": {
+      "ar": "تخزين مياه الشرب بأمان وتجنّب إعادة التلوث",
+      "en": "Storing drinking water safely to avoid re-contamination"
+    },
+    "content": {
+      "ar": "تقول منظمة الصحة العالمية إن معالجة الماء لا فائدة منها إذا تلوث مرة أخرى بعدها، فالماء قد يتلوث بالجراثيم البرازية أثناء النقل والتخزين حتى لو كان نظيفًا في البداية. احفظ الماء في أوعية نظيفة ومغطاة، وفي مكان بارد ومظلم. أفضل الأوعية المنزلية هي المغطاة ذات الفوهة الضيقة والمزودة بصنبور أو مصبّ لسكب الماء، لأن إدخال اليد أو كوب في الوعاء ينقل التلوث. كما ذكرت المنظمة أن تغطية أوعية التخزين تقلل تكاثر البعوض وقد تقلل تلوث الماء بالبراز في البيت. الغلي يقتل الجراثيم لكنه لا يترك مطهرًا يحمي الماء من التلوث لاحقًا، لذا يبقى التخزين المحمي ضروريًا.",
+      "en": "WHO says there is no point in treating water if it becomes contaminated again afterwards: water often picks up faecal germs during transport and storage even when it started clean. Keep water in clean, covered containers in a cool, dark place. The best household options are covered, narrow-mouthed containers with a tap or spout for pouring, so hands and cups do not touch the stored water. WHO also notes that covering storage containers reduces mosquito breeding and may reduce faecal contamination of water in the home. Boiling kills germs but leaves no disinfectant to protect water afterwards, so protected storage is still essential."
+    },
+    "sourceName": "WHO",
+    "sourceUrl": "https://cdn.who.int/media/docs/default-source/wash-documents/who-tn-05-emergency-treatment-of-drinking-water-at-the-point-of-use.pdf?sfvrsn=99f943f6_4",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  }
+]

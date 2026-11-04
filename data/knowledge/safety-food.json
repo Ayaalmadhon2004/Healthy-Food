@@ -1,0 +1,30 @@
+[
+  {
+    "id": "safety-food-temperature",
+    "title": {
+      "ar": "حفظ الطعام المطبوخ بأمان: قواعد الحرارة والوقت",
+      "en": "Keeping cooked food safe: time and temperature rules"
+    },
+    "content": {
+      "ar": "المفتاح الرابع من «مفاتيح منظمة الصحة العالمية الخمسة لغذاء أكثر أمانًا» هو حفظ الطعام في درجات حرارة آمنة. لا تترك الطعام المطبوخ في حرارة الغرفة أكثر من ساعتين. أبقِ الطعام المطبوخ ساخنًا جدًا (فوق 60 درجة مئوية) حتى تقديمه، وضع الطعام المطبوخ والقابل للتلف في البراد بسرعة (ويفضّل أقل من 5 درجات) إن توفر البراد. تتكاثر الجراثيم بسرعة في حرارة الغرفة، بينما تبطئ الحرارة فوق 60 أو تحت 5 نموها. لا تخزّن الطعام مدة طويلة حتى في البراد، ولا تُذِب الطعام المجمد في حرارة الغرفة. المفاتيح الأخرى: حافظ على النظافة، افصل النيء عن المطبوخ، اطبخ جيدًا، واستخدم ماءً ومواد خامًا آمنة.",
+      "en": "The fourth of WHO's Five Keys to Safer Food is to keep food at safe temperatures. Do not leave cooked food at room temperature for more than 2 hours. Keep cooked food piping hot (above 60 C) until served, and refrigerate cooked and perishable food promptly (preferably below 5 C) where a fridge is available. Germs multiply quickly at room temperature, while temperatures above 60 C or below 5 C slow their growth. Do not store food too long even in the fridge, and do not thaw frozen food at room temperature. The other keys: keep clean, separate raw and cooked food, cook thoroughly, and use safe water and raw materials."
+    },
+    "sourceName": "WHO",
+    "sourceUrl": "https://www.afro.who.int/sites/default/files/2017-06/fan_5keys_en%20%282%29.pdf",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  },
+  {
+    "id": "safety-food-when-in-doubt",
+    "title": {
+      "ar": "متى تتخلص من الطعام بعد انقطاع التبريد أو التلف",
+      "en": "When to throw food away after losing cold storage or damage"
+    },
+    "content": {
+      "ar": "بحسب مراكز مكافحة الأمراض الأمريكية (CDC)، قد يسبب الطعام غير الآمن المرض حتى لو بدا طبيعيًا في شكله ورائحته وطعمه، والقاعدة: عند الشك تخلّص منه. تخلّص من الأطعمة القابلة للتلف مثل اللحم والسمك والبيض والحليب وبقايا الطعام والخضر والفواكه المقطّعة إذا بقيت 4 ساعات أو أكثر دون كهرباء أو مصدر تبريد. تخلّص من الأطعمة التي لامست مياه الفيضان أو المياه الملوثة، ومن العلب المنتفخة أو المفتوحة أو التالفة، والعلب التي يتطاير منها سائل أو رغوة عند فتحها، ومن الأطعمة المعلبة منزليًا. يمكن إنقاذ العلب التجارية المغلقة بتنظيفها جيدًا وغسلها بماء وصابون وتعقيمها.",
+      "en": "According to the US CDC, unsafe food can make you sick even if it looks, smells and tastes normal, so when in doubt, throw it out. Discard perishable food such as meat, fish, eggs, milk, leftovers and cut fruit and vegetables after 4 hours or more without power or a cold source. Discard food that touched floodwater or other contaminated water, cans that are bulging, open or damaged, cans that spurt liquid or foam when opened, and home-canned food. Sealed commercial cans can be saved by cleaning them thoroughly, washing with soap and water, and sanitizing them."
+    },
+    "sourceName": "CDC",
+    "sourceUrl": "https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  }
+]

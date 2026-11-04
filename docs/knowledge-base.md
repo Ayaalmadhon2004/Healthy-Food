@@ -72,3 +72,15 @@ No claim has been verified yet. Topics still to be researched and written, with 
 | Current situation context | IPC (ipcinfo.org); OCHA |
 
 A search snippet seen during development (WHO diarrhoea page: ORS is a solution of clean water, sugar and salt; continue fluids until diarrhoea stops; soup or rice water if ORS is unavailable) was NOT used: it was not read on a fetched page and had no date.
+
+## How the current documents were gathered (read this before trusting them)
+
+The 2026-11-04 batch (19 documents, `data/knowledge/feeding-*.json` and `safety-*.json`) was collected through web *search* only, because the session could not open who.int, unicef.org or reliefweb.int directly. Each document paraphrases what the search result summaries stated about the cited page, so:
+
+- Every `sourceDate` reads "accessed 2026-11-04 (via web search summary)", not the publication date. Open `sourceUrl` to confirm wording and date before relying on a document for anything important.
+- Several documents are dated background (surveys, IPC snapshots) and say so in their text; they are not current facts.
+- General emergency guidance (water, hand hygiene, food safety, carbon monoxide) comes from CDC and WHO pages and is not Gaza-specific.
+- Left out on purpose: medication or supplement doses, home-made ORS amounts, chlorine quantities, case counts and recovery rates that could not be tied to a dated page, and anything from non-official hosts.
+- Not covered (no source found): preparing formula with limited water or fuel, practical complementary-feeding advice for 6-24 months, storing flour/rice/lentils without a fridge, stretching staples, insulin storage, fuel-saving cooking, warning-sign lists for malnutrition.
+
+When who.int, unicef.org and reliefweb.int are reachable, re-verify each document against its page, fix the `sourceDate`, and fill the gaps above.

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "safety-diarrhoea-ors-care",
+    "title": {
+      "ar": "إسهال الأطفال: السوائل والتغذية والمحلول الفموي",
+      "en": "Children's diarrhoea: fluids, feeding and oral rehydration solution"
+    },
+    "content": {
+      "ar": "بحسب البيان المشترك لمنظمة الصحة العالمية واليونيسف، يجب إعطاء الطفل المصاب بالإسهال سوائل إضافية حتى يتوقف الإسهال، ومواصلة إطعامه ومواصلة الرضاعة الطبيعية مع محلول الإماهة الفموي أو السوائل الأخرى، وزيادة الطعام بعد الشفاء. محلول الإماهة الفموي هو محلول من الماء النظيف والسكر والملح يعوّض الماء والأملاح التي يفقدها الطفل. لتحضيره استعمل أكياس الأملاح المخصصة واسأل العامل الصحي أو نقطة توزيع الأملاح عن الطريقة الصحيحة، ولا تعتمد على مقادير من عندك. اذهب إلى العامل الصحي إذا ظهرت علامات الجفاف أو علامات الخطر، وفي حال الإسهال الدموي، أو إذا لم تتحسن حالة الطفل.",
+      "en": "According to the WHO/UNICEF joint statement, a child with diarrhoea should get extra fluids until the diarrhoea stops, keep eating, and keep breastfeeding alongside oral rehydration solution (ORS) or other fluids; food should be increased after recovery. ORS is a solution of clean water, sugar and salt that replaces the water and salts lost. Use ORS sachets, and ask a health worker or an ORS distribution point how to prepare it correctly; do not guess amounts. Take the child to a health worker if there are signs of dehydration or other danger signs, if the diarrhoea is bloody, or if the child is not getting better."
+    },
+    "sourceName": "WHO/UNICEF",
+    "sourceUrl": "https://data.unicef.org/wp-content/uploads/2021/07/WHO-UNICEF_JOint-Statement_clinical-management-of-acurte-diarrhoea.pdf",
+    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+  }
+]
