@@ -8,7 +8,7 @@ sources:
   - code: lib/rag/chunking.ts
   - code: tests/rag-chunking.test.js
   - code: data/knowledge
-verified_at: 959592c
+verified_at: 5603716
 ---
 
 # Knowledge base (RAG)
@@ -32,7 +32,7 @@ The nutrition assistant answers only from passages stored in the `KnowledgeChunk
 npx prisma db push
 
 npm run ingest -- --dry-run   # validate + counts, no database, no model download, works offline
-npm run ingest                # build chunks, embed, upsert (needs DATABASE_URL; downloads the model on first run)
+npm run ingest                # build chunks and upsert (needs DATABASE_URL). With RAG_RETRIEVER=pgvector it also embeds them and downloads the model on first run
 npm run ingest -- --dry-run --dir path/to/other/folder
 ```
 

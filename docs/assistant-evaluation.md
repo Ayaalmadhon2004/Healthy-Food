@@ -6,7 +6,7 @@ updated: 2026-11-04
 sources:
   - code: tests/rag-eval.test.js
   - code: tests/eval/run-live.mjs
-verified_at: d4776e2
+verified_at: 5603716
 ---
 
 # Nutrition assistant: evaluation
