@@ -6,7 +6,7 @@ updated: 2026-11-04
 sources:
   - code: lib/rag/providers.ts
   - code: prisma/rag-setup.sql
-verified_at: 4f15bf3
+verified_at: ec34713
 ---
 
 # Nutrition assistant: free setup

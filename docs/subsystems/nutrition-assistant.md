@@ -16,7 +16,9 @@ sources:
   - code: scripts/ingest-knowledge.ts
   - code: data/knowledge
   - code: prisma/rag-setup.sql
-verified_at: 4f15bf3
+  - code: .github/workflows/ci.yml
+  - code: next.config.ts
+verified_at: ec34713
 ---
 
 # Nutrition assistant (RAG)
@@ -79,6 +81,14 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 
 > ⚠️ Run `prisma/rag-setup.sql` before `prisma db push` (the `vector` extension must exist), and run
 > its two index statements after. Nothing in the repo applies them automatically.
+
+> ⚠️ Every Postgres that runs `prisma db push` needs the `vector` extension first, CI included
+> (`.github/workflows/ci.yml` uses the `pgvector/pgvector:pg16` image and creates the extension before
+> `db push`). With plain `postgres:16` the push fails with `type "vector" does not exist`, which is what
+> broke the first CI run of the assistant PR.
+
+> ⚠️ `@huggingface/transformers` and `onnxruntime-node` ship native binaries, so `next.config.ts` lists them
+> in `serverExternalPackages`. Remove that and the server bundle tries to pack `.node` files.
 
 > ⚠️ The curated documents were gathered from web search summaries, not full pages; their `sourceDate`
 > is the access date. Do not present them as verified quotations.
