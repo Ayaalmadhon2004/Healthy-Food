@@ -87,7 +87,10 @@ export function buildExtractiveAnswer({ passages, question, lang, disclaimer }: 
     return [`${opening} [1]`, `${CAUTION_LABEL[lang]} ${disclaimer}`].join("\n");
   }
 
-  const head = ranked[0];
+  // The opening line comes from the highest-ranked passage that has a matching sentence: retrieval (vectors plus
+  // full-text) judged that passage the best fit, which is a better signal than a sentence that merely shares more words.
+  const leadPassage = Math.min(...ranked.map((c) => c.passage));
+  const head = ranked.find((c) => c.passage === leadPassage) ?? ranked[0];
   const headLine = [head.text];
   const neighbour = sentencesOf(passages[head.passage])[head.position + 1];
   if (neighbour && ranked.some((c) => c.passage === head.passage && c.position === head.position + 1)) headLine.push(neighbour);

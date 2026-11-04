@@ -1,0 +1,171 @@
+{
+  "_note": "Retrieval cases over data/knowledge. answerable: the question and the document ids (any language) that should be found. unanswerable: questions the curated documents do not cover; retrieval should return nothing above MIN_RELEVANCE.",
+  "answerable": [
+    {
+      "question": "ابني عنده إسهال، شو أعمل؟",
+      "docs": [
+        "safety-diarrhoea-ors-care"
+      ]
+    },
+    {
+      "question": "كيف أرضع طفلي في الطوارئ؟",
+      "docs": [
+        "breastfeeding-emergency-gaza",
+        "breastfeeding-unicef-basics",
+        "mother-baby-areas-gaza"
+      ]
+    },
+    {
+      "question": "كيف أجعل الماء صالحاً للشرب؟",
+      "docs": [
+        "safety-water-boiling",
+        "safety-water-storage"
+      ]
+    },
+    {
+      "question": "كيف أخزن الماء بعد غليه؟",
+      "docs": [
+        "safety-water-storage"
+      ]
+    },
+    {
+      "question": "كيف أعرف أن طفلي يعاني من سوء التغذية؟",
+      "docs": [
+        "acute-malnutrition-muac-gaza"
+      ]
+    },
+    {
+      "question": "هل أغسل يدي قبل الأكل؟",
+      "docs": [
+        "safety-hand-hygiene"
+      ]
+    },
+    {
+      "question": "الأكل المطبوخ كم ساعة يبقى بدون ثلاجة؟",
+      "docs": [
+        "safety-food-temperature",
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "الكهرباء قطعت والأكل المبرّد تعفّن، أرميه؟",
+      "docs": [
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "أمي عندها ضغط، كم ملح تاكل؟",
+      "docs": [
+        "safety-hypertension"
+      ]
+    },
+    {
+      "question": "مريض سكري وما في دواء، شو أعمل؟",
+      "docs": [
+        "safety-diabetes"
+      ]
+    },
+    {
+      "question": "دخان الحطب وقت الطبخ بيضر الصدر؟",
+      "docs": [
+        "safety-cooking-smoke"
+      ]
+    },
+    {
+      "question": "الطبخ بالفحم داخل الخيمة خطر؟",
+      "docs": [
+        "safety-cooking-carbon-monoxide"
+      ]
+    },
+    {
+      "question": "هل أعطي ابني حليب صناعي؟",
+      "docs": [
+        "breastmilk-substitutes-gaza"
+      ]
+    },
+    {
+      "question": "الحامل والمرضعة شو لازم تاكل؟",
+      "docs": [
+        "maternal-nutrition-gaza-smart-2026"
+      ]
+    },
+    {
+      "question": "تنويع طعام الأطفال الصغار",
+      "docs": [
+        "child-diet-diversity-gaza-2026",
+        "safety-healthy-diet-variety"
+      ]
+    },
+    {
+      "question": "تصنيف الأمن الغذائي في غزة",
+      "docs": [
+        "ipc-gaza-dec-2025-background"
+      ]
+    },
+    {
+      "question": "What should I do if my child has diarrhoea?",
+      "docs": [
+        "safety-diarrhoea-ors-care"
+      ]
+    },
+    {
+      "question": "How do I boil water to make it safe?",
+      "docs": [
+        "safety-water-boiling",
+        "safety-water-storage"
+      ]
+    },
+    {
+      "question": "Where can mothers breastfeed privately?",
+      "docs": [
+        "mother-baby-areas-gaza"
+      ]
+    },
+    {
+      "question": "How can I tell if my baby is acutely malnourished?",
+      "docs": [
+        "acute-malnutrition-muac-gaza"
+      ]
+    },
+    {
+      "question": "When should I throw away food after the power went out?",
+      "docs": [
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "Is smoke from my cooking fire harmful?",
+      "docs": [
+        "safety-cooking-smoke"
+      ]
+    },
+    {
+      "question": "carbon monoxide from a generator inside the tent",
+      "docs": [
+        "safety-cooking-carbon-monoxide"
+      ]
+    },
+    {
+      "question": "How much salt with high blood pressure?",
+      "docs": [
+        "safety-hypertension"
+      ]
+    },
+    {
+      "question": "Which foods should I eat for dietary variety, legumes and whole grains?",
+      "docs": [
+        "safety-healthy-diet-variety"
+      ]
+    }
+  ],
+  "unanswerable": [
+    "كم سعرة في الكبسة؟",
+    "What is the best protein for muscle building?",
+    "How to lose weight fast",
+    "ما هي أعراض الكورونا؟",
+    "Which vitamin D dose for a toddler?",
+    "كيف أصلح سيارتي؟",
+    "best football team in the world",
+    "طريقة عمل الكيك"
+  ]
+}

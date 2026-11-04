@@ -108,3 +108,15 @@ test("zero-width and fullwidth tag lookalikes are still stripped in history and 
     assert.equal((all.match(/<question/gi) ?? []).length, 1, tag);
   }
 });
+
+test("describeFailure logs error names and database codes only, never messages or request text", async () => {
+  const { describeFailure } = await import("../lib/rag/chat.ts");
+  const prismaLike = Object.assign(new Error("relation \"knowledge_chunks\" does not exist, question was: secret words"), { name: "PrismaClientKnownRequestError", code: "P2010", meta: { code: "42P01" } });
+  const wrapped = new Error("The knowledge store is unavailable", { cause: prismaLike });
+  wrapped.name = "KnowledgeStoreUnavailableError";
+  const text = describeFailure(wrapped);
+  assert.equal(text, "KnowledgeStoreUnavailableError <- PrismaClientKnownRequestError P2010 42P01");
+  assert.ok(!text.includes("secret"));
+  assert.equal(describeFailure("boom"), "string");
+  assert.equal(describeFailure(Object.assign(new Error("x"), { code: "select * from users" })), "Error");
+});

@@ -6,7 +6,7 @@ updated: 2026-11-04
 sources:
   - code: tests/rag-eval.test.js
   - code: tests/eval/run-live.mjs
-verified_at: d4776e2
+verified_at: 5603716
 ---
 
 # Nutrition assistant: evaluation
@@ -99,3 +99,15 @@ How the scoring works (heuristics, so read failures by hand):
 - 100% emergency recall on 6 questions is a floor, not proof. The triage uses keyword rules, so add real phrasings (especially colloquial ones) to `questions.json` whenever a miss is reported.
 - Decline rate depends on `MIN_RELEVANCE` in `lib/rag/constants.ts`. Lowering it answers more but declines fewer traps; re-run the live evaluation after any change to it, to `lib/rag/fusion.ts` calibration, or to the system prompt.
 - Changing the embedding model changes the cosine calibration (`COSINE_FLOOR`, `COSINE_CEIL`); re-measure before trusting the thresholds.
+
+## Retrieval quality (default in-memory retriever)
+
+`tests/rag-memory.test.js` measures retrieval over the curated documents with `tests/eval/retrieval-cases.json`
+(25 answerable questions in Arabic and English, 8 unanswerable). It asserts: the right document in the top 3 for at least
+23 of 25, in first place for at least 20, at least 88% of answerable questions pass the cutoff, and at least 75% of the
+unanswerable ones do not. Measured values when written: 24/25, 22/25, 92%, 88%.
+
+Alternatives tried for the free embedding replacement (same cases): the earlier full-text search alone (hit@3 23/25, but
+the colloquial Arabic diarrhoea and breastfeeding questions were declined), hashed n-grams alone (hit@3 25/25 but they
+cannot tell answerable from unanswerable: scores overlap), BM25 alone (best at telling them apart, 94% balanced), and the
+blend that shipped. Hosted embedding APIs and model hubs could not be tried: the build sandbox could reach only npm.
