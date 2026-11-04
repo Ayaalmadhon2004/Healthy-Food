@@ -16,7 +16,7 @@ export function chooseProvider(env: NodeJS.ProcessEnv = process.env): Provider {
 }
 
 async function* generateExtractive(input: GenerateInput) {
-  const text = buildExtractiveAnswer({ passages: input.passages ?? [], lang: input.lang ?? "en", disclaimer: input.disclaimer ?? "" });
+  const text = buildExtractiveAnswer({ passages: input.passages ?? [], question: input.question, lang: input.lang ?? "en", disclaimer: input.disclaimer ?? "" });
   if (!text) {
     yield { type: "error", code: "unavailable" } as const;
     return;

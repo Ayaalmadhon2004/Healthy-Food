@@ -15,7 +15,7 @@ export const COSINE_CEIL = 0.9;
 
 /**
  * ts_rank_cd (unnormalised) is small and unbounded: one weak term hit is ~0.1, several close hits >= 0.5.
- * Mapped by 1 - exp(-LEXICAL_GAIN * rank): 0.1 -> 0.26 (below MIN_RELEVANCE 0.35), 0.2 -> 0.45, 0.5 -> 0.78.
+ * Mapped by 1 - exp(-LEXICAL_GAIN * rank): 0.1 -> 0.26 (below MIN_RELEVANCE 0.35), 0.2 -> 0.45, 0.5 -> 0.78. One lone term match must not pass: a generic word such as "best" would then pull in unrelated passages. With embeddings the vector score carries such questions.
  */
 export const LEXICAL_GAIN = 3;
 

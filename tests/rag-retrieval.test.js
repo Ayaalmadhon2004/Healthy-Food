@@ -21,7 +21,7 @@ test("normalizeArabic unifies letters, strips diacritics and digits", () => {
 });
 
 test("toTsQueryTerms drops stopwords and short tokens", () => {
-  assert.deepEqual(toTsQueryTerms("What is the best protein for breakfast?"), ["best", "protein", "breakfast"]);
+  assert.deepEqual(toTsQueryTerms("What is the best protein for breakfast?"), ["protein", "breakfast"]);
   assert.deepEqual(toTsQueryTerms("ما هي أفضل مصادر البروتين؟"), ["مصادر", "بروتين"]);
   assert.deepEqual(toTsQueryTerms("a ? !"), []);
 });

@@ -15,6 +15,8 @@ export interface GenerateInput {
   notes: { refusal: string; truncated: string };
   /** The numbered passages the prompt was built from; used by generators that do not call a model. */
   passages?: readonly RetrievedChunk[];
+  /** The visitor's question, used by generators that pick sentences instead of calling a model. */
+  question?: string;
   lang?: Lang;
   /** Localized "general information, ask a doctor" line for key-less answers. */
   disclaimer?: string;

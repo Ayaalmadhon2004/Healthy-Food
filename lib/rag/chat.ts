@@ -94,7 +94,7 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   const prompt = buildPrompt({ question, lang, chunks, history });
   yield { type: "meta", mode: "answer", citations: prompt.passages.map(toCitation) };
 
-  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, passages: prompt.passages, lang, disclaimer: m.disclaimer, signal });
+  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, passages: prompt.passages, question, lang, disclaimer: m.disclaimer, signal });
   const iterator = events[Symbol.asyncIterator]();
   try {
     let next = await iterator.next();

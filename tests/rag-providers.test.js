@@ -70,3 +70,20 @@ test("gemini generator maps failures, blocks and truncation without throwing", a
   const cut = await collect(createGeminiGenerator(async () => sse({ candidates: [{ content: { parts: [{ text: "a" }] }, finishReason: "MAX_TOKENS" }] }), { GEMINI_API_KEY: "k" })(input));
   assert.ok(cut.at(-1).text.includes("CUT"));
 });
+
+test("extractive answer keeps only sentences that share words with the question", () => {
+  const passages = [
+    chunk(1, "Breastfeeding", "Breastfeeding\nPut babies to the breast within an hour of birth. Exclusive breastfeeding lasts six months."),
+    chunk(2, "Safe water", "Safe water\nBoil the water for one minute before drinking it. Store boiled water in a covered container."),
+  ];
+  const answer = buildExtractiveAnswer({ passages, question: "How do I boil water?", lang: "en", disclaimer: "D." });
+  assert.ok(answer.startsWith("Boil the water for one minute before drinking it."), answer);
+  assert.ok(answer.includes("[2]"));
+  assert.ok(!answer.toLowerCase().includes("breast"), answer);
+});
+
+test("extractive answer matches Arabic with the article and spelling variants", () => {
+  const passages = [chunk(1, "ماء", "ماء\nاغلِ الماء لمدة دقيقة قبل شربه دائماً. احفظ الماء المغلي في وعاء مغطى ونظيف.")];
+  const answer = buildExtractiveAnswer({ passages, question: "كيف أحفظ المياه المغلية؟", lang: "ar", disclaimer: "د." });
+  assert.ok(answer.includes("احفظ الماء المغلي"), answer);
+});
