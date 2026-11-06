@@ -11,6 +11,10 @@
     },
     "sourceName": "UNICEF - Gaza SMART Survey 2026",
     "sourceUrl": "https://www.unicef.org/sop/media/6801/file/Gaza%20Smart%20Survey%20-%20Executive%20Summary.pdf.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "قدّموا للأطفال الصغار تنوعاً من الأطعمة المتاحة، فالحد الأدنى للتنوع الغذائي للأطفال من 6 إلى 23 شهراً هو أطعمة من خمس مجموعات غذائية على الأقل من أصل ثمانٍ.",
+      "en": "Offer young children a variety of the foods that are available, since the minimum for ages 6-23 months is foods from at least five of eight food groups."
+    }
   }
 ]

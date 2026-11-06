@@ -11,6 +11,10 @@
     },
     "sourceName": "WHO/UNICEF",
     "sourceUrl": "https://data.unicef.org/wp-content/uploads/2021/07/WHO-UNICEF_JOint-Statement_clinical-management-of-acurte-diarrhoea.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "أعطِ الطفل المصاب بالإسهال سوائل إضافية حتى يتوقف، وواصل إطعامه وإرضاعه، واذهب إلى العامل الصحي إذا ظهرت علامات الجفاف أو كان الإسهال دموياً.",
+      "en": "Give a child with diarrhoea extra fluids until it stops, keep feeding and breastfeeding, and see a health worker if there are signs of dehydration or the diarrhoea is bloody."
+    }
   }
 ]

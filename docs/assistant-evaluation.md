@@ -2,11 +2,13 @@
 title: Assistant evaluation
 type: operation
 created: 2026-11-04
-updated: 2026-11-04
+updated: 2026-11-06
 sources:
   - code: tests/rag-eval.test.js
   - code: tests/eval/run-live.mjs
-verified_at: 5603716
+  - code: tests/rag-memory.test.js
+  - code: tests/rag-embed-missing.test.js
+verified_at: dc98a72
 ---
 
 # Nutrition assistant: evaluation
@@ -53,7 +55,7 @@ npm test                                   # everything
 node --import ./tests/helpers/register.mjs --test tests/rag-eval.test.js tests/rag-contracts.test.js
 ```
 
-No network, database, embedding model or Anthropic call is made.
+No network, database, embedding model or Anthropic call is made. The embedding model (`@huggingface/transformers`) is an optional dependency and is not needed by this suite; `tests/rag-embed-missing.test.js` checks that the embed functions return nulls, warn once and never throw when it is not installed (see [[npm-scripts-and-ci]]).
 
 `tests/rag-eval.test.js`
 - dataset shape (counts, languages, categories, flags);
@@ -103,9 +105,11 @@ How the scoring works (heuristics, so read failures by hand):
 ## Retrieval quality (default in-memory retriever)
 
 `tests/rag-memory.test.js` measures retrieval over the curated documents with `tests/eval/retrieval-cases.json`
-(25 answerable questions in Arabic and English, 8 unanswerable). It asserts: the right document in the top 3 for at least
-23 of 25, in first place for at least 20, at least 88% of answerable questions pass the cutoff, and at least 75% of the
-unanswerable ones do not. Measured values when written: 24/25, 22/25, 92%, 88%.
+(59 answerable questions in Arabic and English, 26 unanswerable, as of 2026-11-06). It asserts: the right document in the
+top 3 for at least 23 answerable questions, in first place for at least 20, at least 88% of answerable questions pass the
+cutoff, and at least 75% of the unanswerable ones do not. The thresholds are absolute counts and percentages written when the
+set had 25 + 8 cases, so they are now loose. Measured on 2026-11-06: top 3 for 59/59, first place for 53/59, 92% accepted,
+88% of unanswerable rejected. The corpus and case file are still growing, so re-measure after changing either.
 
 Alternatives tried for the free embedding replacement (same cases): the earlier full-text search alone (hit@3 23/25, but
 the colloquial Arabic diarrhoea and breastfeeding questions were declined), hashed n-grams alone (hit@3 25/25 but they

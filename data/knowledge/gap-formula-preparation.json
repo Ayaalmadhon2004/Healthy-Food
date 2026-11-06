@@ -1,0 +1,20 @@
+[
+  {
+    "id": "formula-safe-preparation",
+    "title": {
+      "ar": "تحضير حليب الأطفال المجفف في البيت بأمان",
+      "en": "Preparing powdered infant formula safely at home"
+    },
+    "content": {
+      "ar": "تشير إرشادات منظمة الصحة العالمية بشأن تحضير حليب الأطفال المجفف في البيت إلى أن مسحوق الحليب ليس معقَّماً وقد يحتوي على بكتيريا تسبب مرضاً خطيراً للرضّع. وتنصح بتحضير كل رضعة طازجة قبل حاجة الطفل إليها مباشرة، وتوضح أنه إذا لم تتوفر ثلاجة فليس من الآمن تحضير الرضعات مسبقاً. وما يتبقى من الرضعة يُرمى بعد ساعتين. كما لا ينبغي حفظ رضعة حُضّرت بماء حرارته أقل من 70 درجة مئوية لاستعمالها لاحقاً. هذه النقاط لا تغني عن نصيحة العاملين في التغذية، فإن كان رضيعك لا يرضع رضاعة طبيعية فاطلبي مساعدتهم.",
+      "en": "WHO's guidelines on preparing powdered infant formula at home note that the powder is not sterile and may contain bacteria that can cause serious illness in infants. They advise making each feed fresh, just before the baby needs it, and say that without a refrigerator it is not safe to prepare feeds in advance. Any feed left over should be thrown away after two hours. A feed made with water below 70 degrees Celsius should not be stored for later use. These points do not replace the advice of nutrition workers, so ask them for help if your baby is not breastfed."
+    },
+    "summary": {
+      "ar": "حضّري كل رضعة حليب طازجة قبل حاجة الطفل إليها مباشرة، وتخلّصي مما يتبقى منها بعد ساعتين.",
+      "en": "Make each formula feed fresh just before the baby needs it, and throw away any feed left over after two hours."
+    },
+    "sourceName": "WHO",
+    "sourceUrl": "https://www.who.int/publications/i/item/9789241595414",
+    "sourceDate": "accessed 2026-11-06 (via web search summary)"
+  }
+]

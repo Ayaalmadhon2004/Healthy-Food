@@ -11,7 +11,11 @@
     },
     "sourceName": "Global Nutrition Cluster - State of Palestine IYCF-E SOP",
     "sourceUrl": "https://www.nutritioncluster.net/sites/nutritioncluster.com/files/2023-12/Palestine%20IYCFE%20SOP%20Final.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "ابدئي الرضاعة الطبيعية خلال ساعة من الولادة واستمري فيها حتى يبلغ الطفل سنتين أو أكثر، وتأكدي من حصول الأم على الطعام والسوائل والدعم.",
+      "en": "Start breastfeeding within 1 hour of birth and continue until the child is two years old or older, and make sure the mother gets food, fluids and support."
+    }
   },
   {
     "id": "mother-baby-areas-gaza",
@@ -25,7 +29,11 @@
     },
     "sourceName": "Global Nutrition Cluster - Mother and Baby Areas Guidance, State of Palestine",
     "sourceUrl": "https://www.nutritioncluster.net/sites/nutritioncluster.com/files/2023-12/Mother%20and%20Baby%20Areas%20Palestine_Final.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "تقدم مساحات الأم والطفل مكاناً خاصاً للإرضاع وإرشاداً فردياً ماهراً لدعم الرضاعة الطبيعية، بما في ذلك المساعدة على زيادة إدرار الحليب وإعادة الإرضاع.",
+      "en": "Mother and Baby Areas offer a private space and skilled one-to-one counselling to support breastfeeding, including help with building milk supply and relactation."
+    }
   },
   {
     "id": "breastfeeding-unicef-basics",
@@ -39,6 +47,10 @@
     },
     "sourceName": "UNICEF",
     "sourceUrl": "https://www.unicef.org/stories/why-breastfeeding-best-babies",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "توصي اليونيسف بالرضاعة الطبيعية خلال ساعة من الولادة وبالرضاعة الحصرية لمدة ستة أشهر دون إعطاء ماء أو سوائل أخرى.",
+      "en": "UNICEF recommends breastfeeding within an hour of birth and exclusive breastfeeding for six months, with no water or other liquids."
+    }
   }
 ]

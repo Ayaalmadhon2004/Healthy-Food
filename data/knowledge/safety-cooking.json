@@ -11,7 +11,11 @@
     },
     "sourceName": "CDC",
     "sourceUrl": "https://www.cdc.gov/natural-disasters/psa-toolkit/avoiding-carbon-monoxide-poisoning.html",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "لا تستعمل المولدات أو المشاوي أو سخانات الطهي التي تحرق الوقود أو الفحم داخل البيت أو الخيمة، وأبقِ المولدات في الخارج بعيداً عن الأبواب والنوافذ.",
+      "en": "Never use generators, grills or camp stoves that burn fuel or charcoal inside a home or tent, and keep generators outdoors away from doors and windows."
+    }
   },
   {
     "id": "safety-cooking-smoke",
@@ -25,6 +29,10 @@
     },
     "sourceName": "WHO",
     "sourceUrl": "https://www.who.int/news-room/fact-sheets/detail/household-air-pollution-and-health",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "دخان الطهي يضر بالصحة، لذا اسأل الجهات الصحية أو الإغاثية عن بدائل متاحة عند عدم توفر الوقود النظيف.",
+      "en": "Cooking smoke harms health, so when clean fuel is not available ask health or aid agencies about alternatives that may be available."
+    }
   }
 ]

@@ -11,6 +11,10 @@
     },
     "sourceName": "CDC",
     "sourceUrl": "https://www.cdc.gov/natural-disasters/media/pdfs/2024/08/factsheet-wash-your-hands-1-508.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "اغسل يديك بالصابون والماء النظيف قبل تناول الطعام أو تحضيره، وبعد استخدام المرحاض، وبعد تغيير الحفاضات أو تنظيف الطفل.",
+      "en": "Wash hands with soap and clean water before eating or preparing food, after using the toilet, and after changing diapers or cleaning a child."
+    }
   }
 ]

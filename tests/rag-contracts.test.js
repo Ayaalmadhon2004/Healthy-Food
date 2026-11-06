@@ -239,3 +239,62 @@ test("curated documents: validateCuratedDocument (the ingestion gate) accepts al
   const { validateCuratedDocument } = await import("../lib/rag/chunking.ts");
   for (const { where, doc } of docs) assert.deepEqual(validateCuratedDocument(doc, where), []);
 });
+
+// ---------- summaries (the line the overview shows for each document) ----------
+const tokens = (s) => (s.toLowerCase().replace(/[ً-ْـ]/g, "").match(/[\p{L}\p{N}]+/gu) ?? []);
+/** Share of the summary's words that also occur in the document text (the summary must not bring new facts). */
+const coverage = (summary, text) => {
+  const have = new Set(tokens(text).flatMap((w) => [w, w.replace(/^(و|ف|ب|ل|ال)+/, "")]));
+  const words = tokens(summary).filter((w) => w.length > 2);
+  const hit = words.filter((w) => have.has(w) || have.has(w.replace(/^(و|ف|ب|ل|ال)+/, "")));
+  return hit.length / words.length;
+};
+
+test("curated documents: every document has a one-sentence summary in both languages (25-220 characters)", () => {
+  for (const { where, doc } of docs) {
+    for (const lang of ["ar", "en"]) {
+      const s = doc.summary?.[lang];
+      assert.equal(typeof s, "string", `${where}: summary.${lang} missing`);
+      assert.ok(s.length >= 25 && s.length <= 220, `${where}: summary.${lang} is ${s.length} characters`);
+      assert.match(s.trim(), /[.!?؟]$/, `${where}: summary.${lang} must end like a sentence`);
+    }
+    assert.ok(count(doc.summary.ar, ARABIC) > 0 && count(doc.summary.ar, ARABIC) >= count(doc.summary.ar, LATIN), `${where}: summary.ar is not mainly Arabic`);
+    assert.equal(count(doc.summary.en, ARABIC), 0, `${where}: summary.en contains Arabic letters`);
+  }
+});
+
+test("curated documents: a summary uses the document's own words (no new facts)", () => {
+  for (const { where, doc } of docs) {
+    for (const lang of ["ar", "en"]) {
+      const share = coverage(doc.summary[lang], `${doc.title[lang]} ${doc.content[lang]}`);
+      assert.ok(share >= 0.7, `${where}: only ${(share * 100).toFixed(0)}% of summary.${lang} words occur in the document`);
+    }
+  }
+});
+
+test("curated documents: the first sentence of the first chunk is the summary, in both languages", async () => {
+  const { curatedToChunks } = await import("../lib/rag/chunking.ts");
+  const { sentencesOf } = await import("../lib/rag/extractive.ts");
+  for (const { where, doc } of docs) {
+    for (const lang of ["ar", "en"]) {
+      const first = curatedToChunks(doc).find((c) => c.lang === lang && /:(ar|en)$/.test(c.sourceKey));
+      const wanted = doc.summary[lang].trim();
+      assert.equal(sentencesOf(first)[0], /[.!?؟]$/.test(wanted) ? wanted : `${wanted}.`, `${where}: ${lang}`);
+    }
+  }
+});
+
+test("curated documents: no document repeats another one's summary or source page", () => {
+  const summaries = new Map();
+  const pages = new Map();
+  for (const { where, doc } of docs) {
+    for (const lang of ["ar", "en"]) {
+      const key = `${lang}:${doc.summary[lang].trim()}`;
+      assert.ok(!summaries.has(key), `${where}: same summary.${lang} as ${summaries.get(key)}`);
+      summaries.set(key, where);
+    }
+    // Two documents may cite one page only if they say different things (the summaries above differ); report it for review.
+    pages.set(doc.sourceUrl, [...(pages.get(doc.sourceUrl) ?? []), doc.id]);
+  }
+  for (const ids of pages.values()) assert.ok(ids.length <= 2, `more than two documents cite one page: ${ids.join(", ")}`);
+});

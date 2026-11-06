@@ -1,6 +1,7 @@
 // Orchestrator: triage -> retrieve -> (decline | generate). Emits the ChatEvent protocol documented in ./types.
 import { getServerMessages } from "@/lib/i18n";
 import type { ServerMessages } from "@/lib/i18n";
+import { buildSearchQuestion } from "@/lib/rag/context";
 import { MIN_RELEVANCE, RETRIEVE_TIMEOUT_MS, RETRIEVE_TOP_K } from "@/lib/rag/constants";
 import { detectLang } from "@/lib/rag/language";
 import { OVERVIEW_MAX_POINTS, OVERVIEW_TOPICS, isOverviewRequest } from "@/lib/rag/overview";
@@ -109,6 +110,8 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   // 2. Retrieve. Any failure of the knowledge store reads as "unavailable"; the cause is logged without the question.
   // A general request for tips names no topic, so it is answered with the best passage of each core topic instead.
   const overview = isOverviewRequest(question);
+  // A follow-up ("وكم مرة في اليوم؟") is searched together with the previous user question; everything else keeps the question.
+  const searchQuestion = buildSearchQuestion(question, history);
   let chunks: RetrievedChunk[];
   try {
     if (overview) {
@@ -118,7 +121,7 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
       );
       chunks = uniqueChunks(perTopic.flat().filter((c) => c.score >= MIN_RELEVANCE)).slice(0, OVERVIEW_MAX_POINTS);
     } else {
-      const found = await withTimeout(retrieve(question, { lang, topK: RETRIEVE_TOP_K, minScore: MIN_RELEVANCE }), RETRIEVE_TIMEOUT_MS);
+      const found = await withTimeout(retrieve(searchQuestion, { lang, topK: RETRIEVE_TOP_K, minScore: MIN_RELEVANCE }), RETRIEVE_TIMEOUT_MS);
       chunks = uniqueChunks(found.filter((c) => c.score >= MIN_RELEVANCE)).slice(0, RETRIEVE_TOP_K);
     }
   } catch (error) {
@@ -138,7 +141,7 @@ export async function* runChat(req: ChatRequest, deps: ChatDeps = {}): AsyncGene
   const prompt = buildPrompt({ question, lang, chunks, history });
   yield { type: "meta", mode: "answer", citations: prompt.passages.map(toCitation) };
 
-  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, passages: prompt.passages, question, lang, disclaimer: m.disclaimer, overviewIntro: overview ? m.overviewIntro : undefined, signal });
+  const events = generate({ system: prompt.system, messages: prompt.messages, notes: { refusal: m.refusal, truncated: m.truncated }, passages: prompt.passages, question: searchQuestion, lang, disclaimer: m.disclaimer, overviewIntro: overview ? m.overviewIntro : undefined, signal });
   const iterator = events[Symbol.asyncIterator]();
   try {
     let next = await iterator.next();

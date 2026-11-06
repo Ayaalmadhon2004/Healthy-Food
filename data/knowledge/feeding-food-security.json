@@ -11,6 +11,10 @@
     },
     "sourceName": "IPC - Gaza Strip Acute Food Insecurity Special Snapshot (Oct 2025 - Apr 2026)",
     "sourceUrl": "https://www.ipcinfo.org/fileadmin/user_upload/ipcinfo/docs/IPC_Gaza_Strip_Acute_Food_Insecurity_Malnutrition_Oct2025_Apr2026_Special_Snapshot.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "راجعوا موقع IPC للاطلاع على أحدث تصنيف لانعدام الأمن الغذائي، فهذه الوثيقة خلفية مؤرخة وليست وصفاً للوضع الحالي.",
+      "en": "Check the IPC website for the latest food insecurity classification, because this document is dated background, not the current situation."
+    }
   }
 ]

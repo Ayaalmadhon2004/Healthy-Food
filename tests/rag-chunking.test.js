@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   CHUNK_OVERLAP_CHARS,
   MAX_CHUNK_CHARS,
+  MAX_SUMMARY_CHARS,
   curatedToChunks,
   kitchenToChunks,
   recipeToChunks,
@@ -420,6 +421,61 @@ describe("validateCuratedDocument", () => {
 
   it("prefixes problems with the location", () => {
     assert.ok(validateCuratedDocument({}, "file.json[2]").every((p) => p.startsWith("file.json[2]: ")));
+  });
+});
+
+describe("curated summary", () => {
+  const SUMMARY = L("Give fluids often and seek care if the child cannot drink.", "قدّم السوائل كثيراً واطلب الرعاية إذا لم يستطع الطفل الشرب.");
+  const withSummary = { ...DOC, summary: SUMMARY };
+
+  it("is optional: a document without one chunks exactly as before", () => {
+    assert.deepEqual(validateCuratedDocument(DOC), []);
+    assert.equal(curatedToChunks(DOC).find((c) => c.lang === "en").content, "Oral rehydration\nGive fluids often. Seek care if the child cannot drink.");
+  });
+
+  it("goes on the line right after the title of the first chunk, so it is the first sentence", () => {
+    for (const c of curatedToChunks(withSummary)) {
+      const lines = c.content.split("\n");
+      assert.equal(lines[0], c.title);
+      assert.equal(lines[1], SUMMARY[c.lang]);
+      assert.equal(sentencesOf(c)[0], SUMMARY[c.lang]);
+    }
+  });
+
+  it("is only in the first chunk of a split document, and the body is not shortened", () => {
+    const big = { ...withSummary, content: L(longText(40), arabicLong(40)) };
+    const plain = curatedToChunks({ ...big, summary: undefined }).filter((c) => c.lang === "en");
+    const chunks = curatedToChunks(big).filter((c) => c.lang === "en");
+    assert.equal(chunks.length, plain.length, "the summary must not add chunks");
+    assert.ok(chunks[0].content.includes(SUMMARY.en));
+    for (const c of chunks.slice(1)) assert.ok(!c.content.includes(SUMMARY.en));
+    assert.ok(chunks[0].content.length <= MAX_CHUNK_CHARS + MAX_SUMMARY_CHARS + 1);
+    assert.equal(chunks[0].content, plain[0].content.replace(/^(.*)\n/, `$1\n${SUMMARY.en}\n`));
+  });
+
+  it("adds a full stop when the summary has none", () => {
+    const c = curatedToChunks({ ...DOC, summary: L("Give fluids often to the child", "قدّم السوائل كثيراً للطفل المريض") }).find((x) => x.lang === "en");
+    assert.equal(c.content.split("\n")[1], "Give fluids often to the child.");
+  });
+
+  it("is accepted when valid and rejected when missing a language, empty, too short, too long, several sentences or the wrong script", () => {
+    assert.deepEqual(validateCuratedDocument(withSummary), []);
+    const bad = (summary) => validateCuratedDocument({ ...DOC, summary }, "d");
+    assert.ok(bad("text").some((p) => p.includes("summary must be an object")));
+    assert.ok(bad(null).some((p) => p.includes("summary must be an object")));
+    assert.ok(bad({ en: SUMMARY.en }).includes("d: summary.ar is missing"));
+    assert.ok(bad({ ...SUMMARY, en: "   " }).includes("d: summary.en is missing"));
+    assert.ok(bad({ ...SUMMARY, en: "Drink." }).some((p) => p.includes("shorter than")));
+    assert.ok(bad({ ...SUMMARY, en: `${"Give fluids often. ".repeat(1)}${"x".repeat(MAX_SUMMARY_CHARS)}` }).some((p) => p.includes("longer than")));
+    assert.deepEqual(bad({ ...SUMMARY, en: "A".repeat(MAX_SUMMARY_CHARS) }), []);
+    assert.ok(bad({ ...SUMMARY, en: "Give fluids often. Then seek care if needed." }).some((p) => p.includes("must be one sentence")));
+    assert.ok(bad({ ...SUMMARY, ar: "قدّم السوائل كثيراً.\nواطلب الرعاية إذا لزم الأمر." }).some((p) => p.includes("must be one sentence")));
+    assert.ok(bad({ ...SUMMARY, ar: "Give fluids often to the child" }).some((p) => p.includes("written in Arabic")));
+    assert.ok(bad({ ...SUMMARY, en: "قدّم السوائل كثيراً للطفل المريض" }).some((p) => p.includes("written in English")));
+  });
+
+  it("does not split a decimal number into two sentences", () => {
+    assert.deepEqual(validateCuratedDocument({ ...DOC, summary: L("A MUAC below 12.5 cm needs a clinic visit.", "قياس أقل من 12.5 سم يستدعي زيارة العيادة.") }), []);
   });
 });
 

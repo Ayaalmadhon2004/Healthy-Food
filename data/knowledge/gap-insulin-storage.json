@@ -1,0 +1,20 @@
+[
+  {
+    "id": "insulin-storage-medlineplus",
+    "title": {
+      "ar": "حفظ الإنسولين: المفتوح وغير المفتوح والحرارة",
+      "en": "Storing insulin: unopened, opened and heat"
+    },
+    "content": {
+      "ar": "يذكر موقع MedlinePlus الصحي أن الإنسولين غير المفتوح يُحفظ في الثلاجة بين 2 و8 درجات مئوية ولا يجوز تجميده أبداً. أما الإنسولين المفتوح (القارورة أو الخزّان أو القلم قيد الاستعمال) فيمكن إبقاؤه في حرارة الغرفة بين 15 و30 درجة مئوية، ويمكن لمعظم الإنسولين المفتوح أن يبقى خارج الثلاجة 28 يوماً كحدٍّ أقصى. ويجب التخلص من الإنسولين إذا ارتفعت حرارة تخزينه فوق 37 درجة مئوية. وقد يقلّ مفعول الإنسولين بالشمس والحرارة الشديدة أو البرودة الشديدة، فأبقِه بعيداً عن الحرارة المباشرة والشمس ولا تتركه في السيارة في الأيام الحارة. وتختلف المدة المسموحة في حرارة الغرفة من منتج إلى آخر، فراجع معلومات الشركة المصنعة أو اسأل الصيدلاني.",
+      "en": "MedlinePlus says unopened insulin should be kept in a refrigerator at 2 to 8 degrees Celsius and must never be frozen. Insulin that has been opened (a bottle, reservoir or pen in use) can be kept at room temperature, 15 to 30 degrees Celsius, and most opened insulin can stay out of the refrigerator for 28 days at most. Insulin should be discarded if its storage temperature rises above 37 degrees Celsius. Sunlight and temperatures that are too hot or too cold can reduce how well insulin works, so keep it away from direct heat and sunlight and do not leave it in a car on warm days. The time allowed at room temperature differs between products, so check the manufacturer's information or ask a pharmacist."
+    },
+    "summary": {
+      "ar": "احفظ الإنسولين المفتوح بين 15 و30 درجة مئوية بعيداً عن الحرارة المباشرة والشمس، ويمكن لمعظمه أن يبقى خارج الثلاجة 28 يوماً كحدٍّ أقصى.",
+      "en": "Keep opened insulin at 15 to 30 degrees Celsius away from direct heat and sunlight; most opened insulin can stay out of the refrigerator for 28 days at most."
+    },
+    "sourceName": "MedlinePlus Medical Encyclopedia",
+    "sourceUrl": "https://medlineplus.gov/ency/patientinstructions/000962.htm",
+    "sourceDate": "accessed 2026-11-06 (via web search summary)"
+  }
+]

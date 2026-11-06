@@ -11,6 +11,10 @@
     },
     "sourceName": "WHO EMRO - Eastern Mediterranean Health Journal (UNRWA nutrition in Gaza)",
     "sourceUrl": "https://applications.emro.who.int/EMHJ/V31/04/1020-3397-2025-3104-274-280-eng.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "إذا كان قياس محيط منتصف ذراع طفلك (MUAC) أقل من 12.5 سم أو لاحظتم تورماً في الجسم، فاطلبوا تقييماً وعلاجاً من أقرب عيادة تغذية.",
+      "en": "If your child's MUAC is below 12.5 cm, or the child has swelling of the body, ask the nearest nutrition clinic for assessment and treatment."
+    }
   }
 ]

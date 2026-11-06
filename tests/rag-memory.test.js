@@ -65,6 +65,14 @@ const langOf = (q) => (/[؀-ۿ]/.test(q) ? "ar" : "en");
 const rank = (q) => searchMemoryIndex(index, q, { lang: langOf(q), minScore: 0, topK: 50 }).map((c) => docOf(c.sourceKey));
 const accepted = (q) => searchMemoryIndex(index, q, { lang: langOf(q) }).length > 0;
 
+// Measured on the 59 answerable and 26 unanswerable cases with the 26 documents of the day (top-3 59, top-1 53, accepted
+// 54 = 0.92, rejected 23 = 0.88), minus a margin of about two questions because the corpus keeps growing. They were 23/25,
+// 20/25, 0.88 and 0.75 before the synonym table and the thin-match guard; never lower them.
+const TOP3_MIN = 57;
+const TOP1_MIN = 50;
+const ACCEPTED_MIN = 0.88;
+const REJECTED_MIN = 0.84;
+
 test("retrieval quality: the right document is in the top 3 for nearly every answerable question", () => {
   const misses = [];
   let hit1 = 0;
@@ -74,19 +82,34 @@ test("retrieval quality: the right document is in the top 3 for nearly every ans
     if (!top.slice(0, 3).some((d) => docs.includes(d))) misses.push(question);
   }
   const n = cases.answerable.length;
-  assert.ok(n - misses.length >= 23, `top-3 hits ${n - misses.length}/${n}; missed: ${misses.join(" | ")}`);
-  assert.ok(hit1 >= 20, `top-1 hits ${hit1}/${n}`);
+  assert.ok(n - misses.length >= TOP3_MIN, `top-3 hits ${n - misses.length}/${n}; missed: ${misses.join(" | ")}`);
+  assert.ok(hit1 >= TOP1_MIN, `top-1 hits ${hit1}/${n}`);
 });
 
 test("retrieval quality: answerable questions pass the cutoff and unanswerable ones mostly do not", () => {
   const acc = cases.answerable.filter((c) => accepted(c.question)).length / cases.answerable.length;
   const rej = cases.unanswerable.filter((q) => !accepted(q)).length / cases.unanswerable.length;
-  assert.ok(acc >= 0.88, `accepted ${acc.toFixed(2)} of answerable`);
-  assert.ok(rej >= 0.75, `rejected ${rej.toFixed(2)} of unanswerable`);
+  assert.ok(acc >= ACCEPTED_MIN, `accepted ${acc.toFixed(2)} of answerable`);
+  assert.ok(rej >= REJECTED_MIN, `rejected ${rej.toFixed(2)} of unanswerable`);
 });
 
 test("retrieval quality: the colloquial Arabic questions that the full-text search alone declined are now answered", () => {
   for (const q of ["ابني عنده إسهال، شو أعمل؟", "كيف أرضع طفلي في الطوارئ؟"]) {
     assert.ok(accepted(q), q);
   }
+});
+
+test("retrieval quality: the spoiled-fridge-food question is answered from the when-in-doubt document", () => {
+  const q = "الكهرباء قطعت والأكل المبرّد تعفّن، أرميه؟";
+  assert.ok(accepted(q));
+  assert.equal(rank(q)[0], "safety-food-when-in-doubt");
+});
+
+test("retrieval quality: a long question that shares one word with a passage is declined", () => {
+  // "building" occurs in a breastfeeding sentence; before the thin-match guard this was accepted at 0.55.
+  for (const q of ["What is the best protein for muscle building?", "ما أفضل بروتين لبناء العضلات؟", "Should I take creatine supplements?", "How to lose weight fast"]) {
+    assert.ok(!accepted(q), q);
+  }
+  // The guard needs three content terms: a short question with one strong word is still answered.
+  assert.ok(accepted("دخان الطهي"));
 });

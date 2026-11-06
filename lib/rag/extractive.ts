@@ -22,9 +22,13 @@ const WORD = /[\p{L}\p{N}]+/gu;
 /** Sentences of a passage with the repeated title line removed, trimmed to a readable length. */
 export function sentencesOf(chunk: Pick<RetrievedChunk, "title" | "content">): string[] {
   const out: string[] = [];
+  const seen = new Set<string>();
   for (const raw of chunk.content.split(SENTENCE_BREAK)) {
     const text = raw.replace(/\s+/g, " ").trim();
     if (text.length < MIN_SENTENCE_CHARS || text === chunk.title.trim() || text.replace(/[.:]$/, "") === chunk.title.trim()) continue;
+    // A curated summary line may repeat a sentence of the body word for word; quote it once.
+    if (seen.has(text)) continue;
+    seen.add(text);
     out.push(text.length > MAX_SENTENCE_CHARS ? `${text.slice(0, MAX_SENTENCE_CHARS).replace(/\s+\S*$/, "")}…` : text);
   }
   return out;
@@ -116,7 +120,11 @@ export interface OverviewInput {
   disclaimer: string;
 }
 
-/** One cited point per passage (its opening sentence) under a fixed introduction. Used for general requests for tips. */
+/**
+ * One cited point per passage (its opening sentence) under a fixed introduction. Used for general requests for tips.
+ * A curated document's first chunk opens with its `summary` (see chunkDocument), so that sentence is actionable advice;
+ * passages without a summary (recipes, tips, older chunks) still show their first sentence.
+ */
 export function buildOverviewAnswer({ passages, intro, lang, disclaimer }: OverviewInput): string {
   const points = passages.flatMap((passage, index) => {
     const sentence = sentencesOf(passage)[0];

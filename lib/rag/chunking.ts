@@ -6,6 +6,10 @@ import type { ChunkInput, KnowledgeKind } from "@/lib/rag/types";
 
 export const MAX_CHUNK_CHARS = 900;
 export const CHUNK_OVERLAP_CHARS = 120;
+/** Longest curated `summary` line (one actionable sentence). It is an extra header line of the first chunk and is not counted in MAX_CHUNK_CHARS. */
+export const MAX_SUMMARY_CHARS = 220;
+/** Shortest summary: extractive.ts ignores sentences under 25 characters, so a shorter one would never be shown. */
+export const MIN_SUMMARY_CHARS = 25;
 
 const LANGS: readonly Lang[] = ["ar", "en"];
 
@@ -140,8 +144,11 @@ export function chunkDocument(params: {
   lang: Lang;
   title: string;
   body: string;
+  /** Curated documents only: one actionable sentence placed right after the title of the FIRST chunk (see docs/knowledge-base.md). */
+  summary?: string;
 } & SourceInfo): ChunkInput[] {
   const title = clean(params.title);
+  const summary = params.summary ? sentence(clean(params.summary)) : "";
   // Leave room for the repeated title line.
   const max = Math.max(200, MAX_CHUNK_CHARS - title.length - 1);
   const parts = splitText(params.body, max);
@@ -155,7 +162,8 @@ export function chunkDocument(params: {
     kind: params.kind,
     lang: params.lang,
     title,
-    content: `${title}\n${part}`,
+    // The summary is the first line after the title, so the first sentence of the first chunk is actionable advice.
+    content: i === 0 && summary ? `${title}\n${summary}\n${part}` : `${title}\n${part}`,
     ...source,
   }));
 }
@@ -321,6 +329,35 @@ export interface CuratedDocument {
   sourceName: string;
   sourceUrl: string;
   sourceDate: string;
+  /** Optional: one actionable sentence (25-220 chars) from `content`, shown first in general-tips answers. */
+  summary?: Record<Lang, string>;
+}
+
+/** Arabic letters (not digits or punctuation). */
+const ARABIC_LETTER = /[\u0600-\u06FF]/;
+const LATIN_LETTER = /[A-Za-z]/;
+/** A sentence end followed by more text, or a line break: a summary must be ONE sentence. */
+const INNER_SENTENCE_BREAK = /[.!?؟]\s+\S|\n/;
+
+/** Problems with an optional `summary` field ({ar,en}); the field itself may be absent. */
+function validateSummary(summary: unknown, where: string): string[] {
+  if (!summary || typeof summary !== "object" || Array.isArray(summary)) return [`${where}: summary must be an object with ar and en`];
+  const problems: string[] = [];
+  const value = summary as Record<string, unknown>;
+  for (const lang of LANGS) {
+    const text = value[lang];
+    if (typeof text !== "string" || text.trim().length === 0) {
+      problems.push(`${where}: summary.${lang} is missing`);
+      continue;
+    }
+    const t = text.trim();
+    if (t.length < MIN_SUMMARY_CHARS) problems.push(`${where}: summary.${lang} is shorter than ${MIN_SUMMARY_CHARS} characters`);
+    if (t.length > MAX_SUMMARY_CHARS) problems.push(`${where}: summary.${lang} is longer than ${MAX_SUMMARY_CHARS} characters`);
+    if (INNER_SENTENCE_BREAK.test(t)) problems.push(`${where}: summary.${lang} must be one sentence`);
+    if (lang === "ar" && !ARABIC_LETTER.test(t)) problems.push(`${where}: summary.ar must be written in Arabic`);
+    if (lang === "en" && (!LATIN_LETTER.test(t) || ARABIC_LETTER.test(t))) problems.push(`${where}: summary.en must be written in English`);
+  }
+  return problems;
 }
 
 /** Returns a list of problems (empty = valid). Used by sources.ts and `--dry-run`. */
@@ -340,6 +377,7 @@ export function validateCuratedDocument(doc: unknown, where = "document"): strin
     if (!str(d[field])) problems.push(`${where}: ${field} is missing`);
   }
   if (str(d.sourceUrl) && !/^https:\/\//.test(d.sourceUrl)) problems.push(`${where}: sourceUrl must be https`);
+  if (d.summary !== undefined) problems.push(...validateSummary(d.summary, where));
   return problems;
 }
 
@@ -353,6 +391,7 @@ export function curatedToChunks(doc: CuratedDocument): ChunkInput[] {
         lang,
         title: doc.title[lang],
         body: doc.content[lang],
+        summary: doc.summary?.[lang],
         sourceName: doc.sourceName,
         sourceUrl: doc.sourceUrl,
         sourceDate: doc.sourceDate,

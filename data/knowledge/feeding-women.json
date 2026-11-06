@@ -11,6 +11,10 @@
     },
     "sourceName": "UNICEF - Gaza SMART Survey 2026",
     "sourceUrl": "https://www.unicef.org/sop/media/6801/file/Gaza%20Smart%20Survey%20-%20Executive%20Summary.pdf.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "يمكن للحوامل والمرضعات السؤال عن الفحص والمكملات في أقرب مرفق صحي أو تغذوي.",
+      "en": "Pregnant and breastfeeding women can ask the nearest health or nutrition site about screening and supplements."
+    }
   }
 ]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "complementary-feeding-schedule",
+    "title": {
+      "ar": "التغذية التكميلية: عدد الوجبات والقوام من عمر ستة أشهر",
+      "en": "Complementary feeding: how often and what texture from 6 months"
+    },
+    "content": {
+      "ar": "بحسب صفحة منظمة الصحة العالمية عن التغذية التكميلية، يبدأ الرضيع تناول الأطعمة التكميلية عند بلوغه ستة أشهر مع استمرار الرضاعة الطبيعية. يُقدَّم له الطعام مرتين إلى ثلاث مرات يومياً بين 6 و8 أشهر، ثم ثلاث إلى أربع مرات يومياً بين 9 و11 شهراً وبين 12 و24 شهراً. ويمكن تقديم وجبات خفيفة مغذية إضافية مرة إلى مرتين يومياً للأطفال بين 12 و24 شهراً حسب رغبتهم. ويستطيع الرضيع منذ ستة أشهر تناول الأطعمة المهروسة والمطحونة وشبه الصلبة، على أن يزداد قوام الطعام وتنوعه تدريجياً مع نمو الطفل بما يناسب حاجاته وقدراته.",
+      "en": "According to WHO's page on complementary feeding, infants start receiving complementary foods at 6 months of age while breastfeeding continues. They are fed 2 to 3 times a day between 6 and 8 months, increasing to 3 to 4 times a day between 9 and 11 months and between 12 and 24 months. Additional nutritious snacks can be offered 1 to 2 times a day for ages 12 to 24 months, as desired. From 6 months infants can eat pureed, mashed and semi-solid foods, and the consistency and variety of the food should increase gradually as the child grows, adapting to the child's needs and abilities."
+    },
+    "summary": {
+      "ar": "قدّمي للرضيع الطعام مرتين إلى ثلاث مرات يومياً من عمر ستة أشهر، ثم ثلاث إلى أربع مرات يومياً من عمر تسعة أشهر، مع استمرار الرضاعة الطبيعية.",
+      "en": "Offer a baby food 2 to 3 times a day from 6 months, rising to 3 to 4 times a day from 9 months, while breastfeeding continues."
+    },
+    "sourceName": "WHO",
+    "sourceUrl": "https://www.who.int/health-topics/complementary-feeding",
+    "sourceDate": "accessed 2026-11-06 (via web search summary)"
+  }
+]
