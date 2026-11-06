@@ -9,7 +9,7 @@ sources:
   - code: lib/rag/gemini.ts
   - code: lib/rag/generate.ts
   - raw: docs/assistant-setup.md
-verified_at: d45844d
+verified_at: 0a5c587
 ---
 
 # Free by default assistant

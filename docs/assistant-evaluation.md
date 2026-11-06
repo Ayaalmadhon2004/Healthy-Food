@@ -8,7 +8,7 @@ sources:
   - code: tests/eval/run-live.mjs
   - code: tests/rag-memory.test.js
   - code: tests/rag-embed-missing.test.js
-verified_at: dc98a72
+verified_at: 0a5c587
 ---
 
 # Nutrition assistant: evaluation

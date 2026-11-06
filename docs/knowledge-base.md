@@ -8,7 +8,7 @@ sources:
   - code: lib/rag/chunking.ts
   - code: tests/rag-chunking.test.js
   - code: data/knowledge
-verified_at: 5603716
+verified_at: 0a5c587
 ---
 
 # Knowledge base (RAG)
