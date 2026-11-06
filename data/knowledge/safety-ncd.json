@@ -11,7 +11,11 @@
     },
     "sourceName": "WHO",
     "sourceUrl": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "قِس ضغط الدم، واتبع غذاءً صحياً قليل الملح، وتناول أدويتك كما وُصفت دون تفويت جرعات، واسأل عاملاً صحياً إذا لم تتوفر أدويتك.",
+      "en": "Measure blood pressure, eat a healthy low-salt diet, take medicines as prescribed without missing doses, and ask a health worker if you cannot get your medicine."
+    }
   },
   {
     "id": "safety-diabetes",
@@ -25,6 +29,10 @@
     },
     "sourceName": "WHO",
     "sourceUrl": "https://www.who.int/news-room/fact-sheets/detail/diabetes",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "إذا كنت مصاباً بالسكري فاتبع غذاءً صحياً وتجنّب السكر والدهون المشبعة، واسأل عاملاً صحياً عمّا تفعله إذا لم يتوفر دواؤك.",
+      "en": "If you have diabetes, eat a healthy diet, avoid sugar and saturated fat, and ask a health worker what to do if you cannot get your medicine."
+    }
   }
 ]

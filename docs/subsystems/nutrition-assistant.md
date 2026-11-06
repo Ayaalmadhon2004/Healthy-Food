@@ -12,6 +12,8 @@ sources:
   - code: lib/rag/mode.ts
   - code: lib/rag/language.ts
   - code: lib/rag/overview.ts
+  - code: lib/rag/context.ts
+  - code: lib/rag/synonyms.ts
   - code: tests/rag-store.test.js
   - code: lib/rag/fusion.ts
   - code: lib/rag/normalize.ts
@@ -30,7 +32,7 @@ sources:
   - code: components/assistant/idleTimer.ts
   - code: components/assistant/sseParser.ts
   - code: app/[lang]/assistant/loading.tsx
-verified_at: d45844d
+verified_at: 0a5c587
 ---
 
 # Nutrition assistant (RAG)
@@ -81,12 +83,29 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > delimiter tags after NFKC and zero-width removal; keep that order or fullwidth and invisible-character
 > lookalikes can close the `<context>` block.
 
-> ⚠️ The in-memory retriever's calibration (`relevanceOf` in `lib/rag/memoryIndex.ts`) was measured on 25 answerable
-> and 8 unanswerable questions over the 19 curated documents (`tests/eval/retrieval-cases.json`): top-3 hit 24/25,
-> answerable accepted 92%, unanswerable rejected 88%. The sample is small and the known miss is real: "best protein for
-> muscle building" is accepted because the word "building" appears in a breastfeeding sentence. The n-gram vectors
-> measure shared spelling, not meaning; a truly semantic model is better where it can run. Re-measure after adding
-> recipes, tips and kitchens, and add the new failures to the cases file.
+> ⚠️ The in-memory retriever's calibration (`relevanceOf`, the thin-match guard and the synonym weight in
+> `lib/rag/memoryIndex.ts`) was measured on 59 answerable and 26 unanswerable questions over the 26 curated
+> documents (`tests/eval/retrieval-cases.json`): right document in the top 3 for 59 of 59 and first for 53, 92% of
+> the answerable ones accepted, 88% of the others rejected. The sample is small and some failures are real: three
+> unanswerable questions are still accepted ("best diet to lose belly fat", an asthma question, "build muscle and gain
+> weight fast") because two generic words overlap, and five answerable ones are declined. The n-gram vectors measure
+> shared spelling, not meaning; a truly semantic model is better where it can run. Re-measure after adding recipes,
+> tips and kitchens, and add every new failure to the cases file.
+
+> ⚠️ Thin-match guard (`memoryIndex.ts`): when a question has three or more content terms and a passage covers at most
+> one of them, its score is capped just under `MIN_RELEVANCE` unless the n-gram cosine is strong. That is what rejects
+> "best protein for muscle building" (only "building" matched). Coverage counts typed words plus their synonyms and
+> allows a leading و/ب/ل/ك/ف, otherwise colloquial questions are wrongly declined. A coverage-ratio rule was tried and
+> dropped because it lost real questions.
+
+> ⚠️ Synonyms (`lib/rag/synonyms.ts`) are query-side only, weigh half, and each rule needs a reason and a test. Never map
+> a symptom to a different condition (مغص is not إسهال, نحيف is not سوء التغذية, مسهل is a laxative) and never map a
+> word whose other meaning is common (سكر maps to سكري only next to مريض, مصاب, انسولين, دواء or علاج).
+
+> ⚠️ Follow-ups (`lib/rag/context.ts`): a short question, or one that opens with a cue such as وكم/and/how often, is
+> searched together with the previous USER question. A standalone question (three or more content terms, no cue) is never
+> merged, only the most recent user turn is used and lengths are capped. Triage, the injection scan and the model prompt
+> keep the real current question; only retrieval and the key-less generator see the merged text.
 
 > ⚠️ Generic query words must not count as evidence. Raising `LEXICAL_GAIN` once let a lone "best" in
 > "best protein for muscle building" pull in breastfeeding and chlorine passages, which reads as the
@@ -107,8 +126,9 @@ user or IP, then `runChat` (`lib/rag/chat.ts`) does, in order:
 > ⚠️ `isOverviewRequest` must stay narrow: it needs a guidance word (tips, advice, نصائح...) and NO topic word from
 > `SPECIFIC_WORDS`, and arabic words are compared without their article ("الإسهال" is the topic "اسهال"). Without the
 > article step, "نصائح لعلاج الإسهال" was treated as a general request and answered with the overview instead of the
-> diarrhoea passage. The overview shows each passage's opening sentence, so a document whose first sentence is not
-> advice (for example how MUAC is measured) produces a weak point; write curated documents with the key advice first.
+> diarrhoea passage. The overview shows each passage's opening sentence, so each curated document has an optional
+> `summary` (one actionable sentence taken from its own text) that `chunking.ts` writes as the first line after the title; write
+> it for every new document, otherwise the overview falls back to the document's first sentence.
 
 > ⚠️ The reply language follows the message, not the page (`detectLang` in `lib/rag/language.ts`): more Arabic
 > letters than Latin ones means Arabic. It counts letters only, because the Arabic question mark and Arabic digits sit

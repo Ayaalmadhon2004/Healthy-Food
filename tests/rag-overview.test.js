@@ -71,3 +71,35 @@ test("the overview text uses each passage's opening sentence and drops passages 
   assert.equal(text, "INTRO\n- First real sentence of the first passage. [1]\nCaution: D");
   assert.equal(buildOverviewAnswer({ passages: [], intro: "I", lang: "en", disclaimer: "D" }), "");
 });
+
+test("the overview shows a curated document's summary, not its first (possibly descriptive) sentence", async () => {
+  const { curatedToChunks } = await import("../lib/rag/chunking.ts");
+  const doc = {
+    id: "muac", title: { en: "MUAC", ar: "محيط الذراع" },
+    content: { en: "MUAC is measured with a tape on the left upper arm. If it is below 12.5 cm ask a clinic.", ar: "يقاس المحيط بشريط على الذراع. إذا قل عن 12.5 سم فاسأل العيادة." },
+    summary: { en: "If the arm measurement is below 12.5 cm, ask a clinic for help.", ar: "إذا قل قياس الذراع عن 12.5 سم فاطلب المساعدة من العيادة." },
+    sourceName: "S", sourceUrl: "https://example.org", sourceDate: "d",
+  };
+  const [en] = curatedToChunks(doc).filter((c) => c.lang === "en");
+  const [ar] = curatedToChunks(doc).filter((c) => c.lang === "ar");
+  assert.equal(buildOverviewAnswer({ passages: [{ ...en, id: 1, score: 1 }], intro: "I", lang: "en", disclaimer: "D" }), "I\n- If the arm measurement is below 12.5 cm, ask a clinic for help. [1]\nCaution: D");
+  assert.ok(buildOverviewAnswer({ passages: [{ ...ar, id: 2, score: 1 }], intro: "I", lang: "ar", disclaimer: "D" }).includes("- إذا قل قياس الذراع عن 12.5 سم فاطلب المساعدة من العيادة. [1]"));
+  // Without a summary the first sentence is shown, as before.
+  const [plain] = curatedToChunks({ ...doc, summary: undefined }).filter((c) => c.lang === "en");
+  assert.ok(buildOverviewAnswer({ passages: [{ ...plain, id: 3, score: 1 }], intro: "I", lang: "en", disclaimer: "D" }).includes("- MUAC is measured with a tape"));
+});
+
+test("a summary that repeats a sentence of the body is quoted once", async () => {
+  const { sentencesOf } = await import("../lib/rag/extractive.ts");
+  assert.deepEqual(sentencesOf({ title: "T", content: "T\nBoil the water for one minute.\nBoil the water for one minute.\nThen let the water cool down before drinking." }), ["Boil the water for one minute.", "Then let the water cool down before drinking."]);
+});
+
+test("the topic lists are parallel, cover the new topics and stay within the maximum", () => {
+  const joined = OVERVIEW_TOPICS.en.join(" | ");
+  for (const word of ["formula", "feeding babies from 6 months", "without a fridge", "insulin", "pregnancy"]) assert.ok(joined.includes(word), word);
+  assert.ok(OVERVIEW_MAX_POINTS <= 10 && OVERVIEW_MAX_POINTS >= 6);
+  assert.ok(OVERVIEW_TOPICS.en.length > OVERVIEW_MAX_POINTS, "at least one fallback topic");
+  assert.equal(new Set(OVERVIEW_TOPICS.en).size, OVERVIEW_TOPICS.en.length);
+  assert.equal(new Set(OVERVIEW_TOPICS.ar).size, OVERVIEW_TOPICS.ar.length);
+  assert.ok(OVERVIEW_TOPICS.ar.every((t) => /[؀-ۿ]/.test(t)) && OVERVIEW_TOPICS.en.every((t) => !/[؀-ۿ]/.test(t)));
+});

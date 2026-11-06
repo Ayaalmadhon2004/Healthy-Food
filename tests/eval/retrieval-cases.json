@@ -156,6 +156,219 @@
       "docs": [
         "safety-healthy-diet-variety"
       ]
+    },
+    {
+      "question": "بنتي مسهلة وبدها ماي كتير، شو أعطيها؟",
+      "docs": [
+        "safety-diarrhoea-ors-care"
+      ]
+    },
+    {
+      "question": "كيف بعمل محلول الجفاف للولد؟",
+      "docs": [
+        "safety-diarrhoea-ors-care"
+      ]
+    },
+    {
+      "question": "الماي اللي بنشربها لازم نغليها؟",
+      "docs": [
+        "safety-water-boiling"
+      ]
+    },
+    {
+      "question": "كم دقيقة بغلي الماي عشان تصير نضيفة؟",
+      "docs": [
+        "safety-water-boiling"
+      ]
+    },
+    {
+      "question": "الماي عكرة، كيف بصفيها قبل الشرب؟",
+      "docs": [
+        "safety-water-boiling"
+      ]
+    },
+    {
+      "question": "وين بحط الماي بعد ما أغليها عشان ما تتلوث؟",
+      "docs": [
+        "safety-water-storage",
+        "safety-water-boiling"
+      ]
+    },
+    {
+      "question": "بغسل ايدي بالصابونة ولا بالمعقم؟",
+      "docs": [
+        "safety-hand-hygiene"
+      ]
+    },
+    {
+      "question": "ما في صابون، كيف بنضف ايديّ؟",
+      "docs": [
+        "safety-hand-hygiene"
+      ]
+    },
+    {
+      "question": "الأكل المطبوخ ضل برا الثلاجة طول الليل، بنفع ناكله؟",
+      "docs": [
+        "safety-food-temperature",
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "علبة التونة منفوخة، بآكلها؟",
+      "docs": [
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "اللحمة ضلت بدون كهربا خمس ساعات، برميها؟",
+      "docs": [
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "الجنريتر جوا الخيمة بيضر؟",
+      "docs": [
+        "safety-cooking-carbon-monoxide"
+      ]
+    },
+    {
+      "question": "بطبخ على الحطب جوا الخيمة والدخان كتير، بيأثر عالصدر؟",
+      "docs": [
+        "safety-cooking-smoke"
+      ]
+    },
+    {
+      "question": "ضغط أبوي عالي وخلص الدواء، شو بنعمل؟",
+      "docs": [
+        "safety-hypertension"
+      ]
+    },
+    {
+      "question": "جدي عنده سكر وما في إنسولين، شو أعمل؟",
+      "docs": [
+        "safety-diabetes"
+      ]
+    },
+    {
+      "question": "ابني نحيف كتير، كيف بقيس ذراعه؟",
+      "docs": [
+        "acute-malnutrition-muac-gaza"
+      ]
+    },
+    {
+      "question": "حليبي قليل وبدي أرضع، وين ألاقي مساعدة؟",
+      "docs": [
+        "mother-baby-areas-gaza",
+        "breastfeeding-emergency-gaza",
+        "breastfeeding-unicef-basics"
+      ]
+    },
+    {
+      "question": "كم شهر بنرضع الطفل حليب أمه بس؟",
+      "docs": [
+        "breastfeeding-unicef-basics",
+        "breastfeeding-emergency-gaza"
+      ]
+    },
+    {
+      "question": "وين بلاقي حليب صناعي للبيبي؟",
+      "docs": [
+        "breastmilk-substitutes-gaza"
+      ]
+    },
+    {
+      "question": "كم ملح مسموح باليوم؟",
+      "docs": [
+        "safety-healthy-diet-variety",
+        "safety-hypertension"
+      ]
+    },
+    {
+      "question": "هل في مجاعة بغزة هلأ؟",
+      "docs": [
+        "ipc-gaza-dec-2025-background"
+      ]
+    },
+    {
+      "question": "كم نسبة الأطفال اللي بياكلوا أكل متنوع بغزة؟",
+      "docs": [
+        "child-diet-diversity-gaza-2026"
+      ]
+    },
+    {
+      "question": "my kid has the runs, what do i do",
+      "docs": [
+        "safety-diarrhoea-ors-care"
+      ]
+    },
+    {
+      "question": "do i have to boil the tap water before drinking it",
+      "docs": [
+        "safety-water-boiling"
+      ]
+    },
+    {
+      "question": "how long should i boil water for",
+      "docs": [
+        "safety-water-boiling"
+      ]
+    },
+    {
+      "question": "can i leave cooked rice out overnight",
+      "docs": [
+        "safety-food-temperature",
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "power's been out since morning, should i chuck the chicken",
+      "docs": [
+        "safety-food-when-in-doubt"
+      ]
+    },
+    {
+      "question": "my baby wont feed, where can i get breastfeeding help",
+      "docs": [
+        "mother-baby-areas-gaza",
+        "breastfeeding-emergency-gaza",
+        "breastfeeding-unicef-basics"
+      ]
+    },
+    {
+      "question": "soap or hand sanitizer, which one is better",
+      "docs": [
+        "safety-hand-hygiene"
+      ]
+    },
+    {
+      "question": "is the smoke from my wood stove bad for my lungs",
+      "docs": [
+        "safety-cooking-smoke"
+      ]
+    },
+    {
+      "question": "mum has high blood pressure and ran out of pills",
+      "docs": [
+        "safety-hypertension"
+      ]
+    },
+    {
+      "question": "my dad has diabetes and no insulin",
+      "docs": [
+        "safety-diabetes"
+      ]
+    },
+    {
+      "question": "how do i check if my kid is too skinny",
+      "docs": [
+        "acute-malnutrition-muac-gaza"
+      ]
+    },
+    {
+      "question": "is it ok to run a generator inside the tent",
+      "docs": [
+        "safety-cooking-carbon-monoxide"
+      ]
     }
   ],
   "unanswerable": [
@@ -166,6 +379,24 @@
     "Which vitamin D dose for a toddler?",
     "كيف أصلح سيارتي؟",
     "best football team in the world",
-    "طريقة عمل الكيك"
+    "طريقة عمل الكيك",
+    "ما أفضل بروتين لبناء العضلات؟",
+    "كم جرعة الباراسيتامول للطفل؟",
+    "What dose of ibuprofen can I give my 2 year old?",
+    "شو أحسن نوع سيارة للعيلة؟",
+    "مين فاز بمباراة ريال مدريد البارح؟",
+    "ما هي أعراض السرطان؟",
+    "How do I treat malaria?",
+    "Is Coca-Cola bad for you?",
+    "How many calories in a Big Mac?",
+    "كم سعرة بالشاورما؟",
+    "Best diet to lose belly fat",
+    "وصفة المنسف الأردني",
+    "What is the capital of France?",
+    "How to bake sourdough bread at home",
+    "Should I take creatine supplements?",
+    "هل شوكولاتة نوتيلا صحية؟",
+    "علاج الربو عند الأطفال",
+    "how do i build muscle and gain weight fast"
   ]
 }

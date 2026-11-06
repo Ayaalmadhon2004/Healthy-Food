@@ -11,7 +11,11 @@
     },
     "sourceName": "CDC",
     "sourceUrl": "https://www.cdc.gov/water-emergency/about/index.html",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "اغلِ الماء الصافي حتى يصل إلى غليان متصاعد لمدة دقيقة واحدة، وصفِّ الماء العكر بقطعة قماش أو اتركه يرتاح قبل غليه.",
+      "en": "Bring clear water to a rolling boil for 1 minute, and filter cloudy water through a cloth or let it settle first."
+    }
   },
   {
     "id": "safety-water-storage",
@@ -25,6 +29,10 @@
     },
     "sourceName": "WHO",
     "sourceUrl": "https://cdn.who.int/media/docs/default-source/wash-documents/who-tn-05-emergency-treatment-of-drinking-water-at-the-point-of-use.pdf?sfvrsn=99f943f6_4",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "احفظ الماء في أوعية نظيفة ومغطاة في مكان بارد ومظلم، ويفضّل أن تكون ضيقة الفوهة ذات صنبور أو مصبّ حتى لا تلامس اليد أو الكوب الماء.",
+      "en": "Keep water in clean, covered containers in a cool, dark place, preferably narrow-mouthed with a tap or spout so hands and cups do not touch the water."
+    }
   }
 ]

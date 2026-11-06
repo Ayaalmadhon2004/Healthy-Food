@@ -1,0 +1,20 @@
+[
+  {
+    "id": "pregnancy-healthy-diet",
+    "title": {
+      "ar": "الغذاء الصحي أثناء الحمل",
+      "en": "Healthy eating during pregnancy"
+    },
+    "content": {
+      "ar": "توصي منظمة الصحة العالمية بتقديم المشورة للحوامل حول الأكل الصحي والنشاط البدني للحفاظ على الصحة وتجنب زيادة الوزن المفرطة. يحتوي الغذاء الصحي في الحمل على ما يكفي من الطاقة والبروتين والفيتامينات والمعادن، من خلال أطعمة متنوعة تشمل الخضروات الخضراء والبرتقالية واللحوم والأسماك والبقوليات والمكسرات ومنتجات الألبان المبستَرة والفاكهة. وفي الفئات السكانية التي تعاني نقص التغذية توصي المنظمة أيضاً بالتثقيف الغذائي حول زيادة الطاقة والبروتين المتناولين يومياً لتقليل خطر ولادة أطفال بوزن منخفض. وإذا كنتِ لا تحصلين على غذاء كافٍ فاسألي أقرب مرفق صحي أو تغذوي.",
+      "en": "WHO recommends counselling pregnant women on healthy eating and staying physically active, to stay healthy and avoid excessive weight gain. A healthy diet in pregnancy contains adequate energy, protein, vitamins and minerals, obtained from a variety of foods that include green and orange vegetables, meat, fish, beans, nuts, pasteurized dairy products and fruit. For undernourished populations, WHO also recommends nutrition education on increasing daily energy and protein intake, to reduce the risk of low-birth-weight babies. If you cannot get enough food, ask the nearest health or nutrition site."
+    },
+    "summary": {
+      "ar": "تناولي أطعمة متنوعة أثناء الحمل، مثل الخضروات الخضراء والبرتقالية واللحوم والأسماك والبقوليات والمكسرات ومنتجات الألبان المبستَرة والفاكهة.",
+      "en": "Eat a variety of foods in pregnancy, such as green and orange vegetables, meat, fish, beans, nuts, pasteurized dairy products and fruit."
+    },
+    "sourceName": "WHO (ELENA)",
+    "sourceUrl": "https://www.who.int/tools/elena/interventions/nutrition-counselling-pregnancy",
+    "sourceDate": "accessed 2026-11-06 (via web search summary)"
+  }
+]

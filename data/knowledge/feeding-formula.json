@@ -11,6 +11,10 @@
     },
     "sourceName": "Global Nutrition Cluster - State of Palestine BMS SOP",
     "sourceUrl": "https://www.nutritioncluster.net/sites/nutritioncluster.com/files/2023-12/SOP_BMS_FINAL_PALESTINE_0.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "إذا كان رضيعك لا يرضع، فاطلبي تقييماً من العاملين في التغذية.",
+      "en": "If your baby is not breastfed, ask nutrition workers for an assessment."
+    }
   }
 ]

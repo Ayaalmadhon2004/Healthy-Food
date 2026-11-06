@@ -1,0 +1,20 @@
+[
+  {
+    "id": "dry-food-storage-usda",
+    "title": {
+      "ar": "حفظ الأرز والدقيق والأطعمة الجافة والمعلبات",
+      "en": "Storing rice, flour, pasta and canned food"
+    },
+    "content": {
+      "ar": "تنصح دائرة سلامة الأغذية في وزارة الزراعة الأمريكية (USDA) بحفظ الأطعمة المعلبة وسائر المنتجات القابلة للتخزين في حرارة الغرفة، مثل الأرز والدقيق والمعكرونة، في مكان بارد وجاف. ولا يجوز وضعها فوق الموقد أو بجانبه، ولا تحت المغسلة، ولا في مرآب أو قبو رطب. ويعطي جدول التخزين لديها مدة صلاحية قدرها سنتان للأرز والمعكرونة الجافة. وهذه إرشادات عامة غير خاصة بغزة، ولا تشرح كيف يُعرف فساد الدقيق أو الأرز؛ وفي حال الشك في سلامة طعام فارجعوا إلى قاعدة «عند الشك تخلّص منه».",
+      "en": "The US Department of Agriculture's Food Safety and Inspection Service advises storing canned foods and other shelf-stable products, such as rice, flour and pasta, in a cool, dry place. They should never be put above or beside the stove, under the sink, or in a damp garage or basement. Its storage chart gives a shelf life of 2 years for rice and dried pasta. This is general guidance, not specific to Gaza, and it does not explain how to recognise spoiled flour or rice; when in doubt about the safety of a food, follow the rule \"when in doubt, throw it out\"."
+    },
+    "summary": {
+      "ar": "احفظ الأرز والدقيق وغيرهما من الأطعمة الجافة في مكان بارد وجاف، وليس بجانب الموقد أو تحت المغسلة أو في قبو رطب.",
+      "en": "Store rice, flour and other shelf-stable foods in a cool, dry place, never beside the stove, under the sink or in a damp basement."
+    },
+    "sourceName": "USDA FSIS",
+    "sourceUrl": "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/shelf-stable-food",
+    "sourceDate": "accessed 2026-11-06 (via web search summary)"
+  }
+]

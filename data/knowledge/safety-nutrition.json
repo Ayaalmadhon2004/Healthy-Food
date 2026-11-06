@@ -11,6 +11,10 @@
     },
     "sourceName": "WHO",
     "sourceUrl": "https://www.who.int/news-room/fact-sheets/detail/healthy-diet",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "تناول أنواعاً متنوعة من الأطعمة كل يوم، تشمل الخضر والفواكه والبقوليات مثل العدس والفول والمكسرات والحبوب الكاملة.",
+      "en": "Eat a variety of foods every day, including vegetables, fruit, legumes such as lentils and beans, nuts and whole grains."
+    }
   }
 ]

@@ -11,7 +11,11 @@
     },
     "sourceName": "WHO",
     "sourceUrl": "https://www.afro.who.int/sites/default/files/2017-06/fan_5keys_en%20%282%29.pdf",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "لا تترك الطعام المطبوخ في حرارة الغرفة أكثر من ساعتين، وأبقِه ساخناً جداً (فوق 60 درجة مئوية) حتى تقديمه.",
+      "en": "Do not leave cooked food at room temperature for more than 2 hours, and keep it piping hot (above 60 C) until served."
+    }
   },
   {
     "id": "safety-food-when-in-doubt",
@@ -25,6 +29,10 @@
     },
     "sourceName": "CDC",
     "sourceUrl": "https://www.cdc.gov/food-safety/foods/keep-food-safe-after-emergency.html",
-    "sourceDate": "accessed 2026-11-04 (via web search summary)"
+    "sourceDate": "accessed 2026-11-04 (via web search summary)",
+    "summary": {
+      "ar": "عند الشك تخلّص من الطعام: ارمِ الأطعمة القابلة للتلف إذا بقيت 4 ساعات أو أكثر دون كهرباء أو مصدر تبريد، والعلب المنتفخة أو المفتوحة أو التالفة.",
+      "en": "When in doubt, throw it out: discard perishable food left 4 hours or more without power or a cold source, and cans that are bulging, open or damaged."
+    }
   }
 ]

@@ -2,13 +2,13 @@
 title: Knowledge base: adding and verifying documents
 type: operation
 created: 2026-11-04
-updated: 2026-11-04
+updated: 2026-11-06
 sources:
   - code: scripts/ingest-knowledge.ts
   - code: lib/rag/chunking.ts
   - code: tests/rag-chunking.test.js
   - code: data/knowledge
-verified_at: 5603716
+verified_at: 0a5c587
 ---
 
 # Knowledge base (RAG)
@@ -63,11 +63,28 @@ Create or edit a JSON file in `data/knowledge/` (one file per topic): an array o
   "content": { "ar": "...", "en": "..." },
   "sourceName": "WHO",
   "sourceUrl": "https://...",
-  "sourceDate": "date exactly as shown on the page"
+  "sourceDate": "date exactly as shown on the page",
+  "summary": { "ar": "...", "en": "..." }
 }
 ```
 
 Rules: `id` is a unique lowercase slug and is the stable key, do not rename it. Both languages are required (Modern Standard Arabic). `sourceUrl` must be https. Run `npm run ingest -- --dry-run` before committing; it reports every problem.
+
+### Write a summary (optional field, expected for every document)
+
+The "general tips" overview (`lib/rag/overview.ts`, `buildOverviewAnswer`) shows ONE sentence per topic: the first sentence of the best passage. For a document that opens with a description (for example how MUAC is measured) that sentence is not advice. `summary` fixes this without any schema change: `chunkDocument` writes it as the line right after the title of the document's FIRST chunk (per language), so `sentencesOf(chunk)[0]` returns it. Later chunks of a long document do not repeat it, and it is an extra header line that is not counted in `MAX_CHUNK_CHARS`. Existing rows are only updated when `npm run ingest` is run again.
+
+Rules (checked by `validateCuratedDocument` and `tests/rag-contracts.test.js`):
+
+- One sentence, 25 to 220 characters, ending with `. ! ? ؟` (no sentence end in the middle, no line break; decimals such as `12.5` are fine). `summary.ar` must contain Arabic letters, `summary.en` must contain Latin letters and no Arabic.
+- One actionable sentence: what the reader should do or keep in mind ("Make each feed fresh...", "If the MUAC is below 12.5 cm, ask a clinic..."), not a description of the source or a statistic.
+- Worded strictly from the document's own `content`: no new fact, number or advice. The contract test requires at least 70% of the summary's words to occur in the title and content of the same language.
+- Dated background (surveys, IPC) gets a summary that points to the live source ("check the IPC website...") instead of repeating old numbers.
+- If the summary repeats a sentence of the content word for word, `sentencesOf` quotes it only once.
+
+### Overview topics
+
+`OVERVIEW_TOPICS` (en and ar, same topic at the same index) lists the queries asked for a general request. `chat.ts` keeps the first `OVERVIEW_MAX_POINTS` (9) topics that found a passage, so the ORDER is the priority and the last topics (hand washing, dietary variety) are only fallbacks. When adding a topic, word the query like the document's title and summary, add it in both languages and keep a test in `tests/rag-overview.test.js` that names it.
 
 ## Source policy
 
@@ -104,6 +121,22 @@ The 2026-11-04 batch (19 documents, `data/knowledge/feeding-*.json` and `safety-
 - Several documents are dated background (surveys, IPC snapshots) and say so in their text; they are not current facts.
 - General emergency guidance (water, hand hygiene, food safety, carbon monoxide) comes from CDC and WHO pages and is not Gaza-specific.
 - Left out on purpose: medication or supplement doses, home-made ORS amounts, chlorine quantities, case counts and recovery rates that could not be tied to a dated page, and anything from non-official hosts.
-- Not covered (no source found): preparing formula with limited water or fuel, practical complementary-feeding advice for 6-24 months, storing flour/rice/lentils without a fridge, stretching staples, insulin storage, fuel-saving cooking, warning-sign lists for malnutrition.
+- Not covered (no source found): stretching staples, fuel-saving cooking, warning-sign lists for malnutrition (the gaps below were partly closed on 2026-11-06).
 
 When who.int, unicef.org and reliefweb.int are reachable, re-verify each document against its page, fix the `sourceDate`, and fill the gaps above.
+
+## Gap documents added 2026-11-06 (`data/knowledge/gap-*.json`)
+
+Collected the same way (web search summaries only; `sourceDate` reads "accessed 2026-11-06 (via web search summary)"). Every one has a `summary`, and so do the 19 earlier documents (their text is unchanged).
+
+| Document id | Source | What it says |
+| --- | --- | --- |
+| `formula-safe-preparation` | WHO powdered infant formula guidelines (who.int) | powder is not sterile; make each feed fresh; no fridge means no feeds in advance; discard leftovers after two hours |
+| `complementary-feeding-schedule` | WHO complementary feeding page (who.int) | start at 6 months with breastfeeding continuing; meals per day by age; textures |
+| `complementary-feeding-guideline` | WHO 2023 complementary feeding guideline (who.int) | diverse diet, animal source foods daily, responsive feeding |
+| `insulin-storage-medlineplus` | MedlinePlus Medical Encyclopedia | unopened vs opened insulin, temperatures, 28 days, product differences |
+| `pregnancy-healthy-diet` | WHO ELENA (who.int) | foods for a healthy diet in pregnancy; nutrition education in undernourished populations |
+| `breastfeeding-women-micronutrients-unicef` | UNICEF (Arabic maternal nutrition page) | supplements for breastfeeding women exist; ask a health worker, no amounts |
+| `dry-food-storage-usda` | USDA FSIS shelf-stable food page | where to keep rice, flour, pasta, cans; general, not Gaza-specific, no spoilage signs |
+
+Still uncovered or only partly covered: fuel-saving cooking (no official text found), iron and vitamin A/D through food (no official text found; only the UNICEF supplement statement above), how to recognise spoiled flour, rice and lentils, a WHO/IDF statement on insulin without refrigeration (the only hit was an MSF study, not used), and the cup-feeding steps of the WHO leaflet. The salt limit (under 5 g a day for adults) is already in `safety-healthy-diet-variety`.
